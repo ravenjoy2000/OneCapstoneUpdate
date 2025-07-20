@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1071465062452",
+    "project_id": "mediconnectravenproejct",
+    "storage_bucket": "mediconnectravenproejct.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071465062452:android:b1916933118e23e9086a61",
+        "android_client_info": {
+          "package_name": "com.example.mediconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA09PNTDW-1mU14lbK8PNZBiEtyd_N6Czg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
