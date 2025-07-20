@@ -83,7 +83,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         when(item.itemId) {
             R.id.nav_my_profile -> {
-                showCustomToast("My Profile") // Ipakita ang toast kapag pinindot ang My Profile
+                startActivity(Intent(this, MyProfileActivity::class.java)) // Buksan ang MyProfileActivity
             }
 
             R.id.nav_sign_out -> {
