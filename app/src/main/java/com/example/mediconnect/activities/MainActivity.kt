@@ -2,8 +2,11 @@
 package com.example.mediconnect.activities
 
 // Import ng mga Android at Firebase tools na kailangan
+import android.app.Activity
+import android.app.ComponentCaller
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.activity.addCallback
@@ -18,6 +21,10 @@ import com.google.firebase.auth.FirebaseAuth
 
 // MainActivity na gumagamit ng navigation drawer, toolbar, at user info display
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    companion object{
+        const val MY_PROFILE_REQUEST_CODE : Int = 11
+    }
 
     // Lifecycle method: tinatawag kapag nagbubukas ang activity
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +42,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         backPressDispatcher() // Tawagin ang function na magha-handle ng custom back behavior (double back to exit)
 
-        FireStoreClass().singInUser(this) // Kumuha ng user data at i-update ang UI
+        FireStoreClass().loadUserData(this) // Kumuha ng user data at i-update ang UI
     }
 
     // ➤ Setup para sa toolbar at drawer toggle icon (hamburger menu)
@@ -77,13 +84,24 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
+        super.onActivityResult(requestCode, resultCode, data, caller)
+        if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
+            FireStoreClass().loadUserData(this)
+        }else{
+            Log.e("Cancelled", "Cancelled")
+        }
+    }
+
+
     // ➤ Function na nagha-handle kapag may pinili sa navigation drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val drawerLayout = findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout)
 
         when(item.itemId) {
             R.id.nav_my_profile -> {
-                startActivity(Intent(this, MyProfileActivity::class.java)) // Buksan ang MyProfileActivity
+                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE) // Buksan ang MyProfileActivity
             }
 
             R.id.nav_sign_out -> {
@@ -102,6 +120,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         return true // Ibalik ang true para sabihing na-handle na ang click
     }
+
+
+
+
+
 
     // ➤ Ipakita ang user profile (image at name) sa navigation drawer
     fun updateNavigationUserDetails(user: User) {
