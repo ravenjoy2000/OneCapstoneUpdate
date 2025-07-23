@@ -15,4 +15,7 @@ object Constants {
 
     // 🔸 Constant para sa field name ng mobile number ng user
     const val MOBILE: String = "mobile"
+
+    const val GOVERNMENT_OR_PHILHEALTH_ID = "goverment_or_phealtID"
+
 }

@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +38,11 @@ class MyProfileActivity : BaseActivity() {
 
     private var mSelectedImageFileUri = Uri.EMPTY
     private var mProfileImageURL : String = ""
+
+    private var mSelectedPhilHealthImageUri: Uri = Uri.EMPTY
+    private var mPhilIdGovermentImageURL: String = ""
+
+
 
     private lateinit var mUserDetails: User
 
@@ -77,6 +83,23 @@ class MyProfileActivity : BaseActivity() {
 
 
 
+        val btnChangePhilId = findViewById<Button>(R.id.btn_change_philhealth_id)
+        btnChangePhilId.setOnClickListener {
+            val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+
+            if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+                showPhilHealthImageChooser()
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(permission), READ_STORAGE_PERMISSION_CODE)
+            }
+        }
+
+
+
 
 
         //####BTN UPDATE####
@@ -87,14 +110,20 @@ class MyProfileActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            if (mSelectedImageFileUri != Uri.EMPTY){
+            if (mSelectedImageFileUri != Uri.EMPTY) {
                 uploadUserImage()
-            }else{
-                showProgressDialog(resources.getString(R.string.please_wait))
+            } else if (mSelectedPhilHealthImageUri != Uri.EMPTY) {
+                uploadPhilHealthImage()
+            } else {
+                showProgressDialog("Please wait...")
                 updateUserProfileData()
-
             }
         }
+
+
+
+
+
 
 
 
@@ -103,6 +132,12 @@ class MyProfileActivity : BaseActivity() {
     }// End of onCreate()
 
 
+
+
+    private fun showPhilHealthImageChooser() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, 1001) // Use a separate request code
+    }
 
 
 
@@ -160,26 +195,52 @@ class MyProfileActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        if (resultCode == RESULT_OK && data?.data != null) {
+            val selectedUri = data.data!!
 
-        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQUEST_CODE && data!!.data != null){
-            mSelectedImageFileUri = data.data!!
+            when (requestCode) {
+                PICK_IMAGE_REQUEST_CODE -> {
+                    mSelectedImageFileUri = selectedUri
+                    Glide.with(this).load(selectedUri)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_user_place_holder)
+                        .into(findViewById(R.id.iv_profile_user_image))
+                }
 
-            try{
-                Glide
-                    .with(this@MyProfileActivity) // Context: itong activity
-                    .load(mSelectedImageFileUri) // I-load ang image URL ng user
-                    .centerCrop() // I-crop ang image para kumasya nang maayos sa ImageView
-                    .placeholder(R.drawable.ic_user_place_holder) // Temporary placeholder image habang naglo-load pa
-                    .into(findViewById(R.id.iv_profile_user_image)) // Ipasok ang image sa ImageView na may ID na 'iv_user_image'
-            }catch (e: IOException){
-                e.printStackTrace()
+                1001 -> {
+                    mSelectedPhilHealthImageUri = selectedUri
+                    Glide.with(this).load(selectedUri)
+                        .centerCrop()
+                        .into(findViewById(R.id.change_philhealth_id_preview))
+                }
             }
         }
-
     }
+
     //------------------------------End----------------------------------
 
 
+
+    private fun uploadPhilHealthImage() {
+        showProgressDialog("Please wait...")
+
+        if (mSelectedPhilHealthImageUri != Uri.EMPTY) {
+            val sRef = FirebaseStorage.getInstance().reference.child(
+                "PHILHEALTH_ID_" + System.currentTimeMillis() + "." +
+                        getFileExtension(mSelectedPhilHealthImageUri)
+            )
+
+            sRef.putFile(mSelectedPhilHealthImageUri).addOnSuccessListener {
+                it.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    mPhilIdGovermentImageURL = uri.toString()
+                    sendImageToFirestore()
+                }
+            }.addOnFailureListener { e ->
+                hideProgressDialog()
+                Toast.makeText(this, "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
 
@@ -202,6 +263,9 @@ class MyProfileActivity : BaseActivity() {
         // I-set ang user's name sa EditText field na may ID na 'et_name'
         findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_name).setText(user.name)
 
+        // I-set ang user's username sa EditText field na may ID na 'et_username'
+        findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_username).setText(user.username)
+
         // I-set ang user's email sa EditText field na may ID na 'et_email'
         findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_email).setText(user.email)
 
@@ -222,6 +286,18 @@ class MyProfileActivity : BaseActivity() {
             findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_mobile)
                 .setText(formattedMobile)
         }
+
+
+        // ✅ Show PhilHealth ID image if exists
+        val philHealthImageView = findViewById<ImageView>(R.id.change_philhealth_id_preview)
+        if (user.goverment_or_phealtID.isNotEmpty()) {
+            Glide.with(this)
+                .load(user.goverment_or_phealtID)
+                .placeholder(R.drawable.cuteperson) // Optional: default image
+                .into(philHealthImageView)
+        }
+
+
     }
 
 
@@ -331,6 +407,26 @@ class MyProfileActivity : BaseActivity() {
         setResult(Activity.RESULT_OK)
         finish()
     }
+
+    private fun sendImageToFirestore() {
+        val userHashMap = HashMap<String, Any>()
+        var anyChangeMade = false
+
+
+        if (mPhilIdGovermentImageURL.isNotEmpty()) {
+
+            userHashMap[Constants.GOVERNMENT_OR_PHILHEALTH_ID] = mPhilIdGovermentImageURL
+            anyChangeMade = true
+        }
+
+        if (anyChangeMade) {
+            Log.d("UpdateDebug", "Updating PhilHealth ID fields: $userHashMap")
+            FireStoreClass().updateUserProfileData(this, userHashMap)
+        } else {
+            Toast.makeText(this, "No changes were made.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     //--------------------------End-----------------------------------------
 
 
