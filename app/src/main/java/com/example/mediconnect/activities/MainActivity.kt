@@ -1,7 +1,7 @@
-// Package kung saan nakalagay ang MainActivity
+// Package declaration for MainActivity
 package com.example.mediconnect.activities
 
-// Import ng mga Android at Firebase tools na kailangan
+// Import necessary Android and Firebase components
 import android.app.Activity
 import android.app.ComponentCaller
 import android.content.Intent
@@ -11,7 +11,9 @@ import android.view.MenuItem
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.example.mediconnect.R
 import com.example.mediconnect.firebase.FireStoreClass
@@ -19,122 +21,129 @@ import com.example.mediconnect.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 
-// MainActivity na gumagamit ng navigation drawer, toolbar, at user info display
+/**
+ * MainActivity handles navigation drawer, toolbar setup, user information display,
+ * and activity navigation (like MyProfile and SignOut).
+ */
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    companion object{
-        const val MY_PROFILE_REQUEST_CODE : Int = 11
+    companion object {
+        const val MY_PROFILE_REQUEST_CODE: Int = 11
     }
 
-    // Lifecycle method: tinatawag kapag nagbubukas ang activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge() // Make layout fullscreen (edge-to-edge)
+        setContentView(R.layout.activity_main) // Set content view to main layout
 
-        enableEdgeToEdge() // Ginagawang fullscreen o edge-to-edge ang layout
+        setupActionBar() // Setup toolbar and drawer icon
+        setupNavigationDrawer() // Handle drawer menu interactions
+        handleBackPressBehavior() // Handle custom back press behavior
 
-        setContentView(R.layout.activity_main) // I-set ang layout file na gagamitin
-
-        setupActionBar() // Tawagin ang function para isetup ang Toolbar with drawer
-
-        val navigationView = findViewById<NavigationView>(R.id.nav_view) // Kunin ang NavigationView
-
-        navigationView.setNavigationItemSelectedListener(this) // I-set kung sino ang magha-handle ng menu click (ito ay 'this')
-
-        backPressDispatcher() // Tawagin ang function na magha-handle ng custom back behavior (double back to exit)
-
-        FireStoreClass().loadUserData(this) // Kumuha ng user data at i-update ang UI
+        // Load user data and update UI in drawer
+        FireStoreClass().loadUserData(this)
     }
 
-    // ➤ Setup para sa toolbar at drawer toggle icon (hamburger menu)
+    /**
+     * Sets up toolbar and drawer menu icon (hamburger icon)
+     */
     private fun setupActionBar() {
-        setSupportActionBar(findViewById(R.id.toolbar_main_activity)) // Gamitin ang toolbar bilang ActionBar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar_main_activity)
+        setSupportActionBar(toolbar)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Ipakita ang ← (back/up) button
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu)
+        }
 
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu) // Palitan ang icon ng drawer menu
-
-        val toolbar_main_activity = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar_main_activity)
-
-        toolbar_main_activity.setNavigationOnClickListener {
-            toggleDrawer() // Tawagin ang function para buksan/sarhan ang drawer
+        toolbar.setNavigationOnClickListener {
+            toggleDrawer()
         }
     }
 
-    // ➤ Buksan o isara ang drawer depende sa current state
+    /**
+     * Open or close drawer depending on its current state
+     */
     private fun toggleDrawer() {
-        val drawerLayout = findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout)
-
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START) // Kung bukas, isara
+            drawerLayout.closeDrawer(GravityCompat.START)
         } else {
-            drawerLayout.openDrawer(GravityCompat.START) // Kung sarado, buksan
+            drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
-    // ➤ Custom na behavior kapag pinindot ang back button (gamit ang back press dispatcher)
-    private fun backPressDispatcher() {
+    /**
+     * Handle custom back button behavior to support double back press
+     */
+    private fun handleBackPressBehavior() {
         onBackPressedDispatcher.addCallback(this) {
-            val drawerLayout = findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout)
-
+            val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START) // Kung bukas ang drawer, isara ito
+                drawerLayout.closeDrawer(GravityCompat.START)
             } else {
-                doubleBackToExit() // Kung hindi bukas, gamitin ang double back exit
+                doubleBackToExit()
             }
         }
     }
 
+    /**
+     * Set navigation item click listener
+     */
+    private fun setupNavigationDrawer() {
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+    }
 
+    /**
+     * Handle result from MyProfileActivity
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
         super.onActivityResult(requestCode, resultCode, data, caller)
         if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
             FireStoreClass().loadUserData(this)
-        }else{
+        } else {
             Log.e("Cancelled", "Cancelled")
         }
     }
 
-
-    // ➤ Function na nagha-handle kapag may pinili sa navigation drawer
+    /**
+     * Handle navigation item selection events
+     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val drawerLayout = findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout)
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
 
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.nav_my_profile -> {
-                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE) // Buksan ang MyProfileActivity
+                // Open MyProfileActivity
+                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
 
             R.id.nav_sign_out -> {
-                FirebaseAuth.getInstance().signOut() // I-log out ang user
+                // Sign out user and return to IntroActivity
+                FirebaseAuth.getInstance().signOut()
 
-                val intent = Intent(this, IntroActivity::class.java) // Bumalik sa Intro screen
-
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK) // Linisin ang backstack
-
-                startActivity(intent) // Buksan ang IntroActivity
-                finish() // I-close ang MainActivity
+                val intent = Intent(this, IntroActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                finish()
             }
         }
 
-        drawerLayout.closeDrawer(GravityCompat.START) // Isara ang drawer pagkatapos mag-click
-
-        return true // Ibalik ang true para sabihing na-handle na ang click
+        drawerLayout.closeDrawer(GravityCompat.START) // Always close drawer
+        return true
     }
 
-
-
-
-
-
-    // ➤ Ipakita ang user profile (image at name) sa navigation drawer
+    /**
+     * Display user details (image and name) in the navigation drawer
+     */
     fun updateNavigationUserDetails(user: User) {
-        Glide.with(this) // Gamitin ang Glide para mag-load ng image
-            .load(user.image) // Kunin ang image URL
-            .centerCrop() // I-center at crop ang image para hindi ma-stretch
-            .placeholder(R.drawable.ic_user_place_holder) // Placeholder habang naglo-load
-            .into(findViewById(R.id.iv_user_image)) // I-load sa ImageView na may id = iv_user_image
+        Glide.with(this)
+            .load(user.image)
+            .centerCrop()
+            .placeholder(R.drawable.ic_user_place_holder)
+            .into(findViewById(R.id.iv_user_image))
 
-        val tv_usernames = findViewById<TextView>(R.id.tv_username) // Kunin ang TextView para sa pangalan
-        tv_usernames.text = user.name // I-set ang text ng username
+        findViewById<TextView>(R.id.tv_username).text = user.name
     }
 }
