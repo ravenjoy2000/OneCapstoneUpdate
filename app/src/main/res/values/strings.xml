@@ -16,7 +16,6 @@
     <string name="confirm_password">Confirm password</string>"
 
 
-
     <string name="password">Password</string>
     <string name="email">Email</string>
 
@@ -26,6 +25,8 @@
     <string name="please_wait">Please Wait&#8230;</string>
 
     <string name="nav_my_profile">My Profile</string>
+    <string name="nav_my_appointment">My Appointment</string>
+    <string name="nav_my_appointment_history">My Appointment History</string>
     <string name="nav_sign_out">Sign Out</string>
 
     <string name="mobile">Mobile</string>
@@ -33,5 +34,7 @@
     <string name="my_profile_title">My Profile</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="my_appointment_title">My Appointment </string>
 
 </resources>

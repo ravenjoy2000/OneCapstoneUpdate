@@ -14,12 +14,8 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.BODY_SENSORS" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -31,15 +27,26 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar.">
         <activity
+            android:name=".activities.AppointmentHistoryUser"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MyAppointment"
+            android:exported="false" />
+        <activity
+            android:name=".activities.appointment"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
             android:name=".activities.MyProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar."/>
+            android:theme="@style/AppTheme.NoActionBar." />
         <activity
             android:name=".activities.BaseActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar."/>
+            android:theme="@style/AppTheme.NoActionBar." />
         <activity
             android:name=".activities.SignInActivity"
             android:exported="false"

@@ -11,6 +11,18 @@
         />
 
         <item
+            android:id="@+id/nav_my_appointment"
+            android:title="@string/nav_my_appointment"
+            android:icon="@drawable/appointment"
+            />
+
+        <item
+            android:id="@+id/nav_my_appointment_history"
+            android:title="@string/nav_my_appointment_history"
+            android:icon="@drawable/nav_my_appointment_history"
+            />
+
+        <item
             android:id="@+id/nav_sign_out"
             android:title="@string/nav_sign_out"
             android:icon="@drawable/ic_nav_sign_out"

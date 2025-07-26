@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
@@ -28,7 +29,9 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     companion object {
-        const val MY_PROFILE_REQUEST_CODE: Int = 11
+        private val MY_PROFILE_REQUEST_CODE = 101
+        private val MY_APPOINTMENT_REQUEST_CODE = 102
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,24 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         // Load user data and update UI in drawer
         FireStoreClass().loadUserData(this)
+
+        val bookNowBtn = findViewById<Button>(R.id.btn_book_now)
+        bookNowBtn.setOnClickListener {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+
+            checkIfUserHasActiveAppointment(userId) { hasActive ->
+                if (hasActive) {
+                    bookNowBtn.isEnabled = false
+                    bookNowBtn.text = "You already have an appointment"
+                } else {
+                    // Go to Appointment Booking
+                    val intent = Intent(this, appointment::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
+
+
     }
 
     /**
@@ -115,24 +136,35 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         when (item.itemId) {
             R.id.nav_my_profile -> {
-                // Open MyProfileActivity
-                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
+                val intent = Intent(this, MyProfileActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_my_appointment -> {
+                val intent = Intent(this, MyAppointment::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_my_appointment_history -> {
+                val intent = Intent(this, AppointmentHistoryUser::class.java)
+                startActivity(intent)
             }
 
             R.id.nav_sign_out -> {
-                // Sign out user and return to IntroActivity
                 FirebaseAuth.getInstance().signOut()
 
                 val intent = Intent(this, IntroActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
                 finish()
             }
         }
 
-        drawerLayout.closeDrawer(GravityCompat.START) // Always close drawer
+        drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
+
 
     /**
      * Display user details (image and name) in the navigation drawer
@@ -146,4 +178,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         findViewById<TextView>(R.id.tv_username).text = user.name
     }
+
+
+    private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        db.collection("appointments")
+            .whereEqualTo("patientId", userId)
+            .whereIn("status", listOf("booked", "rescheduled_once"))
+            .get()
+            .addOnSuccessListener { documents ->
+                onResult(!documents.isEmpty)
+            }
+            .addOnFailureListener {
+                onResult(false) // Assume no active appointment on failure
+            }
+    }
+
+
+
 }

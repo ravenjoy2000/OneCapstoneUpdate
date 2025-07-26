@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activities.appointment">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_appointment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        />
+
+
+
+    <!-- Content -->
+    <ScrollView
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Date Picker -->
+            <Button
+                android:id="@+id/btn_select_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Appointment Date" />
+
+            <TextView
+                android:id="@+id/tv_selected_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Selected Date: None"
+                android:paddingTop="8dp"
+                android:textStyle="bold" />
+
+            <!-- Appointment Mode -->
+            <RadioGroup
+                android:id="@+id/rg_appointment_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="8dp">
+
+                <RadioButton
+                    android:id="@+id/rb_in_person"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="In-person" />
+
+                <RadioButton
+                    android:id="@+id/rb_teleconsult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Teleconsultation" />
+            </RadioGroup>
+
+            <!-- Doctor Name -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Doctor:"
+                android:paddingTop="12dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_doctor_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dr. Pineda" />
+
+            <!-- Location -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Location:"
+                android:paddingTop="12dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pineda Medical Clinic, Manila" />
+
+            <!-- Notes -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Note:"
+                android:paddingTop="12dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Please bring your PhilHealth ID and medical records." />
+
+            <!-- Time Slot List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_time_slots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" />
+
+
+            <!-- Reason for Appointment -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reason for Appointment:"
+                android:paddingTop="12dp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="E.g. General Checkup, Flu symptoms, Follow-up..."
+                android:inputType="textMultiLine"
+                android:minLines="2"
+                android:maxLines="4"
+                android:padding="12dp"
+                android:background="@android:drawable/edit_text"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Book Now Button -->
+            <Button
+                android:id="@+id/btn_book_now"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Book Now"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/dark_gray"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
