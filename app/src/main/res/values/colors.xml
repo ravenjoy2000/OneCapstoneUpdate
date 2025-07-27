@@ -19,7 +19,9 @@
     <color name="red">#F44336</color>
     <color name="green">#4CAF50</color>
     <color name="teal_700">#018786</color>
-
+    <color name="fully_booked_red">#FFCDD2</color>
+    <color name="doctor_day_off_gray">#BDBDBD</color>
+    <color name="link_color">#F8BBD0</color>
 
 
 

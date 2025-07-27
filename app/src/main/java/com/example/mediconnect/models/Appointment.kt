@@ -2,6 +2,7 @@ package com.example.mediconnect.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import java.util.Date
 
 data class Appointment(
     val doctorName: String = "",
@@ -10,16 +11,20 @@ data class Appointment(
     val time: String = "",
     val mode: String = "",
     val location: String = "",
-    val note: String = ""
+    val note: String = "",
+    val reason: String = "",       // NEW: reason for appointment
+    val bookedAt: Date? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: ""
+        doctorName = parcel.readString() ?: "",
+        status = parcel.readString() ?: "",
+        date = parcel.readString() ?: "",
+        time = parcel.readString() ?: "",
+        mode = parcel.readString() ?: "",
+        location = parcel.readString() ?: "",
+        note = parcel.readString() ?: "",
+        reason = parcel.readString() ?: "",
+        bookedAt = parcel.readSerializable() as? Date
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -30,6 +35,8 @@ data class Appointment(
         parcel.writeString(mode)
         parcel.writeString(location)
         parcel.writeString(note)
+        parcel.writeString(reason)
+        parcel.writeSerializable(bookedAt)
     }
 
     override fun describeContents(): Int = 0

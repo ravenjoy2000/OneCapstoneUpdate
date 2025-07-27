@@ -13,6 +13,7 @@ data class Booking(
     val timestamp: Long = System.currentTimeMillis(), // Time the booking was created
     val reason: String = ""
 
+
 ) : Parcelable {
 
     // Constructor to recreate Booking from Parcel

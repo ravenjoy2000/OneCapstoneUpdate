@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FAFAFA"
     tools:context=".activities.appointment">
 
     <!-- Toolbar -->
@@ -13,14 +15,10 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        />
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-
-
-    <!-- Content -->
+    <!-- Main Content -->
     <ScrollView
-        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -31,11 +29,58 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Date Picker -->
+            <!-- Doctor Info -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Doctor Information"
+                android:layout_marginBottom="16dp"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:paddingTop="8dp"
+                android:textColor="#222" />
+
+            <TextView
+                android:id="@+id/tv_doctor_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Maria Pineda"
+                android:textSize="16sp"
+                android:textColor="#333" />
+
+            <TextView
+                android:id="@+id/tv_doctor_contact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact: +63 912 345 6789"
+                android:textSize="14sp"
+                android:textColor="#444" />
+
+            <TextView
+                android:id="@+id/tv_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clinic: Pineda Medical Clinic, Sampaloc, Manila"
+                android:textSize="14sp"
+                android:textColor="#444"
+                android:paddingBottom="8dp" />
+
+            <!-- Map Preview -->
+            <ImageView
+                android:id="@+id/img_map"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/penediamap"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/map_border" />
+
+            <!-- Select Date -->
             <Button
                 android:id="@+id/btn_select_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#FDD335"
                 android:text="Select Appointment Date" />
 
             <TextView
@@ -52,62 +97,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingTop="8dp">
+                android:paddingTop="12dp">
 
                 <RadioButton
                     android:id="@+id/rb_in_person"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="In-person" />
 
                 <RadioButton
                     android:id="@+id/rb_teleconsult"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="Teleconsultation" />
             </RadioGroup>
 
-            <!-- Doctor Name -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Doctor:"
-                android:paddingTop="12dp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_doctor_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Dr. Pineda" />
-
-            <!-- Location -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Location:"
-                android:paddingTop="12dp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Pineda Medical Clinic, Manila" />
-
-            <!-- Notes -->
+            <!-- Note -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Note:"
-                android:paddingTop="12dp"
+                android:paddingTop="16dp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_note"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Please bring your PhilHealth ID and medical records." />
+                android:text="Please bring your PhilHealth ID and previous records." />
 
             <!-- Time Slot List -->
             <androidx.recyclerview.widget.RecyclerView
@@ -116,36 +135,35 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" />
 
-
-            <!-- Reason for Appointment -->
+            <!-- Reason -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Reason for Appointment:"
-                android:paddingTop="12dp"
+                android:paddingTop="16dp"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/et_reason"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="E.g. General Checkup, Flu symptoms, Follow-up..."
+                android:hint="E.g. General Checkup, Flu symptoms..."
+                android:minLines="3"
+                android:maxLines="5"
                 android:inputType="textMultiLine"
-                android:minLines="2"
-                android:maxLines="4"
-                android:padding="12dp"
                 android:background="@android:drawable/edit_text"
-                android:layout_marginBottom="16dp"/>
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Book Now Button -->
+            <!-- Book Button -->
             <Button
                 android:id="@+id/btn_book_now"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Book Now"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="@color/dark_gray"
-                android:textColor="@android:color/white" />
+                android:text="Book Appointment"
+                android:backgroundTint="#2196F3"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="16dp" />
 
         </LinearLayout>
     </ScrollView>

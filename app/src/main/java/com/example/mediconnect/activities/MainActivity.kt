@@ -5,6 +5,7 @@ package com.example.mediconnect.activities
 import android.app.Activity
 import android.app.ComponentCaller
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -21,6 +22,7 @@ import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import kotlin.jvm.java
 
 /**
  * MainActivity handles navigation drawer, toolbar setup, user information display,
@@ -61,6 +63,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 }
             }
         }
+
+        val websiteTextView = findViewById<TextView>(R.id.tv_clinic_website)
+
+        websiteTextView.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://www.facebook.com/profile.php?id=100092741389883&sk=about")
+            startActivity(intent)
+        }
+
 
 
     }

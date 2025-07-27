@@ -1,23 +1,33 @@
 package com.example.mediconnect.activities
 
+import android.Manifest
 import android.app.DatePickerDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.Booking
+import com.example.mediconnect.adapters.TimeSlotAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.mediconnect.adapters.TimeSlotAdapter
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 
-// ... (package and imports unchanged)
 
 class appointment : BaseActivity() {
 
@@ -28,9 +38,7 @@ class appointment : BaseActivity() {
     private lateinit var rbInPerson: RadioButton
     private lateinit var rbTeleconsult: RadioButton
     private lateinit var rvTimeSlots: RecyclerView
-
     private lateinit var etReason: EditText
-
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -39,7 +47,7 @@ class appointment : BaseActivity() {
     private var selectedTimeSlot: String = ""
     private var selectedMode: String = ""
 
-    private val timeSlots = listOf("8:00 AM", "10:00 AM", "1:00 PM", "3:00 PM")
+    private val allowedTimeSlots = listOf("2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,11 +69,12 @@ class appointment : BaseActivity() {
 
         rvTimeSlots.layoutManager = LinearLayoutManager(this)
 
+        requestNotificationPermission()
+
         val userId = auth.currentUser?.uid ?: ""
 
         checkIfUserHasActiveAppointment(userId) { hasActive ->
             if (hasActive) {
-                // Disable booking UI
                 btnSelectDate.isEnabled = false
                 rbInPerson.isEnabled = false
                 rbTeleconsult.isEnabled = false
@@ -74,7 +83,7 @@ class appointment : BaseActivity() {
                 tvSelectedDate.text = "You already have an active appointment."
                 Toast.makeText(this, "You already have an active appointment. Booking is disabled.", Toast.LENGTH_LONG).show()
             } else {
-                setupBookingUI(userId) // Enable and setup date/time selection
+                setupBookingUI(userId)
             }
         }
     }
@@ -90,13 +99,25 @@ class appointment : BaseActivity() {
                 val selectedCalendar = Calendar.getInstance()
                 selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
 
+                val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
+
+                if (dayOfWeek != Calendar.MONDAY && dayOfWeek != Calendar.WEDNESDAY && dayOfWeek != Calendar.FRIDAY) {
+                    Toast.makeText(this, "Clinic consultations are only available on Monday, Wednesday, and Friday.", Toast.LENGTH_LONG).show()
+                    return@DatePickerDialog
+                }
+
                 val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 val selectedDateFormatted = sdf.format(selectedCalendar.time)
                 selectedDate = selectedDateFormatted
                 tvSelectedDate.text = "Selected Date: $selectedDateFormatted"
 
                 fetchBookedSlotsForDate(selectedDateFormatted) { bookedSlots ->
-                    val adapter = TimeSlotAdapter(timeSlots, bookedSlots, false, selectedDateFormatted) { selectedTime ->
+                    val adapter = TimeSlotAdapter(
+                        allowedTimeSlots,
+                        bookedSlots,
+                        false,
+                        selectedDateFormatted
+                    ) { selectedTime ->
                         selectedTimeSlot = selectedTime
                     }
 
@@ -114,7 +135,6 @@ class appointment : BaseActivity() {
         }
 
         btnBookNow.setOnClickListener {
-
             val reason = etReason.text.toString().trim()
             if (reason.isEmpty()) {
                 Toast.makeText(this, "Please provide a reason for the appointment", Toast.LENGTH_SHORT).show()
@@ -154,19 +174,18 @@ class appointment : BaseActivity() {
                         mode = selectedMode,
                         status = "booked",
                         timestamp = System.currentTimeMillis(),
-                        reason = reason // 👈 Pass it here
-
+                        reason = reason
                     )
 
                     db.collection("appointments")
                         .add(booking)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, MyAppointment::class.java)
-                            startActivity(intent)
+                            sendAppointmentNotification(selectedDate!!, selectedTimeSlot, selectedMode)
+                            scheduleAppointmentReminder(selectedDate!!, selectedTimeSlot, selectedMode)
+                            startActivity(Intent(this, MyAppointment::class.java))
                             finish()
                         }
-
                         .addOnFailureListener {
                             Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
                         }
@@ -182,17 +201,15 @@ class appointment : BaseActivity() {
         if (toolbar != null) {
             setSupportActionBar(toolbar)
 
-            supportActionBar?.let { actionBar ->
-                actionBar.setDisplayHomeAsUpEnabled(true)
-                actionBar.setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
-                actionBar.title = getString(R.string.my_appointment_title)
+            supportActionBar?.let {
+                it.setDisplayHomeAsUpEnabled(true)
+                it.setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
+                it.title = getString(R.string.my_appointment_title)
             }
 
             toolbar.setNavigationOnClickListener {
                 onBackPressedDispatcher.onBackPressed()
             }
-        } else {
-            Log.e("ToolbarSetup", "Toolbar not found. Check your layout file.")
         }
     }
 
@@ -223,6 +240,75 @@ class appointment : BaseActivity() {
                 Log.e("BookedSlots", "Failed to fetch", it)
                 onResult(emptyList())
             }
+    }
+
+    private fun sendAppointmentNotification(date: String, time: String, mode: String) {
+        val channelId = "appointment_channel"
+        val channelName = "Appointment Notifications"
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                channelName,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Channel for appointment booking notifications"
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.iconhearth)
+            .setContentTitle("Appointment Booked")
+            .setContentText("You're booked on $date at $time ($mode).")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+
+        notificationManager.notify(1, notificationBuilder.build())
+    }
+
+    private fun scheduleAppointmentReminder(date: String, time: String, mode: String) {
+        val sdfDateTime = SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.getDefault())
+        val appointmentDateTime = sdfDateTime.parse("$date $time") ?: return
+
+        val reminderTimeInMillis = appointmentDateTime.time - (30 * 60 * 1000)
+
+        val intent = Intent(this, AppointmentReminderWorker::class.java).apply {
+            putExtra("date", date)
+            putExtra("time", time)
+            putExtra("mode", mode)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            reminderTimeInMillis,
+            pendingIntent
+        )
+
+        Log.d("Reminder", "Scheduled 30-min reminder at ${Date(reminderTimeInMillis)}")
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

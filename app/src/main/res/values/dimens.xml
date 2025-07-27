@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="splash_screen_title_text_size">70sp</dimen>
+
     <!-- TODO (Step 5: Add all the dimen values here.) -->
     <!-- START -->
     <dimen name="intro_screen_title_text_size">40sp</dimen>
@@ -57,6 +57,11 @@
     <dimen name="my_profile_et_email_marginTop">20dp</dimen>
     <dimen name="my_profile_et_mobile_marginTop">20dp</dimen>
     <dimen name="my_profile_btn_update_marginTop">30dp</dimen>
+
+
+        <dimen name="splash_screen_title_text_size">50sp</dimen>
+
+
 
 
 

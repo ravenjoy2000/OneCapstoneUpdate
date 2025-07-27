@@ -271,7 +271,13 @@ class MyProfileActivity : BaseActivity() {
     fun profileUpdateSuccess() {
         hideProgressDialog()
         Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-        setResult(Activity.RESULT_OK)
+
+        // Restart the app by launching the splash or main entry activity
+        val intent = Intent(this, SplashActivity::class.java) // or MainActivity or LoginActivity
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+
         finish()
     }
+
 }

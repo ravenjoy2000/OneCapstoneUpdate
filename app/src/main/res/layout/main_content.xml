@@ -1,57 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="#FFFFFF"
+    android:background="#F8F9FA"
+    android:fitsSystemWindows="true"
+    android:paddingTop="72dp"
     tools:context=".activities.MainActivity">
 
-    <!-- Icon or Illustration (optional) -->
-    <ImageView
-        android:id="@+id/iv_intro_icon"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/cuteperson"
-    android:layout_marginTop="40dp"
-    android:contentDescription="Intro Icon" />
-
-    <!-- Title -->
-    <TextView
-        android:id="@+id/tv_intro_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Schedule Your Appointment"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        android:layout_below="@id/iv_intro_icon"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp" />
-
-    <!-- Subtitle -->
-    <TextView
-        android:id="@+id/tv_intro_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Select a date and time that works for you."
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:layout_below="@id/tv_intro_title"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="12dp" />
-
-    <!-- Book Now Button -->
-    <Button
-        android:id="@+id/btn_book_now"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Book Appointment"
-        android:backgroundTint="#2196F3"
-        android:textColor="#FFFFFF"
-        android:layout_below="@id/tv_intro_subtitle"
-        android:layout_marginTop="32dp"
-        android:layout_centerHorizontal="true" />
-</RelativeLayout>
+        android:paddingTop="72dp"
+        android:padding="16dp"
+        android:gravity="center_horizontal">
+
+        <!-- Card Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:elevation="4dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="8dp"
+            android:backgroundTint="#FFFFFF"
+            android:clipToPadding="false"
+            android:layout_gravity="center"
+            android:backgroundTintMode="src_over"
+            android:gravity="center_horizontal"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_card_rounded" >
+
+            <!-- Doctor Icon -->
+            <ImageView
+                android:id="@+id/iv_doctor_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/penidadoctor"
+                android:contentDescription="Doctor Icon"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Doctor Name -->
+            <TextView
+                android:id="@+id/tv_doctor_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Juan Dela Cruz"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Specialty -->
+            <TextView
+                android:id="@+id/tv_doctor_specialty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="General Physician"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Clinic Schedule -->
+            <TextView
+                android:id="@+id/tv_clinic_schedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🕑 Clinic Schedule: Monday, Wednesday, Friday\n2:00 PM – 6:00 PM"
+                android:textSize="14sp"
+                android:textColor="#388E3C"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Contact Info -->
+            <TextView
+                android:id="@+id/tv_doctor_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📞 +63 912 345 6789"
+                android:textSize="14sp"
+                android:textColor="#444444"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tv_email_doctor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✉️ rpinedaclinic@gmail.com"
+                android:textSize="14sp"
+                android:textColor="#444444"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Website Link -->
+            <TextView
+                android:id="@+id/tv_clinic_website"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:padding="8dp"
+                android:text="🌐 Visit Clinic Website"
+                android:textColor="#1E88E5"
+                android:textSize="14sp"
+                android:autoLink="web"
+                android:textIsSelectable="false"
+                android:onClick="openClinicWebsite" />
+
+            <!-- Address -->
+            <TextView
+                android:id="@+id/tv_doctor_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📍 206 Paulette St. Josefa Subv. Malabanias,\nAngeles City, Pampanga 2009"
+                android:textSize="14sp"
+                android:textColor="#444444"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Map Image -->
+            <ImageView
+                android:id="@+id/img_map"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/penediamap" />
+
+        </LinearLayout>
+
+        <!-- Appointment Info -->
+        <TextView
+            android:id="@+id/tv_appointment_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅 Schedule Your Appointment"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1E88E5"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_appointment_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose your preferred date and time."
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Book Now Button -->
+        <Button
+            android:id="@+id/btn_book_now"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Book Appointment"
+            android:backgroundTint="#1E88E5"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp"
+            android:paddingVertical="12dp"
+            android:layout_marginHorizontal="24dp" />
+
+    </LinearLayout>
+</ScrollView>
