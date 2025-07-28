@@ -1,8 +1,15 @@
+
 package com.example.mediconnect.activities
+
+import com.example.mediconnect.activities.MainActivity
+import com.example.mediconnect.activities.RescheduleActivity
+import com.example.mediconnect.activities.appointment
+
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -15,6 +22,7 @@ import com.example.mediconnect.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestoreException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,6 +31,7 @@ class MyAppointment : AppCompatActivity() {
     private lateinit var tvDoctorName: TextView
     private lateinit var tvStatus: TextView
     private lateinit var tvDate: TextView
+    private lateinit var tvPreviousDate: TextView
     private lateinit var tvTime: TextView
     private lateinit var tvMode: TextView
     private lateinit var tvLocation: TextView
@@ -34,7 +43,6 @@ class MyAppointment : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     private var appointmentId: String? = null
-    private val cooldownMillis = 3 * 60 * 1000L // 3 minutes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,8 +54,25 @@ class MyAppointment : AppCompatActivity() {
         loadAppointment()
 
         btnCancel.setOnClickListener { showCancelDialog() }
+
         btnReschedule.setOnClickListener {
-            Toast.makeText(this, "Reschedule feature coming soon", Toast.LENGTH_SHORT).show()
+            if (appointmentId == null) {
+                Toast.makeText(this, "No appointment to reschedule.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            db.collection("appointments").document(appointmentId!!)
+                .get()
+                .addOnSuccessListener { document ->
+                    val doctorId = document.getString("doctorId") ?: ""
+                    val intent = Intent(this, RescheduleActivity::class.java)
+                    intent.putExtra("appointmentId", appointmentId)
+                    intent.putExtra("doctorId", doctorId)
+                    startActivity(intent)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to load appointment info.", Toast.LENGTH_SHORT).show()
+                }
         }
     }
 
@@ -66,6 +91,7 @@ class MyAppointment : AppCompatActivity() {
         tvDoctorName = findViewById(R.id.tv_doctor_name)
         tvStatus = findViewById(R.id.tv_status)
         tvDate = findViewById(R.id.tv_date)
+        tvPreviousDate = findViewById(R.id.tv_previous_date)
         tvTime = findViewById(R.id.tv_time)
         tvMode = findViewById(R.id.tv_mode)
         tvLocation = findViewById(R.id.tv_location)
@@ -82,11 +108,9 @@ class MyAppointment : AppCompatActivity() {
             return
         }
 
-        checkCancellationLimit() // 🔁 Check button availability
-
         db.collection("appointments")
             .whereEqualTo("patientId", currentUserId)
-            .whereIn("status", listOf("booked", "rescheduled"))
+            .whereIn("status", listOf("booked", "rescheduled", "rescheduled_once"))
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
@@ -94,14 +118,14 @@ class MyAppointment : AppCompatActivity() {
                     val doc = documents.documents[0]
                     appointmentId = doc.id
 
-                    val status = doc.getString("status") ?: "N/A"
+                    val status = doc.getString("status")?.lowercase() ?: "booked"
                     val cancelReason = doc.getString("cancelReason")
 
-                    val statusText = when (status.lowercase()) {
+                    val statusText = when (status) {
                         "cancelled" -> if (!cancelReason.isNullOrBlank())
                             "Status: Cancelled\nReason: $cancelReason"
                         else "Status: Cancelled"
-                        "rescheduled" -> "Status: Rescheduled"
+                        "rescheduled", "rescheduled_once" -> "Status: Rescheduled"
                         "completed" -> "Status: Completed"
                         "late" -> "Status: Late"
                         "no_show" -> "Status: No Show"
@@ -114,7 +138,7 @@ class MyAppointment : AppCompatActivity() {
                             this,
                             when (status) {
                                 "cancelled" -> android.R.color.holo_red_dark
-                                "rescheduled" -> android.R.color.holo_orange_dark
+                                "rescheduled", "rescheduled_once" -> android.R.color.holo_orange_dark
                                 "late" -> android.R.color.holo_orange_light
                                 "no_show" -> android.R.color.holo_red_light
                                 else -> android.R.color.holo_green_dark
@@ -137,6 +161,15 @@ class MyAppointment : AppCompatActivity() {
                     tvAppointmentReason.text = "Reason: ${appointmentReason ?: "No reason provided."}"
 
                     tvDate.text = "Date: ${doc.getString("date") ?: "--"}"
+
+                    val previousDate = doc.getString("previousDate")
+                    if (!previousDate.isNullOrBlank()) {
+                        tvPreviousDate.text = "Rescheduled from: $previousDate"
+                        tvPreviousDate.visibility = TextView.VISIBLE
+                    } else {
+                        tvPreviousDate.visibility = TextView.GONE
+                    }
+
                     tvTime.text = "Time: ${doc.getString("timeSlot") ?: "--"}"
                     tvMode.text = "Mode: ${doc.getString("mode") ?: "--"}"
                 } else {
@@ -146,33 +179,6 @@ class MyAppointment : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to load appointment.", Toast.LENGTH_SHORT).show()
             }
-    }
-
-    private fun checkCancellationLimit() {
-        val userRef = db.collection("users").document(currentUserId!!)
-        userRef.get().addOnSuccessListener { doc ->
-            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-            val cancelInfo = doc.get("cancellationInfo") as? Map<*, *>
-            val cancelDate = cancelInfo?.get("date") as? String
-            val cancelCount = (cancelInfo?.get("count") as? Long)?.toInt() ?: 0
-            val lastCancelledAt = cancelInfo?.get("lastCancelledAt") as? Timestamp
-
-            if (cancelDate == today && cancelCount >= 3 && lastCancelledAt != null) {
-                val now = System.currentTimeMillis()
-                val timeSinceLast = now - lastCancelledAt.toDate().time
-                if (timeSinceLast < cooldownMillis) {
-                    val remaining = (cooldownMillis - timeSinceLast) / 1000
-                    btnCancel.isEnabled = false
-                    btnReschedule.isEnabled = false
-                    Toast.makeText(this, "Limit reached. Try again in $remaining seconds.", Toast.LENGTH_LONG).show()
-
-                    btnCancel.postDelayed({
-                        btnCancel.isEnabled = true
-                        btnReschedule.isEnabled = true
-                    }, cooldownMillis - timeSinceLast)
-                }
-            }
-        }
     }
 
     private fun showCancelDialog() {
@@ -202,32 +208,50 @@ class MyAppointment : AppCompatActivity() {
     private fun cancelAppointment(reason: String) {
         val userRef = db.collection("users").document(currentUserId!!)
         val appointmentRef = db.collection("appointments").document(appointmentId!!)
+        val tag = "CancelAppointment"
 
-        db.runTransaction { transaction ->
-            val userSnap = transaction.get(userRef)
+        userRef.get().addOnSuccessListener { userSnap ->
             val cancelInfo = userSnap.get("cancellationInfo") as? Map<*, *>
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             val prevDate = cancelInfo?.get("date") as? String
-            var count = (cancelInfo?.get("count") as? Long)?.toInt() ?: 0
+            val currentCount = (cancelInfo?.get("count") as? Long)?.toInt() ?: 0
 
-            count = if (prevDate == today) count + 1 else 1
+            if (prevDate == today && currentCount >= 3) {
+                Toast.makeText(this, "⚠️ You’ve already cancelled 3 appointments today. Try again tomorrow.", Toast.LENGTH_LONG).show()
+                return@addOnSuccessListener
+            }
 
-            val newInfo = mapOf(
-                "date" to today,
-                "count" to count,
-                "lastCancelledAt" to Timestamp.now()
-            )
+            db.runTransaction { transaction ->
+                val appointmentSnap = transaction.get(appointmentRef)
 
-            transaction.update(userRef, "cancellationInfo", newInfo)
-            transaction.update(appointmentRef, mapOf(
-                "status" to "cancelled",
-                "cancelReason" to reason
-            ))
-        }.addOnSuccessListener {
-            Toast.makeText(this, "Appointment cancelled.", Toast.LENGTH_SHORT).show()
-            showRebookDialog()
-        }.addOnFailureListener {
-            Toast.makeText(this, "Failed to cancel appointment.", Toast.LENGTH_SHORT).show()
+                if (!appointmentSnap.exists()) {
+                    throw FirebaseFirestoreException("Appointment not found.", FirebaseFirestoreException.Code.NOT_FOUND)
+                }
+
+                val newCount = if (prevDate == today) currentCount + 1 else 1
+                val newInfo = mapOf(
+                    "date" to today,
+                    "count" to newCount,
+                    "lastCancelledAt" to Timestamp.now()
+                )
+
+                transaction.update(userRef, "cancellationInfo", newInfo)
+                transaction.update(appointmentRef, mapOf(
+                    "status" to "cancelled",
+                    "cancelReason" to reason,
+                    "cancelledAt" to Timestamp.now()
+                ))
+            }.addOnSuccessListener {
+                Toast.makeText(this, "✅ Appointment cancelled successfully.", Toast.LENGTH_SHORT).show()
+                showRebookDialog()
+            }.addOnFailureListener { e ->
+                Log.e(tag, "Transaction failed: ${e.message}", e)
+                Toast.makeText(this, "❌ Failed to cancel appointment: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+
+        }.addOnFailureListener { e ->
+            Log.e(tag, "User fetch failed: ${e.message}", e)
+            Toast.makeText(this, "❌ Error fetching user data. Try again.", Toast.LENGTH_SHORT).show()
         }
     }
 

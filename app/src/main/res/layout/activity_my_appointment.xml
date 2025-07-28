@@ -73,6 +73,17 @@
                     android:textColor="#333333"
                     android:layout_marginTop="12dp" />
 
+                <!-- NEW: Previous Date Display -->
+                <TextView
+                    android:id="@+id/tv_previous_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rescheduled from: "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/tv_time"
                     android:layout_width="match_parent"

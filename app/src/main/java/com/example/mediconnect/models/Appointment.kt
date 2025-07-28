@@ -12,9 +12,11 @@ data class Appointment(
     val mode: String = "",
     val location: String = "",
     val note: String = "",
-    val reason: String = "",       // NEW: reason for appointment
-    val bookedAt: Date? = null
+    val reason: String = "",       // Reason for cancellation or reschedule
+    val bookedAt: Date? = null,
+    val previousDate: String = ""  // <-- New field added
 ) : Parcelable {
+
     constructor(parcel: Parcel) : this(
         doctorName = parcel.readString() ?: "",
         status = parcel.readString() ?: "",
@@ -24,7 +26,8 @@ data class Appointment(
         location = parcel.readString() ?: "",
         note = parcel.readString() ?: "",
         reason = parcel.readString() ?: "",
-        bookedAt = parcel.readSerializable() as? Date
+        bookedAt = parcel.readSerializable() as? Date,
+        previousDate = parcel.readString() ?: "" // <-- Read this
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -37,6 +40,7 @@ data class Appointment(
         parcel.writeString(note)
         parcel.writeString(reason)
         parcel.writeSerializable(bookedAt)
+        parcel.writeString(previousDate) // <-- Write this
     }
 
     override fun describeContents(): Int = 0

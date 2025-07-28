@@ -82,6 +82,28 @@
                 android:textColor="#333333" />
         </LinearLayout>
 
+        <!-- Previous Date (rescheduled from) -->
+        <TextView
+            android:id="@+id/tv_previous_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rescheduled from: "
+            android:textColor="@android:color/darker_gray"
+            android:textSize="13sp"
+            android:paddingTop="2dp"
+            android:visibility="gone" />
+
+        <!-- Reschedule Info -->
+        <TextView
+            android:id="@+id/tv_reschedule_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rescheduled from: July 20, 2025"
+            android:textSize="13sp"
+            android:textColor="#FFA000"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
         <!-- Mode -->
         <TextView
             android:id="@+id/tv_mode"
@@ -100,17 +122,18 @@
             android:textSize="14sp"
             android:textColor="#666666" />
 
-        <!-- Notes -->
+        <!-- Note -->
         <TextView
             android:id="@+id/tv_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Patient has mild fever symptoms."
+            android:text="Note: Mild fever symptoms."
             android:textSize="14sp"
             android:textColor="#444444"
-            android:layout_marginTop="6dp" />
+            android:layout_marginTop="6dp"
+            android:visibility="gone" />
 
-        <!-- Reason (Visible if Cancelled) -->
+        <!-- Reason (for cancellation) -->
         <TextView
             android:id="@+id/tv_reason"
             android:layout_width="match_parent"
@@ -118,7 +141,7 @@
             android:text="Reason: Not feeling well"
             android:textSize="14sp"
             android:textColor="#D32F2F"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:visibility="gone" />
 
     </LinearLayout>
