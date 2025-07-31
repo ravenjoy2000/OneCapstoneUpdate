@@ -1,9 +1,6 @@
-// Package declaration for MainActivity
 package com.example.mediconnect.activities
 
-// Import necessary Android and Firebase components
 import android.app.Activity
-import android.app.ComponentCaller
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,7 +8,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.addCallback
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -22,30 +19,24 @@ import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import kotlin.jvm.java
 
-/**
- * MainActivity handles navigation drawer, toolbar setup, user information display,
- * and activity navigation (like MyProfile and SignOut).
- */
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     companion object {
-        private val MY_PROFILE_REQUEST_CODE = 101
-        private val MY_APPOINTMENT_REQUEST_CODE = 102
-
+        private const val MY_PROFILE_REQUEST_CODE = 101
+        private const val MY_APPOINTMENT_REQUEST_CODE = 102
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Make layout fullscreen (edge-to-edge)
-        setContentView(R.layout.activity_main) // Set content view to main layout
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
 
-        setupActionBar() // Setup toolbar and drawer icon
-        setupNavigationDrawer() // Handle drawer menu interactions
-        handleBackPressBehavior() // Handle custom back press behavior
+        setupActionBar()
+        setupNavigationDrawer()
+        handleBackPressBehavior()
 
-        // Load user data and update UI in drawer
+        // Load user data into drawer
         FireStoreClass().loadUserData(this)
 
         val bookNowBtn = findViewById<Button>(R.id.btn_book_now)
@@ -57,28 +48,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     bookNowBtn.isEnabled = false
                     bookNowBtn.text = "You already have an appointment"
                 } else {
-                    // Go to Appointment Booking
                     val intent = Intent(this, appointment::class.java)
                     startActivity(intent)
                 }
             }
         }
 
-        val websiteTextView = findViewById<TextView>(R.id.tv_clinic_website)
-
-        websiteTextView.setOnClickListener {
+        findViewById<TextView>(R.id.tv_clinic_website).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://www.facebook.com/profile.php?id=100092741389883&sk=about")
             startActivity(intent)
         }
-
-
-
     }
 
-    /**
-     * Sets up toolbar and drawer menu icon (hamburger icon)
-     */
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_main_activity)
         setSupportActionBar(toolbar)
@@ -88,14 +70,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu)
         }
 
-        toolbar.setNavigationOnClickListener {
-            toggleDrawer()
-        }
+        toolbar.setNavigationOnClickListener { toggleDrawer() }
     }
 
-    /**
-     * Open or close drawer depending on its current state
-     */
     private fun toggleDrawer() {
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -105,65 +82,59 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    /**
-     * Handle custom back button behavior to support double back press
-     */
     private fun handleBackPressBehavior() {
-        onBackPressedDispatcher.addCallback(this) {
-            val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START)
-            } else {
-                doubleBackToExit()
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    doubleBackToExit()
+                }
             }
-        }
+        })
     }
 
-    /**
-     * Set navigation item click listener
-     */
     private fun setupNavigationDrawer() {
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
     }
 
-    /**
-     * Handle result from MyProfileActivity
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
-        super.onActivityResult(requestCode, resultCode, data, caller)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
             FireStoreClass().loadUserData(this)
         } else {
-            Log.e("Cancelled", "Cancelled")
+            Log.e("Cancelled", "Cancelled or no result")
         }
     }
 
-    /**
-     * Handle navigation item selection events
-     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
 
         when (item.itemId) {
             R.id.nav_my_profile -> {
-                val intent = Intent(this, MyProfileActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
 
             R.id.nav_my_appointment -> {
-                val intent = Intent(this, MyAppointment::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, MyAppointment::class.java))
             }
 
             R.id.nav_my_appointment_history -> {
-                val intent = Intent(this, AppointmentHistoryUser::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, AppointmentHistoryUser::class.java))
+            }
+
+            R.id.nav_medical_log -> {
+                startActivity(Intent(this, MedicalLogs::class.java))
+            }
+
+            R.id.nav_patent_feedback -> {
+                startActivity(Intent(this, PatentFeedback::class.java))
             }
 
             R.id.nav_sign_out -> {
                 FirebaseAuth.getInstance().signOut()
-
                 val intent = Intent(this, IntroActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
@@ -175,11 +146,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true
     }
 
-
-
-    /**
-     * Display user details (image and name) in the navigation drawer
-     */
     fun updateNavigationUserDetails(user: User) {
         Glide.with(this)
             .load(user.image)
@@ -189,7 +155,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         findViewById<TextView>(R.id.tv_username).text = user.name
     }
-
 
     private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
@@ -201,10 +166,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 onResult(!documents.isEmpty)
             }
             .addOnFailureListener {
-                onResult(false) // Assume no active appointment on failure
+                onResult(false) // Fallback to false on error
             }
     }
-
-
-
 }

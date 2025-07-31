@@ -1,10 +1,4 @@
-
 package com.example.mediconnect.activities
-
-import com.example.mediconnect.activities.MainActivity
-import com.example.mediconnect.activities.RescheduleActivity
-import com.example.mediconnect.activities.appointment
-
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -19,15 +13,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.example.mediconnect.R
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestoreException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MyAppointment : AppCompatActivity() {
 
+    // Views
     private lateinit var tvDoctorName: TextView
     private lateinit var tvStatus: TextView
     private lateinit var tvDate: TextView
@@ -40,6 +35,7 @@ class MyAppointment : AppCompatActivity() {
     private lateinit var btnCancel: Button
     private lateinit var btnReschedule: Button
 
+    // Firebase
     private val db = FirebaseFirestore.getInstance()
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     private var appointmentId: String? = null
@@ -54,26 +50,7 @@ class MyAppointment : AppCompatActivity() {
         loadAppointment()
 
         btnCancel.setOnClickListener { showCancelDialog() }
-
-        btnReschedule.setOnClickListener {
-            if (appointmentId == null) {
-                Toast.makeText(this, "No appointment to reschedule.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            db.collection("appointments").document(appointmentId!!)
-                .get()
-                .addOnSuccessListener { document ->
-                    val doctorId = document.getString("doctorId") ?: ""
-                    val intent = Intent(this, RescheduleActivity::class.java)
-                    intent.putExtra("appointmentId", appointmentId)
-                    intent.putExtra("doctorId", doctorId)
-                    startActivity(intent)
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to load appointment info.", Toast.LENGTH_SHORT).show()
-                }
-        }
+        btnReschedule.setOnClickListener { onRescheduleClicked() }
     }
 
     private fun setupActionBar() {
@@ -114,70 +91,84 @@ class MyAppointment : AppCompatActivity() {
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val doc = documents.documents[0]
-                    appointmentId = doc.id
-
-                    val status = doc.getString("status")?.lowercase() ?: "booked"
-                    val cancelReason = doc.getString("cancelReason")
-
-                    val statusText = when (status) {
-                        "cancelled" -> if (!cancelReason.isNullOrBlank())
-                            "Status: Cancelled\nReason: $cancelReason"
-                        else "Status: Cancelled"
-                        "rescheduled", "rescheduled_once" -> "Status: Rescheduled"
-                        "completed" -> "Status: Completed"
-                        "late" -> "Status: Late"
-                        "no_show" -> "Status: No Show"
-                        else -> "Status: Booked"
-                    }
-
-                    tvStatus.text = statusText
-                    tvStatus.setTextColor(
-                        ContextCompat.getColor(
-                            this,
-                            when (status) {
-                                "cancelled" -> android.R.color.holo_red_dark
-                                "rescheduled", "rescheduled_once" -> android.R.color.holo_orange_dark
-                                "late" -> android.R.color.holo_orange_light
-                                "no_show" -> android.R.color.holo_red_light
-                                else -> android.R.color.holo_green_dark
-                            }
-                        )
-                    )
-
-                    val doctorName = doc.getString("doctorName")
-                    tvDoctorName.text = doctorName?.takeIf { it.isNotBlank() }
-                        ?: "Dr. Francis Ivan G. Pineda"
-
-                    val location = doc.getString("location")
-                    tvLocation.text = "Location: ${location?.takeIf { it.isNotBlank() }
-                        ?: "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"}"
-
-                    val contactNote = doc.getString("notes")
-                    tvNotes.text = "Contact: ${contactNote?.takeIf { it.isNotBlank() } ?: "0961-053-9277"}"
-
-                    val appointmentReason = doc.getString("reason")
-                    tvAppointmentReason.text = "Reason: ${appointmentReason ?: "No reason provided."}"
-
-                    tvDate.text = "Date: ${doc.getString("date") ?: "--"}"
-
-                    val previousDate = doc.getString("previousDate")
-                    if (!previousDate.isNullOrBlank()) {
-                        tvPreviousDate.text = "Rescheduled from: $previousDate"
-                        tvPreviousDate.visibility = TextView.VISIBLE
-                    } else {
-                        tvPreviousDate.visibility = TextView.GONE
-                    }
-
-                    tvTime.text = "Time: ${doc.getString("timeSlot") ?: "--"}"
-                    tvMode.text = "Mode: ${doc.getString("mode") ?: "--"}"
-                } else {
+                if (documents.isEmpty) {
                     Toast.makeText(this, "No appointment found.", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
                 }
+
+                val doc = documents.documents[0]
+                appointmentId = doc.id
+
+                updateAppointmentUI(doc.getString("status"), doc.getString("cancelReason"))
+
+                tvDoctorName.text = doc.getString("doctorName")?.takeIf { it.isNotBlank() }
+                    ?: "Dr. Francis Ivan G. Pineda"
+
+                tvLocation.text = "Location: ${doc.getString("location")?.takeIf { it.isNotBlank() }
+                    ?: "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"}"
+
+                tvNotes.text = "Contact: ${doc.getString("notes")?.takeIf { it.isNotBlank() } ?: "0961-053-9277"}"
+
+                tvAppointmentReason.text = "Reason: ${doc.getString("reason") ?: "No reason provided."}"
+                tvDate.text = "Date: ${doc.getString("date") ?: "--"}"
+
+                doc.getString("previousDate")?.let {
+                    tvPreviousDate.text = "Rescheduled from: $it"
+                    tvPreviousDate.visibility = TextView.VISIBLE
+                } ?: run {
+                    tvPreviousDate.visibility = TextView.GONE
+                }
+
+                tvTime.text = "Time: ${doc.getString("timeSlot") ?: "--"}"
+                tvMode.text = "Mode: ${doc.getString("mode") ?: "--"}"
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to load appointment.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateAppointmentUI(statusRaw: String?, cancelReason: String?) {
+        val status = statusRaw?.lowercase() ?: "booked"
+        tvStatus.text = when (status) {
+            "cancelled" -> if (!cancelReason.isNullOrBlank()) "Status: Cancelled\nReason: $cancelReason" else "Status: Cancelled"
+            "rescheduled", "rescheduled_once" -> "Status: Rescheduled"
+            "completed" -> "Status: Completed"
+            "late" -> "Status: Late"
+            "no_show" -> "Status: No Show"
+            else -> "Status: Booked"
+        }
+
+        tvStatus.setTextColor(
+            ContextCompat.getColor(
+                this,
+                when (status) {
+                    "cancelled" -> android.R.color.holo_red_dark
+                    "rescheduled", "rescheduled_once" -> android.R.color.holo_orange_dark
+                    "late" -> android.R.color.holo_orange_light
+                    "no_show" -> android.R.color.holo_red_light
+                    else -> android.R.color.holo_green_dark
+                }
+            )
+        )
+    }
+
+    private fun onRescheduleClicked() {
+        if (appointmentId == null) {
+            Toast.makeText(this, "No appointment to reschedule.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        db.collection("appointments").document(appointmentId!!)
+            .get()
+            .addOnSuccessListener { document ->
+                val doctorId = document.getString("doctorId") ?: ""
+                val intent = Intent(this, RescheduleActivity::class.java)
+                intent.putExtra("appointmentId", appointmentId)
+                intent.putExtra("doctorId", doctorId)
+                startActivity(intent)
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to load appointment info.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -197,10 +188,7 @@ class MyAppointment : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle("Select a reason for cancellation")
-            .setItems(reasons) { _, which ->
-                val selectedReason = reasons[which]
-                cancelAppointment(selectedReason)
-            }
+            .setItems(reasons) { _, which -> cancelAppointment(reasons[which]) }
             .setNegativeButton("Dismiss", null)
             .show()
     }
@@ -223,7 +211,6 @@ class MyAppointment : AppCompatActivity() {
 
             db.runTransaction { transaction ->
                 val appointmentSnap = transaction.get(appointmentRef)
-
                 if (!appointmentSnap.exists()) {
                     throw FirebaseFirestoreException("Appointment not found.", FirebaseFirestoreException.Code.NOT_FOUND)
                 }

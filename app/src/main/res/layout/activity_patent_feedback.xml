@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".activities.PatentFeedback">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_patient_feedback"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:title="Patient Feedback"
+        app:titleTextColor="@android:color/white"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Card Background -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_feedback"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_patient_feedback"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tv_feedback_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="We value your feedback!"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tv_feedback_subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Please rate your experience"
+                android:textSize="14sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_feedback_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- RatingBar -->
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1.0"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_feedback_subtitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Feedback Input -->
+            <EditText
+                android:id="@+id/et_feedback"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="16dp"
+                android:hint="Write your feedback here..."
+                android:gravity="top|start"
+                android:background="@drawable/rounded_edittext"
+                android:padding="16dp"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/ratingBar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Submit Button -->
+            <Button
+                android:id="@+id/btn_submit_feedback"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Submit"
+                android:backgroundTint="@color/primary"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/et_feedback"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_feedback_result"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:visibility="gone"
+                android:gravity="center"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/btn_submit_feedback"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
