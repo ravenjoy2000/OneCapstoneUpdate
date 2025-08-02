@@ -112,7 +112,7 @@ class DoctorProfile : BaseActivity() {
         progressDialog.setCancelable(false)
         progressDialog.show()
 
-        db.collection("doctors").document(uid).get()
+        db.collection("doctor").document(uid).get()
             .addOnSuccessListener { doc ->
                 progressDialog.dismiss()
                 if (doc != null && doc.exists()) {
@@ -184,10 +184,13 @@ class DoctorProfile : BaseActivity() {
     }
 
     private fun saveToFirestore(uid: String, profileData: HashMap<String, String>) {
-        db.collection("doctors").document(uid).set(profileData)
+        db.collection("doctor").document(uid).set(profileData)
             .addOnSuccessListener {
                 progressDialog.dismiss()
                 Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show()
+
+                recreate() // 👈 This will restart the activity and reload the updated profile
+
             }
             .addOnFailureListener {
                 progressDialog.dismiss()
