@@ -1,4 +1,4 @@
-package com.example.mediconnect.adapters
+package com.example.mediconnect.patient
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +8,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 class TimeSlotAdapter(
     private val timeSlots: List<String>,

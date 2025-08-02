@@ -1,4 +1,4 @@
-package com.example.mediconnect.adapters
+package com.example.mediconnect.patient
 
 import android.view.LayoutInflater
 import android.view.View

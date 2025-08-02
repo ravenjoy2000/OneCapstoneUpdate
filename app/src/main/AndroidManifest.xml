@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -32,29 +32,69 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_icon_cute_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar.">
+        android:theme="@style/AppTheme.NoActionBar." >
         <activity
-            android:name=".activities.PatentFeedback"
-            android:exported="false" />
+            android:name=".doctor.DoctorProfile"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mediconnect" />
         <activity
-            android:name=".activities.MedicalLogs"
-            android:exported="false" />
-        <activity
-            android:name=".activities.RescheduleActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.AppointmentHistoryUser"
-            android:exported="false" />
-        <activity
-            android:name=".activities.MyAppointment"
-            android:exported="false" />
-        <activity
-            android:name=".activities.appointment"
+            android:name=".doctor.DoctorFeedback"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar." />
         <activity
-            android:name=".activities.MyProfileActivity"
+            android:name=".doctor.DoctorMedicalLog"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".doctor.DoctorAppointmentHistory"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".doctor.DoctorAppointment"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".doctor.DoctorDashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.PatentFeedback"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.MedicalLogs"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.RescheduleActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.AppointmentHistoryUser"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.MyAppointment"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.appointment"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar." />
+        <activity
+            android:name=".patient.MyProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar." />
@@ -82,7 +122,7 @@
             android:name=".activities.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar.">
+            android:theme="@style/AppTheme.NoActionBar." >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -90,7 +130,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".patient.MainActivity"
             android:exported="false" />
     </application>
 

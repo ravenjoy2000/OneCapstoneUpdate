@@ -1,70 +1,59 @@
-// Package kung saan nakalagay ang SplashActivity
 package com.example.mediconnect.activities
 
-// Mga import para sa UI, window control, at font
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mediconnect.R
 import com.example.mediconnect.firebase.FireStoreClass
+import com.example.mediconnect.patient.MainActivity
+import com.example.mediconnect.doctor.DoctorDashboardActivity
 
-// SplashActivity class na siyang unang screen pag binuksan ang app
 class SplashActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Enable edge-to-edge layout (para sa fullscreen na experience)
-        enableEdgeToEdge()
-
-        // I-set ang UI layout file na gagamitin
         setContentView(R.layout.activity_splash)
 
-        // ================= REMOVE STATUS BAR / FULLSCREEN =======================
-        // Para sa older Android versions (bago pa ang Android 11)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
-
-        // Para sa Android 11 pataas, hide ang status bar gamit WindowInsets
+        // ===== FULLSCREEN =====
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
         }
-        // ========================================================================
 
+        // ===== CUSTOM FONT =====
+        val tvAppName = findViewById<TextView>(R.id.tv_app_name)
+        val typeface = Typeface.createFromAsset(assets, "Billy Bounce.otf")
+        tvAppName.typeface = typeface
 
-        // ================= CUSTOM FONT SA APP NAME ===============================
-        val tv_app_name = findViewById<TextView>(R.id.tv_app_name) // Hanapin ang TextView na may ID na tv_app_name
-        val typFace: Typeface = Typeface.createFromAsset(assets, "Billy Bounce.otf") // Load ang custom font galing sa assets folder
-        tv_app_name.typeface = typFace // I-apply ang font sa TextView
-        // =========================================================================
-
-
-        // ============ SPLASH TIMER + AUTO LOGIN CHECK ============================
-        android.os.Handler().postDelayed({
-
-            // Gamitin ang FireStoreClass para kunin ang current user ID (UID ng naka-login)
+        // ===== DELAY THEN CHECK USER =====
+        Handler(Looper.getMainLooper()).postDelayed({
             val currentUserID = FireStoreClass().getCurrentUserID()
 
-            // ✅ Kung hindi empty, ibig sabihin may naka-login → punta sa MainActivity
             if (currentUserID.isNotEmpty()) {
-                startActivity(Intent(this, MainActivity::class.java)) // Open MainActivity
+                FireStoreClass().getCurrentUserRole { role ->
+                    when (role) {
+                        "doctor" -> startActivity(Intent(this, DoctorDashboardActivity::class.java))
+                        "patient" -> startActivity(Intent(this, MainActivity::class.java))
+                        else -> startActivity(Intent(this, IntroActivity::class.java)) // fallback
+                    }
+                    finish()
+                }
             } else {
-                // ❌ Kung walang naka-login → punta sa IntroActivity (Sign In / Sign Up)
-                startActivity(Intent(this, IntroActivity::class.java)) // Open IntroActivity
+                startActivity(Intent(this, IntroActivity::class.java))
+                finish()
             }
-
-            // Tapusin na ang SplashActivity para hindi na ito balikan kapag nag-back press
-            finish()
-
-        }, 2500) // Delay ng 2.5 seconds (2500 milliseconds)
-        // ==========================================================================
-
+        }, 2500)
     }
 }

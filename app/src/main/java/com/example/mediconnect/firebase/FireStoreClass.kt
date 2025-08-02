@@ -6,6 +6,8 @@ import android.app.Activity
 import android.util.Log
 import com.example.mediconnect.activities.*
 import com.example.mediconnect.models.User
+import com.example.mediconnect.patient.MainActivity
+import com.example.mediconnect.patient.MyProfileActivity
 import com.example.mediconnect.utils.Constants
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -105,5 +107,25 @@ class FireStoreClass : BaseActivity() {
 //    fun getCurrentUserID(): String {
 //        return FirebaseAuth.getInstance().currentUser!!.uid
 //    }
+
+    fun getCurrentUserRole(onRoleFetched: (String) -> Unit) {
+        val currentUserID = getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users") // or your actual collection name
+                .document(currentUserID)
+                .get()
+                .addOnSuccessListener { document ->
+                    val role = document.getString("role") ?: ""
+                    onRoleFetched(role)
+                }
+                .addOnFailureListener {
+                    onRoleFetched("") // return empty on failure
+                }
+        } else {
+            onRoleFetched("") // no user logged in
+        }
+    }
+
 
 } // 🔚 End of FireStoreClass

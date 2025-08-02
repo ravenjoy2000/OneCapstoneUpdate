@@ -6,44 +6,45 @@ import android.os.Bundle
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import com.example.mediconnect.R
+import com.example.mediconnect.doctor.DoctorDashboardActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class IntroActivity : BaseActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Fullscreen support for old and new Android versions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+
         setContentView(R.layout.activity_intro)
 
-        // ----- This one for Removing the Head icon------
-
-        window.setFlags(  // for old device
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // for new device
-            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        // Check if already logged in
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            // You may want to check if it's a doctor/patient and redirect accordingly
+            startActivity(Intent(this, DoctorDashboardActivity::class.java))
+            finish()
+            return
         }
-        //------This is the End-----------
 
-
-        //------------This for Button SignUp in Intro------------------
-       val btn_for_sign_up = findViewById<Button>(R.id.btn_sign_up_intro)
-        btn_for_sign_up.setOnClickListener{
+        // Sign Up button
+        findViewById<Button>(R.id.btn_sign_up_intro).setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
         }
-        //---------------End------------------------------------
 
-        //----------------This For Button For SignIn in Intro---------------
-        val btn_for_sign_in = findViewById<Button>(R.id.btn_sign_in_intro)
-        btn_for_sign_in.setOnClickListener{
+        // Sign In button
+        findViewById<Button>(R.id.btn_sign_in_intro).setOnClickListener {
             startActivity(Intent(this, SignInActivity::class.java))
         }
-        //------------------End---------------------------------------------
-
-
-
     }
 }

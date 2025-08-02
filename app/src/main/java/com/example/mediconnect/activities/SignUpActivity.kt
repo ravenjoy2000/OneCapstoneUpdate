@@ -14,8 +14,6 @@ import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import com.google.common.io.Files.getFileExtension
 
 class SignUpActivity : BaseActivity() {
 
@@ -109,7 +107,7 @@ class SignUpActivity : BaseActivity() {
                 .addOnSuccessListener {
                     storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                         mPhilIdGovermentImageURL = downloadUri.toString()
-                        val user = User(userId, name, username, email, mPhilIdGovermentImageURL)
+                        val user = User(userId, name, username, email, mPhilIdGovermentImageURL, "patient")
                         FireStoreClass().registerUser(this, user)
                     }
                 }

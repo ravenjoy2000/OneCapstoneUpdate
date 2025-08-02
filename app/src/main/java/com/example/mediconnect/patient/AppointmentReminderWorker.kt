@@ -1,4 +1,4 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

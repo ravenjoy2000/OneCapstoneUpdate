@@ -1,6 +1,5 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,10 +14,13 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.example.mediconnect.R
+import com.example.mediconnect.activities.BaseActivity
+import com.example.mediconnect.activities.IntroActivity
 import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -102,7 +104,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
+        if (resultCode == RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
             FireStoreClass().loadUserData(this)
         } else {
             Log.e("Cancelled", "Cancelled or no result")
@@ -157,7 +159,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
-        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        val db = FirebaseFirestore.getInstance()
         db.collection("appointments")
             .whereEqualTo("patientId", userId)
             .whereIn("status", listOf("booked", "rescheduled_once"))

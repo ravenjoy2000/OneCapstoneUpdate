@@ -1,4 +1,4 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -13,12 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.example.mediconnect.R
+import com.example.mediconnect.patient.MainActivity
+import com.example.mediconnect.patient.RescheduleActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class MyAppointment : AppCompatActivity() {
 
@@ -212,21 +215,24 @@ class MyAppointment : AppCompatActivity() {
             db.runTransaction { transaction ->
                 val appointmentSnap = transaction.get(appointmentRef)
                 if (!appointmentSnap.exists()) {
-                    throw FirebaseFirestoreException("Appointment not found.", FirebaseFirestoreException.Code.NOT_FOUND)
+                    throw FirebaseFirestoreException(
+                        "Appointment not found.",
+                        FirebaseFirestoreException.Code.NOT_FOUND
+                    )
                 }
 
                 val newCount = if (prevDate == today) currentCount + 1 else 1
                 val newInfo = mapOf(
                     "date" to today,
                     "count" to newCount,
-                    "lastCancelledAt" to Timestamp.now()
+                    "lastCancelledAt" to Timestamp.Companion.now()
                 )
 
                 transaction.update(userRef, "cancellationInfo", newInfo)
                 transaction.update(appointmentRef, mapOf(
                     "status" to "cancelled",
                     "cancelReason" to reason,
-                    "cancelledAt" to Timestamp.now()
+                    "cancelledAt" to Timestamp.Companion.now()
                 ))
             }.addOnSuccessListener {
                 Toast.makeText(this, "✅ Appointment cancelled successfully.", Toast.LENGTH_SHORT).show()

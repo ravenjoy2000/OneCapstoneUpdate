@@ -1,16 +1,19 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.os.Bundle
-import android.widget.*
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mediconnect.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class RescheduleActivity : AppCompatActivity() {
 
@@ -66,7 +69,11 @@ class RescheduleActivity : AppCompatActivity() {
 
                 val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
                 if (dayOfWeek != Calendar.MONDAY && dayOfWeek != Calendar.WEDNESDAY && dayOfWeek != Calendar.FRIDAY) {
-                    Toast.makeText(this, "Rescheduling is only allowed on Monday, Wednesday, and Friday.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        "Rescheduling is only allowed on Monday, Wednesday, and Friday.",
+                        Toast.LENGTH_LONG
+                    ).show()
                     return@DatePickerDialog
                 }
 

@@ -1,4 +1,4 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +10,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
-import com.example.mediconnect.adapters.MedicalLogAdapter
 import com.example.mediconnect.models.MedicalLog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

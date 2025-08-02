@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#F8F9FA"
     android:padding="16dp"
-    tools:context=".activities.MedicalLogs">
+    tools:context=".patient.MedicalLogs">
 
     <!-- 🧭 Toolbar -->
     <androidx.appcompat.widget.Toolbar

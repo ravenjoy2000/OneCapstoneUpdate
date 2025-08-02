@@ -1,29 +1,28 @@
-// MyProfileActivity.kt
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.mediconnect.R
+import com.example.mediconnect.activities.BaseActivity
+import com.example.mediconnect.activities.SplashActivity
 import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.User
 import com.example.mediconnect.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 
 class MyProfileActivity : BaseActivity() {
 
@@ -88,7 +87,7 @@ class MyProfileActivity : BaseActivity() {
             title = resources.getString(R.string.my_profile_title)
         }
 
-        findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar_my_profile_activity)
+        findViewById<Toolbar>(R.id.toolbar_my_profile_activity)
             .setNavigationOnClickListener { onBackPressed() }
     }
 
@@ -126,7 +125,7 @@ class MyProfileActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode == Activity.RESULT_OK && data?.data != null) {
+        if (resultCode == RESULT_OK && data?.data != null) {
             when (requestCode) {
                 PICK_IMAGE_REQUEST_CODE -> {
                     mSelectedImageFileUri = data.data!!
@@ -199,13 +198,13 @@ class MyProfileActivity : BaseActivity() {
             anyChangeMade = true
         }
 
-        val inputName = findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_name).text.toString().trim()
+        val inputName = findViewById<AppCompatEditText>(R.id.et_name).text.toString().trim()
         if (inputName != mUserDetails.name) {
             userHashMap[Constants.NAME] = inputName
             anyChangeMade = true
         }
 
-        val inputMobile = findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_mobile).text.toString()
+        val inputMobile = findViewById<AppCompatEditText>(R.id.et_mobile).text.toString()
             .replace("+63", "")
             .replace(" ", "")
             .replace("-", "")
@@ -251,13 +250,13 @@ class MyProfileActivity : BaseActivity() {
             .centerCrop()
             .into(findViewById(R.id.iv_profile_user_image))
 
-        findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_name).setText(user.name)
-        findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_username).setText(user.username)
-        findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_email).setText(user.email)
+        findViewById<AppCompatEditText>(R.id.et_name).setText(user.name)
+        findViewById<AppCompatEditText>(R.id.et_username).setText(user.username)
+        findViewById<AppCompatEditText>(R.id.et_email).setText(user.email)
 
         if (user.mobile != 0L) {
             val mobile = "+63 ${user.mobile.toString().chunked(3).joinToString(" ")}"
-            findViewById<androidx.appcompat.widget.AppCompatEditText>(R.id.et_mobile).setText(mobile)
+            findViewById<AppCompatEditText>(R.id.et_mobile).setText(mobile)
         }
 
         if (user.goverment_or_phealtID.isNotEmpty()) {

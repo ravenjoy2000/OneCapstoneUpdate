@@ -6,7 +6,7 @@
     android:background="#F8F9FA"
     android:fitsSystemWindows="true"
     android:paddingTop="72dp"
-    tools:context=".activities.MainActivity">
+    tools:context=".patient.MainActivity">
 
     <LinearLayout
         android:orientation="vertical"

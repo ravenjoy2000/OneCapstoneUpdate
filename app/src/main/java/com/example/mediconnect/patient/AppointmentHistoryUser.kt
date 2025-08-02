@@ -1,4 +1,4 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.os.Bundle
 import android.util.Log
@@ -8,14 +8,16 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
-import com.example.mediconnect.adapters.AppointmentHistoryAdapter
+import com.example.mediconnect.activities.BaseActivity
 import com.example.mediconnect.models.Appointment
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AppointmentHistoryUser : BaseActivity() {
 
@@ -140,7 +142,8 @@ class AppointmentHistoryUser : BaseActivity() {
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.size() >= 3) {
-                    val restrictedUntil = Timestamp(Date(System.currentTimeMillis() + 48 * 60 * 60 * 1000))
+                    val restrictedUntil =
+                        Timestamp(Date(System.currentTimeMillis() + 48 * 60 * 60 * 1000))
                     db.collection("users").document(userId)
                         .update("bookingRestrictedUntil", restrictedUntil)
                         .addOnSuccessListener {

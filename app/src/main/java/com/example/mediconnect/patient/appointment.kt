@@ -1,16 +1,22 @@
-package com.example.mediconnect.activities
+package com.example.mediconnect.patient
 
 import android.Manifest
+import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Button
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -18,16 +24,17 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
+import com.example.mediconnect.patient.AppointmentReminderWorker
+import com.example.mediconnect.activities.BaseActivity
+import com.example.mediconnect.patient.MyAppointment
+import com.example.mediconnect.patient.TimeSlotAdapter
 import com.example.mediconnect.models.Booking
-import com.example.mediconnect.adapters.TimeSlotAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.*
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class appointment : BaseActivity() {
 
@@ -95,36 +102,41 @@ class appointment : BaseActivity() {
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-            val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+            val datePickerDialog =
+                DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+                    val selectedCalendar = Calendar.getInstance()
+                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
 
-                val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
+                    val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
 
-                if (dayOfWeek != Calendar.MONDAY && dayOfWeek != Calendar.WEDNESDAY && dayOfWeek != Calendar.FRIDAY) {
-                    Toast.makeText(this, "Clinic consultations are only available on Monday, Wednesday, and Friday.", Toast.LENGTH_LONG).show()
-                    return@DatePickerDialog
-                }
-
-                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val selectedDateFormatted = sdf.format(selectedCalendar.time)
-                selectedDate = selectedDateFormatted
-                tvSelectedDate.text = "Selected Date: $selectedDateFormatted"
-
-                fetchBookedSlotsForDate(selectedDateFormatted) { bookedSlots ->
-                    val adapter = TimeSlotAdapter(
-                        allowedTimeSlots,
-                        bookedSlots,
-                        false,
-                        selectedDateFormatted
-                    ) { selectedTime ->
-                        selectedTimeSlot = selectedTime
+                    if (dayOfWeek != Calendar.MONDAY && dayOfWeek != Calendar.WEDNESDAY && dayOfWeek != Calendar.FRIDAY) {
+                        Toast.makeText(
+                            this,
+                            "Clinic consultations are only available on Monday, Wednesday, and Friday.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@DatePickerDialog
                     }
 
-                    rvTimeSlots.adapter = adapter
-                }
+                    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val selectedDateFormatted = sdf.format(selectedCalendar.time)
+                    selectedDate = selectedDateFormatted
+                    tvSelectedDate.text = "Selected Date: $selectedDateFormatted"
 
-            }, year, month, day)
+                    fetchBookedSlotsForDate(selectedDateFormatted) { bookedSlots ->
+                        val adapter = TimeSlotAdapter(
+                            allowedTimeSlots,
+                            bookedSlots,
+                            false,
+                            selectedDateFormatted
+                        ) { selectedTime ->
+                            selectedTimeSlot = selectedTime
+                        }
+
+                        rvTimeSlots.adapter = adapter
+                    }
+
+                }, year, month, day)
 
             datePickerDialog.datePicker.minDate = calendar.timeInMillis
             val maxDate = Calendar.getInstance()
@@ -287,7 +299,7 @@ class appointment : BaseActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             reminderTimeInMillis,

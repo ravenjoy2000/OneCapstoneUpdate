@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FAFAFA"
-    tools:context=".activities.appointment">
+    tools:context=".patient.appointment">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
