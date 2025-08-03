@@ -11,17 +11,16 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.mediconnect.R
+import com.example.mediconnect.activities.BaseActivity
+import com.example.mediconnect.activities.IntroActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.example.mediconnect.activities.BaseActivity
-import java.util.*
 
 class DoctorProfile : BaseActivity() {
 
@@ -49,7 +48,6 @@ class DoctorProfile : BaseActivity() {
         initViews()
         loadProfile()
         hideStatusBar()
-
     }
 
     private fun hideStatusBar() {
@@ -112,18 +110,18 @@ class DoctorProfile : BaseActivity() {
         progressDialog.setCancelable(false)
         progressDialog.show()
 
-        db.collection("doctor").document(uid).get()
+        db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 progressDialog.dismiss()
                 if (doc != null && doc.exists()) {
                     name.setText(doc.getString("name"))
                     specialty.setText(doc.getString("specialty"))
-                    mobile.setText(doc.getString("mobile"))
-                    clinic.setText(doc.getString("clinic"))
-                    bio.setText(doc.getString("bio"))
+                    mobile.setText(doc.getString("phone"))
+                    clinic.setText(doc.getString("clinicAddress"))
+                    bio.setText(doc.getString("shortBio"))
                     email.setText(doc.getString("email"))
 
-                    val photoUrl = doc.getString("photoUrl")
+                    val photoUrl = doc.getString("image")
                     if (!photoUrl.isNullOrEmpty()) {
                         Glide.with(this)
                             .load(photoUrl)
@@ -152,13 +150,16 @@ class DoctorProfile : BaseActivity() {
             return
         }
 
-        val profileData = hashMapOf(
+        val profileData = hashMapOf<String, Any>(
+            "uid" to uid,
             "name" to nameVal,
             "specialty" to specialtyVal,
-            "mobile" to mobileVal,
+            "phone" to mobileVal,
             "email" to emailVal,
-            "clinic" to clinicVal,
-            "bio" to bioVal
+            "clinicAddress" to clinicVal,
+            "shortBio" to bioVal,
+            "createdAt" to System.currentTimeMillis(),
+            "role" to "doctor"
         )
 
         progressDialog.setMessage("Saving profile...")
@@ -166,13 +167,13 @@ class DoctorProfile : BaseActivity() {
         progressDialog.show()
 
         if (imageUri != null) {
-            val imageRef = storage.child("doctor_profiles/$uid.jpg")
+            val imageRef = storage.child("users/$uid/profile.jpg")
             imageRef.putFile(imageUri!!)
                 .continueWithTask { task ->
                     if (!task.isSuccessful) throw task.exception ?: Exception("Upload failed")
                     imageRef.downloadUrl
                 }.addOnSuccessListener { downloadUrl ->
-                    profileData["photoUrl"] = downloadUrl.toString()
+                    profileData["image"] = downloadUrl.toString()
                     saveToFirestore(uid, profileData)
                 }.addOnFailureListener {
                     progressDialog.dismiss()
@@ -183,13 +184,12 @@ class DoctorProfile : BaseActivity() {
         }
     }
 
-    private fun saveToFirestore(uid: String, profileData: HashMap<String, String>) {
-        db.collection("doctor").document(uid).set(profileData)
+    private fun saveToFirestore(uid: String, profileData: HashMap<String, Any>) {
+        db.collection("users").document(uid).set(profileData)
             .addOnSuccessListener {
                 progressDialog.dismiss()
                 Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show()
-
-                recreate() // 👈 This will restart the activity and reload the updated profile
+                restartApp()
 
             }
             .addOnFailureListener {
@@ -197,4 +197,12 @@ class DoctorProfile : BaseActivity() {
                 Toast.makeText(this, "Failed to save profile", Toast.LENGTH_SHORT).show()
             }
     }
+
+    private fun restartApp() {
+        val intent = Intent(this, DoctorDashboardActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+        finish()
+    }
+
 }

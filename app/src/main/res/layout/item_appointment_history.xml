@@ -24,7 +24,7 @@
             android:weightSum="1">
 
             <TextView
-                android:id="@+id/tv_doctor_name"
+                android:id="@+id/tv_doctor_in_history_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
@@ -96,12 +96,12 @@
         <!-- Reschedule Info -->
         <TextView
             android:id="@+id/tv_reschedule_info"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rescheduled from: July 20, 2025"
-            android:textSize="13sp"
-            android:textColor="#FFA000"
             android:layout_marginTop="4dp"
+            android:text="Rescheduled from: July 20, 2025"
+            android:textColor="#FFA000"
+            android:textSize="13sp"
             android:visibility="gone" />
 
         <!-- Mode -->

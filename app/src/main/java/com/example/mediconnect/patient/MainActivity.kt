@@ -24,6 +24,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+
+
     companion object {
         private const val MY_PROFILE_REQUEST_CODE = 101
         private const val MY_APPOINTMENT_REQUEST_CODE = 102
@@ -149,14 +151,21 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     fun updateNavigationUserDetails(user: User) {
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        val headerView = navigationView.getHeaderView(0)
+
+        val ivUserImage = headerView.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.iv_image)
+        val tvUsername = headerView.findViewById<TextView>(R.id.tv_username)
+
         Glide.with(this)
             .load(user.image)
             .centerCrop()
             .placeholder(R.drawable.ic_user_place_holder)
-            .into(findViewById(R.id.iv_user_image))
+            .into(ivUserImage)
 
-        findViewById<TextView>(R.id.tv_username).text = user.name
+        tvUsername.text = user.name
     }
+
 
     private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()

@@ -6,6 +6,7 @@ import android.os.Parcelable
 data class Booking(
     val patientId: String = "",
     val patientName: String = "",
+    val doctorName: String? = "", // <- Add this
     val date: String = "",           // Format: "2025-07-28"
     val timeSlot: String = "",       // Format: "09:00 AM"
     val status: String = "booked",   // Default value: "booked" or "cancelled"
@@ -24,6 +25,7 @@ data class Booking(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
+        parcel.readString() ?: "",
         parcel.readLong(),
         parcel.readString() ?: ""
         )
@@ -31,6 +33,7 @@ data class Booking(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(patientId)
         parcel.writeString(patientName)
+        parcel.writeString(doctorName)
         parcel.writeString(date)
         parcel.writeString(timeSlot)
         parcel.writeString(status)

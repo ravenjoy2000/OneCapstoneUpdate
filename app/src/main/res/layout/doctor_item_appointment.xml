@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_appointment_card"
+    android:layout_marginBottom="12dp"
+    android:elevation="4dp"
+    android:clipToPadding="false"
+    android:layout_marginHorizontal="8dp">
+
+    <!-- Patient Name -->
+    <TextView
+        android:id="@+id/doctor_patient_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Patient Name"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Appointment Date -->
+    <TextView
+        android:id="@+id/doctor_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aug 5, 2025"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="2dp" />
+
+    <!-- Appointment Time -->
+    <TextView
+        android:id="@+id/doctor_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2:00 PM"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="6dp" />
+
+    <!-- Status -->
+    <TextView
+        android:id="@+id/doctor_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="In-Person"
+        android:textSize="14sp"
+        android:textColor="@color/purple_5001"
+        android:background="@drawable/bg_status"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_gravity="start" />
+</LinearLayout>

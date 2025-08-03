@@ -19,5 +19,6 @@ object Constants {
     const val GOVERNMENT_OR_PHILHEALTH_ID = "goverment_or_phealtID"
 
     const val USER_NAME = "user_name"
+    const val DOCTORS = "doctor"
 
 }

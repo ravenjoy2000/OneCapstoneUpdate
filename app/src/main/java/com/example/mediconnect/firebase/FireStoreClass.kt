@@ -1,10 +1,10 @@
 package com.example.mediconnect.firebase
 
-// Required imports
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import com.example.mediconnect.activities.*
+import com.example.mediconnect.doctor.DoctorDashboardActivity
 import com.example.mediconnect.models.User
 import com.example.mediconnect.patient.MainActivity
 import com.example.mediconnect.patient.MyProfileActivity
@@ -12,79 +12,69 @@ import com.example.mediconnect.utils.Constants
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
-/**
- * FireStoreClass
- * Handles all Firebase Firestore-related operations such as:
- * - Registering a user
- * - Loading user data
- * - Updating profile info
- */
 class FireStoreClass : BaseActivity() {
 
-    // Instance of Firestore database
     private val mFireStore = FirebaseFirestore.getInstance()
 
-    // ---------------------------------------------------------------------------------------
-    // 🔹 FUNCTION: Register User
-    // Registers a new user in Firestore database using UID as document ID.
-    // Called after successful Firebase Authentication in SignUpActivity.
-    // ---------------------------------------------------------------------------------------
+    // 🔹 Register new user
     fun registerUser(activity: SignUpActivity, @SuppressLint("RestrictedApi") userInfo: User) {
-        mFireStore.collection(Constants.USERS)               // Go to "users" collection
-            .document(getCurrentUserID())                    // Use UID as document ID
-            .set(userInfo, SetOptions.merge())               // Save user info (merge to keep existing fields)
+        mFireStore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .set(userInfo, SetOptions.merge())
             .addOnSuccessListener {
-                activity.userRegisteredSuccess()             // Notify SignUpActivity of success
+                activity.userRegisteredSuccess()
             }
             .addOnFailureListener { e ->
-                activity.hideProgressDialog()                // Hide loading if error occurs
+                activity.hideProgressDialog()
                 Log.e(activity.javaClass.simpleName, "Error writing document", e)
             }
     }
 
-    // ---------------------------------------------------------------------------------------
-    // 🔹 FUNCTION: Load User Data
-    // Fetches user info from Firestore and sends it back to the appropriate Activity.
-    // Supports: SignInActivity, MainActivity, MyProfileActivity.
-    // ---------------------------------------------------------------------------------------
+    // 🔹 Load current user's data from Firestore
     fun loadUserData(activity: Activity) {
-        mFireStore.collection(Constants.USERS)
-            .document(getCurrentUserID())
-            .get()
-            .addOnSuccessListener { document ->
-                val loggedInUser = document.toObject(User::class.java)
+        val currentUserId = getCurrentUserID()
 
-                when (activity) {
-                    is SignInActivity -> {
-                        if (loggedInUser != null) {
-                            activity.signInSuccess(loggedInUser)
-                        }
-                    }
-                    is MainActivity -> {
-                        activity.updateNavigationUserDetails(loggedInUser!!)
-                    }
-                    is MyProfileActivity -> {
-                        activity.setUserDataInUI(loggedInUser!!)
-                    }
+        mFireStore.collection(Constants.USERS)
+            .document(currentUserId)
+            .get()
+            .addOnSuccessListener { userDoc ->
+                if (userDoc.exists()) {
+                    val user = userDoc.toObject(User::class.java)
+                    dispatchUserData(activity, user)
+                } else {
+                    Log.e("Firestore", "User document does not exist.")
+                    handleError(activity, Exception("User document not found"))
                 }
             }
             .addOnFailureListener { e ->
-                // Hide progress dialog based on activity
-                when (activity) {
-                    is SignInActivity -> activity.hideProgressDialog()
-                    is MainActivity -> activity.hideProgressDialog()
-                    is MyProfileActivity -> activity.hideProgressDialog()
-                }
-
-                Log.e(activity.javaClass.simpleName, "Error loading user data", e)
+                handleError(activity, e)
             }
     }
 
-    // ---------------------------------------------------------------------------------------
-    // 🔹 FUNCTION: Update User Profile
-    // Updates only specific fields in the user document (ex: name, mobile, image, etc.).
-    // Called from MyProfileActivity when user taps Save button.
-    // ---------------------------------------------------------------------------------------
+    // 🔹 Dispatch user data to the correct activity
+    private fun dispatchUserData(activity: Activity, user: User?) {
+        user?.let {
+            when (activity) {
+                is SignInActivity -> activity.signInSuccess(it)
+                is MainActivity -> activity.updateNavigationUserDetails(it)
+                is MyProfileActivity -> activity.setUserDataInUI(it)
+                is DoctorDashboardActivity -> activity.updateNavigationUserDetails(it)
+            }
+        }
+    }
+
+    // 🔹 Centralized error handler for loading data
+    private fun handleError(activity: Activity, e: Exception) {
+        Log.e(activity.javaClass.simpleName, "Error loading user data", e)
+        when (activity) {
+            is SignInActivity,
+            is MainActivity,
+            is MyProfileActivity,
+            is DoctorDashboardActivity -> activity.hideProgressDialog()
+        }
+    }
+
+    // 🔹 Update user profile data
     fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
         mFireStore.collection(Constants.USERS)
             .document(getCurrentUserID())
@@ -100,19 +90,11 @@ class FireStoreClass : BaseActivity() {
             }
     }
 
-    // ---------------------------------------------------------------------------------------
-    // 🔹 FUNCTION: Get Current User ID (Assumed in BaseActivity)
-    // This is commented out because your BaseActivity already includes it.
-    // ---------------------------------------------------------------------------------------
-//    fun getCurrentUserID(): String {
-//        return FirebaseAuth.getInstance().currentUser!!.uid
-//    }
-
+    // 🔹 Fetch current user's role from Firestore
     fun getCurrentUserRole(onRoleFetched: (String) -> Unit) {
         val currentUserID = getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users") // or your actual collection name
+            mFireStore.collection(Constants.USERS)
                 .document(currentUserID)
                 .get()
                 .addOnSuccessListener { document ->
@@ -126,6 +108,4 @@ class FireStoreClass : BaseActivity() {
             onRoleFetched("") // no user logged in
         }
     }
-
-
-} // 🔚 End of FireStoreClass
+}

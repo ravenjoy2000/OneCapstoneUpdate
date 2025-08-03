@@ -7,12 +7,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.Appointment
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AppointmentHistoryAdapter(private val appointments: List<Appointment>) :
     RecyclerView.Adapter<AppointmentHistoryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvDoctorName: TextView = view.findViewById(R.id.tv_doctor_name)
+        val tvDoctorName: TextView = view.findViewById(R.id.tv_doctor_in_history_name)
         val tvStatus: TextView = view.findViewById(R.id.tv_status)
         val tvDate: TextView = view.findViewById(R.id.tv_date)
         val tvTime: TextView = view.findViewById(R.id.tv_time)
@@ -31,7 +32,16 @@ class AppointmentHistoryAdapter(private val appointments: List<Appointment>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val appointment = appointments[position]
-        holder.tvDoctorName.text = "Dr. ${appointment.doctorName}"
+
+        val doctorDisplayName = if (
+            appointment.doctorName.isNullOrBlank() || appointment.doctorName.equals("unknown", ignoreCase = true)
+        ) {
+            "Dr. Penida"
+        } else {
+            "Dr. ${appointment.doctorName}"
+        }
+
+        holder.tvDoctorName.text = doctorDisplayName
         holder.tvStatus.text = "Status: ${formatStatus(appointment.status)}"
         holder.tvDate.text = "Date: ${appointment.date}"
         holder.tvTime.text = "Time: ${appointment.time}"
@@ -59,6 +69,7 @@ class AppointmentHistoryAdapter(private val appointments: List<Appointment>) :
             }
         )
     }
+
 
     override fun getItemCount(): Int = appointments.size
 

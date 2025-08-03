@@ -6,10 +6,12 @@ import android.app.DatePickerDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -24,10 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
-import com.example.mediconnect.patient.AppointmentReminderWorker
 import com.example.mediconnect.activities.BaseActivity
-import com.example.mediconnect.patient.MyAppointment
-import com.example.mediconnect.patient.TimeSlotAdapter
 import com.example.mediconnect.models.Booking
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,7 +35,11 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+
+
 class appointment : BaseActivity() {
+
+
 
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnSelectDate: Button
@@ -53,6 +56,8 @@ class appointment : BaseActivity() {
     private var selectedDate: String? = null
     private var selectedTimeSlot: String = ""
     private var selectedMode: String = ""
+
+    private var doctorNames: String? = null
 
     private val allowedTimeSlots = listOf("2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM")
 
@@ -102,41 +107,28 @@ class appointment : BaseActivity() {
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-            val datePickerDialog =
-                DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                    val selectedCalendar = Calendar.getInstance()
-                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+            val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedCalendar = Calendar.getInstance()
+                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
 
-                    val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
+                val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
+                if (dayOfWeek != Calendar.MONDAY && dayOfWeek != Calendar.WEDNESDAY && dayOfWeek != Calendar.FRIDAY) {
+                    Toast.makeText(this, "Clinic consultations are only available on Monday, Wednesday, and Friday.", Toast.LENGTH_LONG).show()
+                    return@DatePickerDialog
+                }
 
-                    if (dayOfWeek != Calendar.MONDAY && dayOfWeek != Calendar.WEDNESDAY && dayOfWeek != Calendar.FRIDAY) {
-                        Toast.makeText(
-                            this,
-                            "Clinic consultations are only available on Monday, Wednesday, and Friday.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@DatePickerDialog
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val selectedDateFormatted = sdf.format(selectedCalendar.time)
+                selectedDate = selectedDateFormatted
+                tvSelectedDate.text = "Selected Date: $selectedDateFormatted"
+
+                fetchBookedSlotsForDate(selectedDateFormatted) { bookedSlots ->
+                    val adapter = TimeSlotAdapter(allowedTimeSlots, bookedSlots, false, selectedDateFormatted) { selectedTime ->
+                        selectedTimeSlot = selectedTime
                     }
-
-                    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val selectedDateFormatted = sdf.format(selectedCalendar.time)
-                    selectedDate = selectedDateFormatted
-                    tvSelectedDate.text = "Selected Date: $selectedDateFormatted"
-
-                    fetchBookedSlotsForDate(selectedDateFormatted) { bookedSlots ->
-                        val adapter = TimeSlotAdapter(
-                            allowedTimeSlots,
-                            bookedSlots,
-                            false,
-                            selectedDateFormatted
-                        ) { selectedTime ->
-                            selectedTimeSlot = selectedTime
-                        }
-
-                        rvTimeSlots.adapter = adapter
-                    }
-
-                }, year, month, day)
+                    rvTimeSlots.adapter = adapter
+                }
+            }, year, month, day)
 
             datePickerDialog.datePicker.minDate = calendar.timeInMillis
             val maxDate = Calendar.getInstance()
@@ -174,6 +166,11 @@ class appointment : BaseActivity() {
                 return@setOnClickListener
             }
 
+
+
+
+
+
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
                     val userName = document.getString("name") ?: "Anonymous"
@@ -185,6 +182,7 @@ class appointment : BaseActivity() {
                         timeSlot = selectedTimeSlot,
                         mode = selectedMode,
                         status = "booked",
+                        doctorName = doctorNames,
                         timestamp = System.currentTimeMillis(),
                         reason = reason
                     )
@@ -201,6 +199,8 @@ class appointment : BaseActivity() {
                         .addOnFailureListener {
                             Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
                         }
+
+
                 }
                 .addOnFailureListener {
                     Toast.makeText(this, "Failed to fetch user data", Toast.LENGTH_SHORT).show()
@@ -210,18 +210,14 @@ class appointment : BaseActivity() {
 
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_appointment)
-        if (toolbar != null) {
-            setSupportActionBar(toolbar)
-
-            supportActionBar?.let {
-                it.setDisplayHomeAsUpEnabled(true)
-                it.setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
-                it.title = getString(R.string.my_appointment_title)
-            }
-
-            toolbar.setNavigationOnClickListener {
-                onBackPressedDispatcher.onBackPressed()
-            }
+        setSupportActionBar(toolbar)
+        supportActionBar?.let {
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
+            it.title = getString(R.string.my_appointment_title)
+        }
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 
@@ -260,11 +256,7 @@ class appointment : BaseActivity() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                channelName,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
+            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH).apply {
                 description = "Channel for appointment booking notifications"
             }
             notificationManager.createNotificationChannel(channel)
@@ -299,15 +291,32 @@ class appointment : BaseActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            reminderTimeInMillis,
-            pendingIntent
-        )
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    reminderTimeInMillis,
+                    pendingIntent
+                )
+            } else {
+                // Request permission by opening settings
+                val intentSettings = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                startActivity(intentSettings)
+                Toast.makeText(this, "Enable exact alarm permission to receive reminders.", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                reminderTimeInMillis,
+                pendingIntent
+            )
+        }
 
         Log.d("Reminder", "Scheduled 30-min reminder at ${Date(reminderTimeInMillis)}")
     }
+
 
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -81,6 +81,7 @@ class MyAppointment : AppCompatActivity() {
         btnReschedule = findViewById(R.id.btn_reschedule)
     }
 
+
     @SuppressLint("SetTextI18n")
     private fun loadAppointment() {
         if (currentUserId == null) {
@@ -104,8 +105,15 @@ class MyAppointment : AppCompatActivity() {
 
                 updateAppointmentUI(doc.getString("status"), doc.getString("cancelReason"))
 
-                tvDoctorName.text = doc.getString("doctorName")?.takeIf { it.isNotBlank() }
-                    ?: "Dr. Francis Ivan G. Pineda"
+
+                db.collection("users") // Doctor Name
+                    .whereEqualTo("role","doctor")
+                    .get()
+                    .addOnSuccessListener {
+                        val doctorName = it.documents[0].getString("name")
+                        tvDoctorName.text = doctorName
+                    }
+
 
                 tvLocation.text = "Location: ${doc.getString("location")?.takeIf { it.isNotBlank() }
                     ?: "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"}"
@@ -129,6 +137,8 @@ class MyAppointment : AppCompatActivity() {
                 Toast.makeText(this, "Failed to load appointment.", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 
     private fun updateAppointmentUI(statusRaw: String?, cancelReason: String?) {
         val status = statusRaw?.lowercase() ?: "booked"
