@@ -103,22 +103,45 @@ class MyAppointment : AppCompatActivity() {
                 val doc = documents.documents[0]
                 appointmentId = doc.id
 
-                updateAppointmentUI(doc.getString("status"), doc.getString("cancelReason"))
+                val status = doc.getString("status")
+                val cancelReason = doc.getString("cancelReason")
+                updateAppointmentUI(status, cancelReason)
+
+                // Disable buttons if appointment already cancelled/completed
+                val isModifiable = when (status?.lowercase()) {
+                    "cancelled", "completed", "no_show", "late" -> false
+                    else -> true
+                }
+                btnCancel.isEnabled = isModifiable
+                btnReschedule.isEnabled = isModifiable
+
+                val doctorId = doc.getString("doctorId")
+                if (!doctorId.isNullOrBlank()) {
+                    db.collection("users").document(doctorId)
+                        .get()
+                        .addOnSuccessListener {
+                            val doctorName = it.getString("name") ?: "Doctor"
+                            tvDoctorName.text = doctorName
+                            val doctorPhone = it.getString("phone") ?: "0961-053-9277"
+                            tvNotes.text = "Contact: $doctorPhone"
+                            val doctorAddress = it.getString("clinicAddress") ?: "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"
+                            tvLocation.text = "Location: $doctorAddress"
+                        }
+                        .addOnFailureListener {
+                            tvDoctorName.text = "Doctor"
+                        }
+                } else {
+                    tvDoctorName.text = "Doctor"
+                }
+
+                val location = doc.getString("doctorAddress")?.takeIf { it.isNotBlank() }
+                    ?: "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"
+                tvLocation.text = "Location: $location"
+
+                val contact = doc.getString("doctorPhone")?.takeIf { it.isNotBlank() } ?: "0961-053-9277"
+                tvNotes.text = "Contact: $contact"
 
 
-                db.collection("users") // Doctor Name
-                    .whereEqualTo("role","doctor")
-                    .get()
-                    .addOnSuccessListener {
-                        val doctorName = it.documents[0].getString("name")
-                        tvDoctorName.text = doctorName
-                    }
-
-
-                tvLocation.text = "Location: ${doc.getString("location")?.takeIf { it.isNotBlank() }
-                    ?: "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"}"
-
-                tvNotes.text = "Contact: ${doc.getString("notes")?.takeIf { it.isNotBlank() } ?: "0961-053-9277"}"
 
                 tvAppointmentReason.text = "Reason: ${doc.getString("reason") ?: "No reason provided."}"
                 tvDate.text = "Date: ${doc.getString("date") ?: "--"}"
@@ -274,4 +297,7 @@ class MyAppointment : AppCompatActivity() {
             .setCancelable(false)
             .show()
     }
+
+
+
 }

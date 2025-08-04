@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#F8F9FA"
     android:fitsSystemWindows="true"
     android:paddingTop="72dp"
@@ -35,13 +36,14 @@
             android:background="@drawable/bg_card_rounded" >
 
             <!-- Doctor Icon -->
-            <ImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_doctor_icon"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:src="@drawable/penidadoctor"
-                android:contentDescription="Doctor Icon"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Doctor Icon" />
+
 
             <!-- Doctor Name -->
             <TextView
@@ -94,18 +96,23 @@
                 android:layout_marginBottom="8dp" />
 
             <!-- Website Link -->
-            <TextView
-                android:id="@+id/tv_clinic_website"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/btnVisitFacebook"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:padding="8dp"
-                android:text="🌐 Visit Clinic Website"
-                android:textColor="#1E88E5"
-                android:textSize="14sp"
-                android:autoLink="web"
-                android:textIsSelectable="false"
+                android:layout_margin="16dp"
+                android:padding="12dp"
+                android:text="Visit Facebook Page"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/facebookBlue"
+                android:textColor="@android:color/white"
                 android:onClick="openClinicWebsite" />
+
+
+
+
+
+
 
             <!-- Address -->
             <TextView

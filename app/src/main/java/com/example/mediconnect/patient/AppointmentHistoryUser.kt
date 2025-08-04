@@ -15,9 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class AppointmentHistoryUser : BaseActivity() {
 
@@ -47,7 +45,6 @@ class AppointmentHistoryUser : BaseActivity() {
             setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
             title = getString(R.string.my_appointment_title)
         }
-
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
@@ -62,7 +59,6 @@ class AppointmentHistoryUser : BaseActivity() {
 
     private fun loadAppointmentHistory(userId: String) {
         val db = FirebaseFirestore.getInstance()
-
         db.collection("appointments")
             .whereEqualTo("patientId", userId)
             .whereIn("status", listOf("completed", "cancelled", "late", "no_show"))
@@ -72,13 +68,13 @@ class AppointmentHistoryUser : BaseActivity() {
                 for (doc in documents) {
                     val appointment = Appointment(
                         date = doc.getString("date") ?: "",
-                        time = doc.getString("time") ?: "",
+                        time = doc.getString("timeSlot") ?: "",
                         mode = doc.getString("mode") ?: "",
                         status = doc.getString("status") ?: "",
                         doctorName = doc.getString("doctorName") ?: "Unknown",
-                        reason = doc.getString("appointmentReason") ?: "No reason provided",
+                        reason = doc.getString("reason") ?: "No reason provided",
                         note = doc.getString("notes") ?: "",
-                        location = doc.getString("location") ?: "N/A",
+                        location = doc.getString("doctorAddress") ?: doc.getString("location") ?: "N/A",
                         bookedAt = doc.getTimestamp("bookedAt")?.toDate()
                     )
                     historyList.add(appointment)
@@ -91,21 +87,22 @@ class AppointmentHistoryUser : BaseActivity() {
             }
     }
 
+
     private fun monitorLateAppointments(userId: String) {
         val db = FirebaseFirestore.getInstance()
-
         db.collection("appointments")
             .whereEqualTo("patientId", userId)
-            .whereEqualTo("status", "confirmed")
+            .whereIn("status", listOf("booked", "rescheduled", "rescheduled_once"))
             .get()
             .addOnSuccessListener { documents ->
                 val currentTime = Calendar.getInstance().time
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                var anyLateMarked = false
 
                 for (doc in documents) {
                     try {
                         val date = doc.getString("date") ?: continue
-                        val time = doc.getString("time") ?: continue
+                        val time = doc.getString("timeSlot") ?: continue
                         val appointmentDateTime = sdf.parse("$date $time") ?: continue
 
                         val difference = currentTime.time - appointmentDateTime.time
@@ -114,16 +111,20 @@ class AppointmentHistoryUser : BaseActivity() {
                                 .update("status", "late")
                                 .addOnSuccessListener {
                                     Log.d("AppointmentStatus", "Marked late: ${doc.id}")
-                                    Toast.makeText(
-                                        this,
-                                        "You are marked late. Please approach the front desk or reschedule.",
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                    anyLateMarked = true
                                 }
                         }
                     } catch (e: ParseException) {
                         Log.e("DateParseError", "Failed to parse appointment datetime", e)
                     }
+                }
+
+                if (anyLateMarked) {
+                    Toast.makeText(
+                        this,
+                        "⚠️ Some of your appointments were marked late. Please rebook or contact support.",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
             .addOnFailureListener {
@@ -142,17 +143,24 @@ class AppointmentHistoryUser : BaseActivity() {
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.size() >= 3) {
-                    val restrictedUntil =
-                        Timestamp(Date(System.currentTimeMillis() + 48 * 60 * 60 * 1000))
-                    db.collection("users").document(userId)
-                        .update("bookingRestrictedUntil", restrictedUntil)
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                this,
-                                "You have canceled 3 appointments today. Booking is disabled for 48 hours.",
-                                Toast.LENGTH_LONG
-                            ).show()
+                    val restrictedUntil = Timestamp(Date(System.currentTimeMillis() + 48 * 60 * 60 * 1000))
+                    val userRef = db.collection("users").document(userId)
+
+                    userRef.get().addOnSuccessListener { userSnap ->
+                        val existingRestriction = userSnap.getTimestamp("bookingRestrictedUntil")
+                        val now = Timestamp.now()
+
+                        if (existingRestriction == null || existingRestriction.toDate().before(Date())) {
+                            userRef.update("bookingRestrictedUntil", restrictedUntil)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "🚫 You have canceled 3 appointments today. Booking is disabled for 48 hours.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                         }
+                    }
                 }
             }
             .addOnFailureListener {

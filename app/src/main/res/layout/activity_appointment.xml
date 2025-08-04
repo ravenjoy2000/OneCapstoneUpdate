@@ -33,37 +33,42 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Doctor Information"
+                android:text="Appointment"
                 android:layout_marginBottom="16dp"
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:paddingTop="8dp"
                 android:textColor="#222" />
 
-            <TextView
-                android:id="@+id/tv_doctor_name"
-                android:layout_width="wrap_content"
+
+            <Spinner
+                android:id="@+id/spinner_doctor"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dr. Maria Pineda"
+                android:padding="12dp"
                 android:textSize="16sp"
-                android:textColor="#333" />
-
+                android:textColor="#333"
+                android:background="@drawable/spinner_background"
+                android:gravity="center_vertical" />
             <TextView
-                android:id="@+id/tv_doctor_contact"
+                android:id="@+id/tv_doctor_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Contact: +63 912 345 6789"
-                android:textSize="14sp"
-                android:textColor="#444" />
+                android:text="Phone: "
+                android:textSize="16sp"
+                android:layout_marginTop="8dp" />
 
             <TextView
-                android:id="@+id/tv_location"
+                android:id="@+id/tv_doctor_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Clinic: Pineda Medical Clinic, Sampaloc, Manila"
-                android:textSize="14sp"
-                android:textColor="#444"
-                android:paddingBottom="8dp" />
+                android:text="Address: "
+                android:textSize="16sp"
+                android:layout_marginTop="4dp" />
+
+
+
+
 
             <!-- Map Preview -->
             <ImageView

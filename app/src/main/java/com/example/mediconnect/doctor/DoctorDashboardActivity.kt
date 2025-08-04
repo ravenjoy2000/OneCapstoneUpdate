@@ -1,7 +1,6 @@
 package com.example.mediconnect.doctor
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -26,7 +25,6 @@ import com.example.mediconnect.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 
 class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -51,23 +49,13 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        setupNavigationDrawer()
-        handleBackPressBehavior()
-
-        // Load doctor user data
-        FireStoreClass().loadUserData(this)
-    }
-
-    private fun setupNavigationDrawer() {
         navigationView = findViewById(R.id.nav_doctor_view)
         navigationView.setNavigationItemSelectedListener(this)
 
-        val headerView = navigationView.getHeaderView(0)
-        val tvWebsite = headerView.findViewById<TextView?>(R.id.tv_clinic_website)
-        tvWebsite?.setOnClickListener {
-            val url = "https://www.facebook.com/profile.php?id=100092741389883&sk=about"
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-        }
+        handleBackPressBehavior()
+
+        // Load doctor user data and then setup header
+        FireStoreClass().loadUserData(this)
     }
 
     private fun handleBackPressBehavior() {
@@ -106,30 +94,39 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
         val imageView = headerView.findViewById<ImageView>(R.id.iv_doctor_image)
         val tvUsername = headerView.findViewById<TextView>(R.id.tv_doctor_user)
 
+        // Load and show doctor photo
         Glide.with(this)
             .load(user.image)
             .centerCrop()
             .placeholder(R.drawable.ic_user_place_holder)
             .into(imageView)
 
+        // Set username
         tvUsername.text = user.name
 
-        // Load appointments for this doctor
-        loadDoctorAppointments(user.name)
+        // Load booked appointments for current doctor
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUserId != null) {
+            loadDoctorAppointments(currentUserId)
+        }
     }
 
-    private fun loadDoctorAppointments(doctorName: String) {
+    private fun loadDoctorAppointments(doctorId: String) {
         val db = FirebaseFirestore.getInstance()
-
         showProgressDialog("Loading appointments...")
 
         db.collection("appointments")
-            .whereEqualTo("doctorName", doctorName)
-            .whereIn("status", listOf("booked", "rescheduled_once"))
-            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .whereEqualTo("doctorId", doctorId)
+            .whereEqualTo("status", "booked")
             .get()
             .addOnSuccessListener { documents ->
                 hideProgressDialog()
+                Log.d("DoctorAppointments", "Fetched ${documents.size()} documents.")
+
+                if (documents.isEmpty) {
+                    Toast.makeText(this, "No booked appointments found", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
 
                 val appointments = documents.map { doc ->
                     Appointment(
@@ -150,7 +147,7 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
             }
             .addOnFailureListener { e ->
                 hideProgressDialog()
-                Log.e("DoctorAppointments", "Error fetching appointments: ${e.message}", e)
+                Log.e("DoctorAppointments", "Error: ${e.message}", e)
                 Toast.makeText(this, "Failed to load appointments", Toast.LENGTH_SHORT).show()
             }
     }

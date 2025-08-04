@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -21,10 +22,17 @@ import com.example.mediconnect.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-
+    // Views
+    private lateinit var profileImageView: CircleImageView
+    private lateinit var doctorName: TextView
+    private lateinit var doctorEmail: TextView
+    private lateinit var doctorPhone: TextView
+    private lateinit var doctorAddress: TextView
+    private lateinit var doctorSpecialty: TextView
 
     companion object {
         private const val MY_PROFILE_REQUEST_CODE = 101
@@ -36,12 +44,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+        // UI setup
         setupActionBar()
         setupNavigationDrawer()
         handleBackPressBehavior()
 
-        // Load user data into drawer
-        FireStoreClass().loadUserData(this)
+        // View initialization
+        doctorName = findViewById(R.id.tv_doctor_name)
+        doctorEmail = findViewById(R.id.tv_email_doctor)
+        doctorPhone = findViewById(R.id.tv_doctor_phone)
+        doctorAddress = findViewById(R.id.tv_doctor_address)
+        doctorSpecialty = findViewById(R.id.tv_doctor_specialty)
+        profileImageView = findViewById(R.id.iv_doctor_icon)
+
 
         val bookNowBtn = findViewById<Button>(R.id.btn_book_now)
         bookNowBtn.setOnClickListener {
@@ -52,17 +67,45 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     bookNowBtn.isEnabled = false
                     bookNowBtn.text = "You already have an appointment"
                 } else {
-                    val intent = Intent(this, appointment::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, appointment::class.java))
                 }
             }
         }
 
-        findViewById<TextView>(R.id.tv_clinic_website).setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("https://www.facebook.com/profile.php?id=100092741389883&sk=about")
-            startActivity(intent)
-        }
+        // Load data
+        FireStoreClass().loadUserData(this)
+        fetchDoctorInformation()
+    }
+
+    private fun fetchDoctorInformation() {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .whereEqualTo("role", "doctor")
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val doc = documents.documents[0]
+                    doctorName.text = doc.getString("name") ?: "N/A"
+                    doctorEmail.text = doc.getString("email") ?: "N/A"
+                    doctorPhone.text = doc.getString("phone") ?: "N/A"
+                    doctorAddress.text = doc.getString("address") ?: "N/A"
+                    doctorSpecialty.text = doc.getString("specialty") ?: "N/A"
+
+                    val imageUrl = doc.getString("image") ?: ""
+                    Glide.with(this)
+                        .load(imageUrl)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_user_place_holder)
+                        .into(profileImageView)
+                } else {
+                    Log.d("Firestore", "No doctor found.")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error fetching doctor", e)
+            }
     }
 
     private fun setupActionBar() {
@@ -77,13 +120,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         toolbar.setNavigationOnClickListener { toggleDrawer() }
     }
 
-    private fun toggleDrawer() {
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
+    private fun setupNavigationDrawer() {
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
     }
 
     private fun handleBackPressBehavior() {
@@ -99,17 +138,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         })
     }
 
-    private fun setupNavigationDrawer() {
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
-            FireStoreClass().loadUserData(this)
+    private fun toggleDrawer() {
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
         } else {
-            Log.e("Cancelled", "Cancelled or no result")
+            drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
@@ -120,23 +154,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_my_profile -> {
                 startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
-
             R.id.nav_my_appointment -> {
                 startActivity(Intent(this, MyAppointment::class.java))
             }
-
             R.id.nav_my_appointment_history -> {
                 startActivity(Intent(this, AppointmentHistoryUser::class.java))
             }
-
             R.id.nav_medical_log -> {
                 startActivity(Intent(this, MedicalLogs::class.java))
             }
-
             R.id.nav_patent_feedback -> {
                 startActivity(Intent(this, PatentFeedback::class.java))
             }
-
             R.id.nav_sign_out -> {
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(this, IntroActivity::class.java)
@@ -148,6 +177,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
+            FireStoreClass().loadUserData(this)
+        } else {
+            Log.e("Cancelled", "Cancelled or no result")
+        }
     }
 
     fun updateNavigationUserDetails(user: User) {
@@ -166,6 +204,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         tvUsername.text = user.name
     }
 
+    fun openClinicWebsite(view: View) {
+        val url = "https://www.facebook.com/profile.php?id=100092741389883"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
+    }
 
     private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -177,7 +220,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 onResult(!documents.isEmpty)
             }
             .addOnFailureListener {
-                onResult(false) // Fallback to false on error
+                onResult(false)
             }
     }
 }

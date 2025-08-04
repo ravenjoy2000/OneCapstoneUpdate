@@ -13,10 +13,14 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -35,17 +39,17 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-
-
 class appointment : BaseActivity() {
-
-
 
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnSelectDate: Button
     private lateinit var btnBookNow: Button
     private lateinit var radioGroup: RadioGroup
     private lateinit var rbInPerson: RadioButton
+
+    private lateinit var tvDoctorPhone: TextView
+    private lateinit var tvDoctorAddress: TextView
+
     private lateinit var rbTeleconsult: RadioButton
     private lateinit var rvTimeSlots: RecyclerView
     private lateinit var etReason: EditText
@@ -57,16 +61,21 @@ class appointment : BaseActivity() {
     private var selectedTimeSlot: String = ""
     private var selectedMode: String = ""
 
-    private var doctorNames: String? = null
+    private lateinit var spinnerDoctor: Spinner
+    private var selectedDoctorName: String? = null
+
+    private var selectedDoctorId: String? = null
+    private val doctorMap = mutableMapOf<String, DoctorInfo>()
 
     private val allowedTimeSlots = listOf("2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM")
+
+    data class DoctorInfo(val id: String, val phone: String, val address: String)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appointment)
 
         setupActionBar()
-
         supportActionBar?.title = getString(R.string.my_appointment_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -98,6 +107,58 @@ class appointment : BaseActivity() {
                 setupBookingUI(userId)
             }
         }
+
+        tvDoctorPhone = findViewById(R.id.tv_doctor_phone)
+        tvDoctorAddress = findViewById(R.id.tv_doctor_address)
+        spinnerDoctor = findViewById(R.id.spinner_doctor)
+
+        fetchDoctors()
+    }
+
+    private fun fetchDoctors() {
+        val doctorNames = mutableListOf<String>()
+
+        db.collection("users")
+            .whereEqualTo("role", "doctor")
+            .get()
+            .addOnSuccessListener { result ->
+                for (doc in result) {
+                    val name = doc.getString("name")
+                    val id = doc.id
+                    val phone = doc.getString("phone") ?: "Not provided"
+                    val address = doc.getString("clinicAddress") ?: "Not provided"
+
+                    if (!name.isNullOrBlank()) {
+                        doctorMap[name] = DoctorInfo(id, phone, address)
+                        doctorNames.add(name)
+                    }
+                }
+
+                if (doctorNames.isEmpty()) doctorNames.add("No doctors available")
+
+                val doctorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, doctorNames)
+                doctorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerDoctor.adapter = doctorAdapter
+
+                spinnerDoctor.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                        selectedDoctorName = doctorNames[position]
+                        val doctorInfo = doctorMap[selectedDoctorName]
+                        selectedDoctorId = doctorInfo?.id
+                        tvDoctorPhone.text = "Phone: ${doctorInfo?.phone ?: "N/A"}"
+                        tvDoctorAddress.text = "Address: ${doctorInfo?.address ?: "N/A"}"
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>) {
+                        selectedDoctorName = null
+                        selectedDoctorId = null
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to load doctors", Toast.LENGTH_SHORT).show()
+                Log.e("DoctorSpinner", "Error loading doctors", it)
+            }
     }
 
     private fun setupBookingUI(userId: String) {
@@ -175,17 +236,27 @@ class appointment : BaseActivity() {
                 .addOnSuccessListener { document ->
                     val userName = document.getString("name") ?: "Anonymous"
 
+                    val doctorInfo = doctorMap[selectedDoctorName]
+
                     val booking = Booking(
                         patientId = userId,
                         patientName = userName,
+                        doctorId = doctorInfo?.id ?: "",
+                        doctorName = selectedDoctorName ?: "Unassigned",
                         date = selectedDate!!,
                         timeSlot = selectedTimeSlot,
                         mode = selectedMode,
                         status = "booked",
-                        doctorName = doctorNames,
                         timestamp = System.currentTimeMillis(),
-                        reason = reason
+                        reason = reason,
+                        doctorPhone = doctorInfo?.phone ?: "",
+                        doctorAddress = doctorInfo?.address ?: ""
                     )
+
+
+
+
+
 
                     db.collection("appointments")
                         .add(booking)

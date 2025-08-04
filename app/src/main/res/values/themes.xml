@@ -11,5 +11,7 @@
     </style>
 
     <style name="Theme.Mediconnect" parent="Base.Theme.Mediconnect" />
+    <style name="Theme.MediConnect" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
+
 
 </resources>
