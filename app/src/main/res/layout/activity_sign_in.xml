@@ -96,52 +96,6 @@
                             android:textSize="@dimen/et_text_size" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Google Sign-In -->
-                    <Button
-                        android:id="@+id/btn_google_sign_in"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sign in with Google"
-                        android:layout_marginTop="16dp" />
-
-                    <!-- Email/Password Sign-In -->
-                    <Button
-                        android:id="@+id/btn_sign_in"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/btn_marginStartEnd"
-                        android:layout_marginTop="@dimen/sign_up_screen_btn_marginTop"
-                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                        android:background="@drawable/shape_button_rounded"
-                        android:foreground="?attr/selectableItemBackground"
-                        android:gravity="center"
-                        android:paddingTop="@dimen/btn_paddingTopBottom"
-                        android:paddingBottom="@dimen/btn_paddingTopBottom"
-                        android:text="@string/sign_in"
-                        android:textColor="@android:color/white"
-                        android:textSize="@dimen/btn_text_size" />
-
-                    <TextView
-                        android:id="@+id/tv_forgot_password"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Forgot Password?"
-                        android:textColor="@color/colorAccent"
-                        android:layout_gravity="center_horizontal"
-                        android:paddingTop="8dp" />
-
-                    <Button
-                        android:id="@+id/btn_resend_verification_email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Resend Verification Email"
-                        android:layout_marginTop="8dp" />
-
-
-
-
-
                     <!-- Phone Number -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
@@ -151,7 +105,7 @@
                         <androidx.appcompat.widget.AppCompatEditText
                             android:id="@+id/et_phone"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="Phone Number (e.g. +639123456789)"
                             android:inputType="phone" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -185,6 +139,51 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Verify OTP" />
+
+
+                    <!-- Email/Password Sign-In -->
+                    <Button
+                        android:id="@+id/btn_sign_in"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="@dimen/btn_marginStartEnd"
+                        android:layout_marginTop="@dimen/sign_up_screen_btn_marginTop"
+                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
+                        android:background="@drawable/shape_button_rounded"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:paddingTop="@dimen/btn_paddingTopBottom"
+                        android:paddingBottom="@dimen/btn_paddingTopBottom"
+                        android:text="@string/sign_in"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/btn_text_size" />
+
+
+
+                    <TextView
+                        android:id="@+id/tv_forgot_password"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Forgot Password?"
+                        android:textColor="@color/colorAccent"
+                        android:layout_gravity="center_horizontal"
+                        android:paddingTop="8dp" />
+
+
+
+
+
+
+
+                    <!-- Google Sign-In -->
+                    <Button
+                        android:id="@+id/btn_google_sign_in"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sign in with Google"
+                        android:layout_marginTop="16dp" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>

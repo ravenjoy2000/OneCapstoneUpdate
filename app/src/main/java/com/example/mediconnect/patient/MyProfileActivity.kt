@@ -205,10 +205,10 @@ class MyProfileActivity : BaseActivity() {
         }
 
         val inputMobile = findViewById<AppCompatEditText>(R.id.et_mobile).text.toString()
-            .replace("+63", "")
+            .replace("", "")
             .replace(" ", "")
             .replace("-", "")
-            .removePrefix("0")
+            .removePrefix("")
             .trim()
 
         if (inputMobile != mUserDetails.phone.toString()) {
@@ -255,7 +255,7 @@ class MyProfileActivity : BaseActivity() {
         findViewById<AppCompatEditText>(R.id.et_email).setText(user.email)
 
         if (user.phone != "") {
-            val mobile = "+63 ${user.phone.toString().chunked(3).joinToString(" ")}"
+            val mobile = " ${user.phone.toString().chunked(3).joinToString(" ")}"
             findViewById<AppCompatEditText>(R.id.et_mobile).setText(mobile)
         }
 

@@ -32,14 +32,16 @@ open class BaseActivity : AppCompatActivity() {
         mProgressDialog = Dialog(this)
         mProgressDialog.setContentView(R.layout.dialog_progress)
         mProgressDialog.findViewById<TextView>(R.id.tv_progress_text).text = text
+        mProgressDialog.setCancelable(false)
         mProgressDialog.show()
     }
 
     /** Hide the loading dialog */
     fun hideProgressDialog() {
-        mProgressDialog.dismiss()
+        if (::mProgressDialog.isInitialized && mProgressDialog.isShowing) {
+            mProgressDialog.dismiss()
+        }
     }
-
     /* ========================= 🔙 Double Back to Exit ========================= */
 
     /** Press back twice within 2 seconds to exit */

@@ -37,14 +37,10 @@ class IntroActivity : BaseActivity() {
             return
         }
 
-        // Sign Up button
-        findViewById<Button>(R.id.btn_sign_up_intro).setOnClickListener {
-            startActivity(Intent(this, SignUpActivity::class.java))
-        }
 
         // Sign In button
         findViewById<Button>(R.id.btn_sign_in_intro).setOnClickListener {
-            startActivity(Intent(this, SignInActivity::class.java))
+            startActivity(Intent(this, LoginTwo::class.java))
         }
     }
 }

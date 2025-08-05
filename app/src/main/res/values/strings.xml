@@ -6,8 +6,16 @@
     <string name="intro_text_description">Collaborate and Plan Together Across Multiple Devices on Projemanag’s Minimalist Interface.</string>
     <string name="sign_in">SIGN IN</string>
     <string name="sign_up">SIGN UP</string>
+    <string name="Login">Login</string>
+
+
+
+    <string name="lets_get_started">Let\'s Get Started</string>"
+
+    <string name="before_we_begin">Before We Begin</string>
 
     <string name="sign_up_description_text">Enter your name, email id and password, to register with us.</string>
+    <string name="lets_set_up_your_profile">Let\'s set up your profile</string>
     <string name="name">name</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
@@ -21,7 +29,7 @@
 
     <string name="email">Email</string>
 
-    <string name="sign_in_description_text">Enter your name, email id and password, to register with us.</string>
+    <string name="sign_in_description_text">Login with Google Account or Phone Number</string>
 
     <string name="please_click_back_again_to_exit">Please click back again to exit.</string>
     <string name="please_wait">Please Wait&#8230;</string>
@@ -49,16 +57,9 @@
     <string name="default_web_client_id">1071465062452-ivd1srad1l8c39v7u79t48f4pkte1pna.apps.googleusercontent.com</string>
 
 
-
-
     <string name="facebook_app_id">1234</string>
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">56789</string>
-
-
-
-
-
 
 
 </resources>

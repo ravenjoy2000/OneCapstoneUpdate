@@ -43,7 +43,8 @@ class SignInActivity : BaseActivity() {
     private lateinit var btnSendOtp: Button
     private lateinit var btnVerifyOtp: Button
     private lateinit var tvForgotPassword: TextView
-    private lateinit var btnResendEmail: Button
+
+    private var isOtpVerified = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,14 +69,10 @@ class SignInActivity : BaseActivity() {
         btnSendOtp = findViewById(R.id.btn_send_otp)
         btnVerifyOtp = findViewById(R.id.btn_verify_otp)
         tvForgotPassword = findViewById(R.id.tv_forgot_password)
-        btnResendEmail = findViewById(R.id.btn_resend_verification_email)
     }
 
     private fun setFullscreenMode() {
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         }
@@ -93,7 +90,9 @@ class SignInActivity : BaseActivity() {
 
     private fun setupButtonClicks() {
         btnSignIn.setOnClickListener { signInRegisteredUser() }
-        btnGoogleSignIn.setOnClickListener { startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN) }
+        btnGoogleSignIn.setOnClickListener {
+            startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+        }
         btnSendOtp.setOnClickListener {
             val phone = etPhone.text.toString().trim()
             if (phone.isNotEmpty()) sendVerificationCode(phone)
@@ -109,7 +108,6 @@ class SignInActivity : BaseActivity() {
             else showErrorSnackBar("Please enter the OTP.")
         }
         tvForgotPassword.setOnClickListener { showForgotPasswordDialog() }
-        btnResendEmail.setOnClickListener { resendVerificationEmail() }
     }
 
     private fun showForgotPasswordDialog() {
@@ -139,22 +137,6 @@ class SignInActivity : BaseActivity() {
 
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.show()
-    }
-
-    private fun resendVerificationEmail() {
-        val user = auth.currentUser
-        if (user != null && !user.isEmailVerified) {
-            user.sendEmailVerification()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        showCustomToast("Verification email sent.")
-                    } else {
-                        showErrorSnackBar("Error: ${task.exception?.message}")
-                    }
-                }
-        } else {
-            showErrorSnackBar("User not found or already verified.")
-        }
     }
 
     private fun sendVerificationCode(phone: String) {
@@ -191,8 +173,44 @@ class SignInActivity : BaseActivity() {
 
     private fun verifyOTP(code: String) {
         showProgressDialog("Verifying OTP...")
-        val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
-        firebaseAuthWithCredential(credential, "Phone")
+
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val verificationId = storedVerificationId
+            if (verificationId != null) {
+                val credential = PhoneAuthProvider.getCredential(verificationId, code)
+                currentUser.linkWithCredential(credential)
+                    .addOnCompleteListener { task ->
+                        hideProgressDialog()
+                        if (task.isSuccessful) {
+                            isOtpVerified = true
+                            showCustomToast("Phone number verified and linked to your account.")
+
+                            etEmail.isEnabled = true
+                            etPassword.isEnabled = true
+                            btnSignIn.isEnabled = true
+
+                            etPhone.isEnabled = false
+                            etOtp.isEnabled = false
+                            btnSendOtp.isEnabled = false
+                            btnVerifyOtp.isEnabled = false
+                        } else {
+                            val exception = task.exception
+                            if (exception is FirebaseAuthUserCollisionException) {
+                                showErrorSnackBar("This phone number is already linked to another account.")
+                            } else {
+                                showErrorSnackBar("Failed to link phone number: ${exception?.message}")
+                            }
+                        }
+                    }
+            } else {
+                hideProgressDialog()
+                showErrorSnackBar("Verification ID is null.")
+            }
+        } else {
+            hideProgressDialog()
+            showErrorSnackBar("Please sign in with email/password first before verifying phone.")
+        }
     }
 
     private fun setupGoogleSignIn() {
@@ -245,10 +263,18 @@ class SignInActivity : BaseActivity() {
     }
 
     private fun signInRegisteredUser() {
+        if (!isOtpVerified) {
+            showErrorSnackBar("Please verify your phone number with OTP first.")
+            return
+        }
+
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
 
-        if (!validateForm(email, password)) return
+        if (!validateForm(email, password)) {
+            Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         showProgressDialog(getString(R.string.please_wait))
 
@@ -265,12 +291,14 @@ class SignInActivity : BaseActivity() {
                                     val name = document.getString("name") ?: "User"
                                     handleRoleAndRedirect(role, name)
                                 } else {
-                                    showErrorSnackBar("User record not found in database.")
+                                    auth.signOut()
+                                    showErrorSnackBar("User data not found in Firestore.")
                                 }
                             }
                             .addOnFailureListener {
                                 hideProgressDialog()
-                                showErrorSnackBar("Error fetching user: ${it.message}")
+                                auth.signOut()
+                                showErrorSnackBar("Failed to fetch user data: ${it.localizedMessage}")
                             }
                     } else {
                         auth.signOut()
@@ -279,10 +307,10 @@ class SignInActivity : BaseActivity() {
                     }
                 } else {
                     hideProgressDialog()
-                    val errorMessage = when (task.exception) {
-                        is FirebaseAuthInvalidUserException,
-                        is FirebaseAuthInvalidCredentialsException -> "Invalid email or password."
-                        else -> "Authentication failed: ${task.exception?.message}"
+                    val errorMessage = when (val exception = task.exception) {
+                        is FirebaseAuthInvalidUserException -> "No account found with this email."
+                        is FirebaseAuthInvalidCredentialsException -> "Incorrect email or password."
+                        else -> "Login failed: ${exception?.localizedMessage}"
                     }
                     showErrorSnackBar(errorMessage)
                 }
