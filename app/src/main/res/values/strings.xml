@@ -44,4 +44,19 @@
     <string name="appointment_history_title">Appointment History</string>
 
 
+    <string name="default_web_client_id">1071465062452-ivd1srad1l8c39v7u79t48f4pkte1pna.apps.googleusercontent.com</string>
+
+
+
+
+    <string name="facebook_app_id">1234</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
+
+
+
+
+
+
+
 </resources>

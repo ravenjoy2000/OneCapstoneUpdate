@@ -12,7 +12,12 @@
           "package_name": "com.example.mediconnect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1071465062452-ivd1srad1l8c39v7u79t48f4pkte1pna.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA09PNTDW-1mU14lbK8PNZBiEtyd_N6Czg"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071465062452-ivd1srad1l8c39v7u79t48f4pkte1pna.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
