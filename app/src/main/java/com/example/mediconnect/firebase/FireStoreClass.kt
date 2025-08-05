@@ -65,6 +65,7 @@ class FireStoreClass : BaseActivity() {
         }
     }
 
+
     // 🔹 Centralized error handler for loading data
     private fun handleError(activity: Activity, e: Exception) {
         Log.e(activity.javaClass.simpleName, "Error loading user data", e)

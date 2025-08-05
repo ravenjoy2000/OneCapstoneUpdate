@@ -9,6 +9,9 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.example.mediconnect.R
 import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.User
@@ -18,9 +21,27 @@ import com.google.firebase.storage.FirebaseStorage
 class SignUpActivity : BaseActivity() {
 
     // ========== Constants & Variables ==========
-    private val PICK_PHILHEALTH_IMAGE_CODE = 1001
     private var selectedPhilhealthIdUri: Uri? = null
     private var mPhilIdGovermentImageURL: String = ""
+
+    // ========== Views ==========
+    private lateinit var etName: EditText
+    private lateinit var etUsername: EditText
+    private lateinit var etEmail: EditText
+    private lateinit var etPassword: EditText
+    private lateinit var etPhone: EditText
+    private lateinit var imgPhilhealthPreview: ImageView
+    private lateinit var btnUpload: Button
+    private lateinit var btnSignUp: Button
+
+    // ========== Image Picker ==========
+    private val pickImageLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                selectedPhilhealthIdUri = uri
+                imgPhilhealthPreview.setImageURI(uri)
+            }
+        }
 
     // ========== Lifecycle ==========
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +50,19 @@ class SignUpActivity : BaseActivity() {
         setContentView(R.layout.activity_sign_up)
         makeFullScreen()
         setupActionBar()
+        bindViews()
         setupListeners()
+    }
+
+    private fun bindViews() {
+        etName = findViewById(R.id.et_name)
+        etUsername = findViewById(R.id.et_username)
+        etEmail = findViewById(R.id.et_email)
+        etPassword = findViewById(R.id.et_password)
+        etPhone = findViewById(R.id.et_phone)
+        imgPhilhealthPreview = findViewById(R.id.img_philhealth_id_preview)
+        btnUpload = findViewById(R.id.btn_upload_philhealth_id)
+        btnSignUp = findViewById(R.id.btn_sign_up)
     }
 
     // ========== Fullscreen ==========
@@ -58,32 +91,41 @@ class SignUpActivity : BaseActivity() {
 
     // ========== Event Listeners ==========
     private fun setupListeners() {
-        findViewById<Button>(R.id.btn_sign_up).setOnClickListener {
-            registerUser()
+        btnUpload.setOnClickListener {
+            pickImageLauncher.launch("image/*")
         }
 
-        findViewById<Button>(R.id.btn_upload_philhealth_id).setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
-            startActivityForResult(intent, PICK_PHILHEALTH_IMAGE_CODE)
+        btnSignUp.setOnClickListener {
+            registerUser()
         }
     }
 
     // ========== Register User ==========
     private fun registerUser() {
-        val name = findViewById<EditText>(R.id.et_name).text.toString().trim()
-        val username = findViewById<EditText>(R.id.et_username).text.toString().trim()
-        val email = findViewById<EditText>(R.id.et_email).text.toString().trim()
-        val password = findViewById<EditText>(R.id.et_password).text.toString().trim()
+        val name = etName.text.toString().trim()
+        val username = etUsername.text.toString().trim()
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
 
-        if (validateForm(name, username, email, password)) {
-            showProgressDialog("Please wait")
+        if (validateForm(name, username, email, password, phone)) {
+            showProgressDialog("Please wait...")
 
             FirebaseAuth.getInstance()
                 .createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { result ->
                     val user = result.user
                     if (user != null && selectedPhilhealthIdUri != null) {
-                        uploadPhilhealthIdImage(user.uid, name, username, email)
+                        // Send email verification
+                        user.sendEmailVerification()
+                            .addOnSuccessListener {
+                                showCustomToast("Verification email sent to ${user.email}. Please verify before logging in.")
+                                uploadPhilhealthIdImage(user.uid, name, username, email, phone)
+                            }
+                            .addOnFailureListener {
+                                hideProgressDialog()
+                                showErrorSnackBar("Failed to send verification email: ${it.message}")
+                            }
                     } else {
                         hideProgressDialog()
                         showErrorSnackBar("Something went wrong. Please try again.")
@@ -96,8 +138,9 @@ class SignUpActivity : BaseActivity() {
         }
     }
 
+
     // ========== Upload PhilHealth ID ==========
-    private fun uploadPhilhealthIdImage(userId: String, name: String, username: String, email: String) {
+    private fun uploadPhilhealthIdImage(userId: String, name: String, username: String, email: String, phone: String) {
         val extension = getFileExtension(selectedPhilhealthIdUri)
         val storageRef = FirebaseStorage.getInstance().reference
             .child("PhilhealthID_${System.currentTimeMillis()}.$extension")
@@ -107,7 +150,7 @@ class SignUpActivity : BaseActivity() {
                 .addOnSuccessListener {
                     storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                         mPhilIdGovermentImageURL = downloadUri.toString()
-                        val user = User(userId, name, username, email, mPhilIdGovermentImageURL, "patient")
+                        val user = User(userId, name, username, email, mPhilIdGovermentImageURL, "patient", phone)
                         FireStoreClass().registerUser(this, user)
                     }
                 }
@@ -125,22 +168,26 @@ class SignUpActivity : BaseActivity() {
     }
 
     // ========== Validation ==========
-    private fun validateForm(name: String, username: String, email: String, password: String): Boolean {
+    private fun validateForm(name: String, username: String, email: String, password: String, phone: String): Boolean {
         return when {
             TextUtils.isEmpty(name) -> {
-                showErrorSnackBar("Please enter name.")
+                showErrorSnackBar("Please enter your name.")
                 false
             }
             TextUtils.isEmpty(username) -> {
-                showErrorSnackBar("Please enter username.")
+                showErrorSnackBar("Please enter your username.")
                 false
             }
             TextUtils.isEmpty(email) -> {
-                showErrorSnackBar("Please enter email.")
+                showErrorSnackBar("Please enter your email.")
                 false
             }
             TextUtils.isEmpty(password) -> {
-                showErrorSnackBar("Please enter password.")
+                showErrorSnackBar("Please enter your password.")
+                false
+            }
+            TextUtils.isEmpty(phone) -> {
+                showErrorSnackBar("Please enter your phone number.")
                 false
             }
             selectedPhilhealthIdUri == null -> {
@@ -151,24 +198,14 @@ class SignUpActivity : BaseActivity() {
         }
     }
 
-    // ========== Success Feedback ==========
+    // ========== Registration Success ==========
     fun userRegisteredSuccess() {
-        showCustomToast("You have successfully registered")
         hideProgressDialog()
+        showCustomToast("You have successfully registered.")
 
         val intent = Intent(this, SignInActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
-    }
-
-    // ========== Image Preview After Pick ==========
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PICK_PHILHEALTH_IMAGE_CODE && resultCode == RESULT_OK && data != null) {
-            selectedPhilhealthIdUri = data.data
-            findViewById<ImageView>(R.id.img_philhealth_id_preview).setImageURI(selectedPhilhealthIdUri)
-        }
     }
 }

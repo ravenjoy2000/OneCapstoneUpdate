@@ -211,7 +211,7 @@ class MyProfileActivity : BaseActivity() {
             .removePrefix("0")
             .trim()
 
-        if (inputMobile != mUserDetails.mobile.toString()) {
+        if (inputMobile != mUserDetails.phone.toString()) {
             try {
                 userHashMap[Constants.MOBILE] = inputMobile.toLong()
                 anyChangeMade = true
@@ -254,8 +254,8 @@ class MyProfileActivity : BaseActivity() {
         findViewById<AppCompatEditText>(R.id.et_username).setText(user.username)
         findViewById<AppCompatEditText>(R.id.et_email).setText(user.email)
 
-        if (user.mobile != 0L) {
-            val mobile = "+63 ${user.mobile.toString().chunked(3).joinToString(" ")}"
+        if (user.phone != "") {
+            val mobile = "+63 ${user.phone.toString().chunked(3).joinToString(" ")}"
             findViewById<AppCompatEditText>(R.id.et_mobile).setText(mobile)
         }
 

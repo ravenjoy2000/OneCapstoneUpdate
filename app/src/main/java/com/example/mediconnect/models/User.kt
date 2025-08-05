@@ -10,8 +10,8 @@ data class User(
     val email: String = "",              // Email address ng user
     val goverment_or_phealtID: String = "", // PhilHealth or Government ID URL
     val role: String = "",               // Role ng user (e.g., patient, doctor)
+    val phone: String  = "",                // Cellphone number
     val image: String = "",              // Profile picture URL
-    val mobile: Long = 0,                // Cellphone number
     val fcmToken: String = "",           // Firebase Cloud Messaging token
     var selected: Boolean = false        // Ginagamit para sa selection sa list views
 ) : Parcelable {
@@ -24,8 +24,8 @@ data class User(
         parcel.readString() ?: "",       // email
         parcel.readString() ?: "",       // goverment_or_phealtID
         parcel.readString() ?: "",       // role ✅ now included
+        parcel.readString() ?: "",       // phone
         parcel.readString() ?: "",       // image
-        parcel.readLong(),               // mobile
         parcel.readString() ?: "",       // fcmToken
         parcel.readByte() != 0.toByte()  // selected
     )
@@ -37,8 +37,8 @@ data class User(
         parcel.writeString(email)
         parcel.writeString(goverment_or_phealtID)
         parcel.writeString(role)              // ✅ role included
+        parcel.writeString(phone)
         parcel.writeString(image)
-        parcel.writeLong(mobile)
         parcel.writeString(fcmToken)
         parcel.writeByte(if (selected) 1 else 0)
     }

@@ -3,25 +3,25 @@ package com.example.mediconnect.activities
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.text.TextUtils
-import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.EditText
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.example.mediconnect.R
+import com.example.mediconnect.databinding.ActivitySignInBinding
 import com.example.mediconnect.doctor.DoctorDashboardActivity
 import com.example.mediconnect.models.User
 import com.example.mediconnect.patient.MainActivity
 import com.example.mediconnect.utils.Constants
 import com.google.android.gms.auth.api.signin.*
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 class SignInActivity : BaseActivity() {
 
@@ -31,20 +31,45 @@ class SignInActivity : BaseActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN = 1001
 
+    private var storedVerificationId: String? = null
+    private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
+
+    private lateinit var etEmail: EditText
+    private lateinit var etPassword: EditText
+    private lateinit var etPhone: EditText
+    private lateinit var etOtp: EditText
+    private lateinit var btnSignIn: Button
+    private lateinit var btnGoogleSignIn: Button
+    private lateinit var btnSendOtp: Button
+    private lateinit var btnVerifyOtp: Button
+    private lateinit var tvForgotPassword: TextView
+    private lateinit var btnResendEmail: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_sign_in)
 
+        bindViews()
         setFullscreenMode()
         setupActionBar()
         setupGoogleSignIn()
         setupButtonClicks()
     }
 
-    // -----------------------------
-    // UI Setup
-    // -----------------------------
+    private fun bindViews() {
+        etEmail = findViewById(R.id.et_email)
+        etPassword = findViewById(R.id.et_password)
+        etPhone = findViewById(R.id.et_phone)
+        etOtp = findViewById(R.id.et_otp)
+
+        btnSignIn = findViewById(R.id.btn_sign_in)
+        btnGoogleSignIn = findViewById(R.id.btn_google_sign_in)
+        btnSendOtp = findViewById(R.id.btn_send_otp)
+        btnVerifyOtp = findViewById(R.id.btn_verify_otp)
+        tvForgotPassword = findViewById(R.id.tv_forgot_password)
+        btnResendEmail = findViewById(R.id.btn_resend_verification_email)
+    }
 
     private fun setFullscreenMode() {
         window.setFlags(
@@ -59,22 +84,116 @@ class SignInActivity : BaseActivity() {
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_sign_in_activity)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_ios_new_24)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.baseline_arrow_back_ios_new_24)
+        }
         toolbar.setNavigationOnClickListener { onBackPressed() }
     }
 
     private fun setupButtonClicks() {
-        findViewById<Button>(R.id.btn_sign_in).setOnClickListener { signInRegisteredUser() }
+        btnSignIn.setOnClickListener { signInRegisteredUser() }
+        btnGoogleSignIn.setOnClickListener { startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN) }
+        btnSendOtp.setOnClickListener {
+            val phone = etPhone.text.toString().trim()
+            if (phone.isNotEmpty()) sendVerificationCode(phone)
+            else showErrorSnackBar("Please enter your phone number.")
+        }
+        btnVerifyOtp.setOnClickListener {
+            val code = etOtp.text.toString().trim()
+            if (storedVerificationId == null) {
+                showErrorSnackBar("Please request OTP first.")
+                return@setOnClickListener
+            }
+            if (code.isNotEmpty()) verifyOTP(code)
+            else showErrorSnackBar("Please enter the OTP.")
+        }
+        tvForgotPassword.setOnClickListener { showForgotPasswordDialog() }
+        btnResendEmail.setOnClickListener { resendVerificationEmail() }
+    }
 
-        findViewById<Button>(R.id.btn_google_sign_in).setOnClickListener {
-            startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+    private fun showForgotPasswordDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Reset Password")
+
+        val input = EditText(this)
+        input.hint = "Enter your email"
+        input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        builder.setView(input)
+
+        builder.setPositiveButton("Send") { dialog, _ ->
+            val email = input.text.toString().trim()
+            if (email.isNotEmpty()) {
+                FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, "Reset link sent to $email", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(this, "Failed to send reset link: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+            } else {
+                Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+        builder.show()
+    }
+
+    private fun resendVerificationEmail() {
+        val user = auth.currentUser
+        if (user != null && !user.isEmailVerified) {
+            user.sendEmailVerification()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        showCustomToast("Verification email sent.")
+                    } else {
+                        showErrorSnackBar("Error: ${task.exception?.message}")
+                    }
+                }
+        } else {
+            showErrorSnackBar("User not found or already verified.")
         }
     }
 
-    // -----------------------------
-    // Google Sign-In
-    // -----------------------------
+    private fun sendVerificationCode(phone: String) {
+        showProgressDialog("Sending OTP...")
+
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(phone)
+            .setTimeout(60L, java.util.concurrent.TimeUnit.SECONDS)
+            .setActivity(this)
+            .setCallbacks(phoneAuthCallbacks)
+            .build()
+
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    private val phoneAuthCallbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            hideProgressDialog()
+            firebaseAuthWithCredential(credential, "Phone")
+        }
+
+        override fun onVerificationFailed(e: FirebaseException) {
+            hideProgressDialog()
+            showErrorSnackBar("Verification failed: ${e.message}")
+        }
+
+        override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+            hideProgressDialog()
+            storedVerificationId = verificationId
+            resendToken = token
+            showCustomToast("OTP sent. Please check your phone.")
+        }
+    }
+
+    private fun verifyOTP(code: String) {
+        showProgressDialog("Verifying OTP...")
+        val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
+        firebaseAuthWithCredential(credential, "Phone")
+    }
 
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -89,10 +208,6 @@ class SignInActivity : BaseActivity() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuthWithCredential(credential, "Google")
     }
-
-    // -----------------------------
-    // Firebase Auth Shared Logic
-    // -----------------------------
 
     private fun firebaseAuthWithCredential(credential: AuthCredential, provider: String) {
         showProgressDialog("Signing in with $provider...")
@@ -129,13 +244,9 @@ class SignInActivity : BaseActivity() {
             }
     }
 
-    // -----------------------------
-    // Email/Password Sign-In
-    // -----------------------------
-
     private fun signInRegisteredUser() {
-        val email = findViewById<EditText>(R.id.et_email).text.toString().trim()
-        val password = findViewById<EditText>(R.id.et_password).text.toString().trim()
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString().trim()
 
         if (!validateForm(email, password)) return
 
@@ -144,9 +255,9 @@ class SignInActivity : BaseActivity() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
-                    if (userId != null) {
-                        db.collection("users").document(userId).get()
+                    val user = auth.currentUser
+                    if (user != null && user.isEmailVerified) {
+                        db.collection("users").document(user.uid).get()
                             .addOnSuccessListener { document ->
                                 hideProgressDialog()
                                 if (document.exists()) {
@@ -161,6 +272,10 @@ class SignInActivity : BaseActivity() {
                                 hideProgressDialog()
                                 showErrorSnackBar("Error fetching user: ${it.message}")
                             }
+                    } else {
+                        auth.signOut()
+                        hideProgressDialog()
+                        showErrorSnackBar("Please verify your email before logging in.")
                     }
                 } else {
                     hideProgressDialog()
@@ -174,9 +289,19 @@ class SignInActivity : BaseActivity() {
             }
     }
 
-    // -----------------------------
-    // Redirect Logic
-    // -----------------------------
+    private fun validateForm(email: String, password: String): Boolean {
+        return when {
+            TextUtils.isEmpty(email) -> {
+                showErrorSnackBar("Please enter email.")
+                false
+            }
+            TextUtils.isEmpty(password) -> {
+                showErrorSnackBar("Please enter password.")
+                false
+            }
+            else -> true
+        }
+    }
 
     private fun handleRoleAndRedirect(role: String?, name: String?) {
         showCustomToast("Welcome, $name!")
@@ -195,24 +320,6 @@ class SignInActivity : BaseActivity() {
         finish()
     }
 
-    // -----------------------------
-    // Utility
-    // -----------------------------
-
-    private fun validateForm(email: String, password: String): Boolean {
-        return when {
-            TextUtils.isEmpty(email) -> {
-                showErrorSnackBar("Please enter email.")
-                false
-            }
-            TextUtils.isEmpty(password) -> {
-                showErrorSnackBar("Please enter password.")
-                false
-            }
-            else -> true
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -220,8 +327,10 @@ class SignInActivity : BaseActivity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                if (account != null) {
+                if (account?.idToken != null) {
                     firebaseAuthWithGoogle(account.idToken!!)
+                } else {
+                    showErrorSnackBar("Google Sign-In failed: Missing ID token.")
                 }
             } catch (e: ApiException) {
                 showErrorSnackBar("Google Sign-In failed: ${e.message}")
