@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.example.mediconnect.R
+import com.example.mediconnect.doctor.DoctorDashboardActivity
 import com.example.mediconnect.patient.MainActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,10 +25,9 @@ import java.util.concurrent.TimeUnit
 
 class LoginTwo : AppCompatActivity() {
 
-    // Firebase Auth
     private lateinit var auth: FirebaseAuth
 
-    // Phone Auth UI
+    // Phone Auth
     private lateinit var phoneInput: EditText
     private lateinit var otpInput: EditText
     private lateinit var btnSendOtp: Button
@@ -38,6 +38,11 @@ class LoginTwo : AppCompatActivity() {
     // Google Sign-In
     private lateinit var btnGoogleSignIn: Button
     private lateinit var googleSignInClient: GoogleSignInClient
+
+    // Role selection
+    private lateinit var radioGroupRole: RadioGroup
+    private lateinit var radioPatient: RadioButton
+    private lateinit var radioDoctor: RadioButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +55,6 @@ class LoginTwo : AppCompatActivity() {
         initViews()
         setupGoogleSignIn()
         setListeners()
-
     }
 
     private fun setupActionBar() {
@@ -70,34 +74,30 @@ class LoginTwo : AppCompatActivity() {
         }
     }
 
-
     private fun initViews() {
-        // Phone Auth Views
         phoneInput = findViewById(R.id.et_phone)
         otpInput = findViewById(R.id.et_otp)
         btnSendOtp = findViewById(R.id.btn_send_otp)
         btnVerifyOtp = findViewById(R.id.btn_verify_otp)
-
-        // Google Sign-In Button
         btnGoogleSignIn = findViewById(R.id.btn_google_sign_in)
+        radioGroupRole = findViewById(R.id.radio_group_role)
+        radioPatient = findViewById(R.id.radio_patient)
+        radioDoctor = findViewById(R.id.radio_doctor)
 
-        // Initially hide OTP fields
         otpInput.visibility = View.GONE
         btnVerifyOtp.visibility = View.GONE
     }
 
     private fun setListeners() {
-        // Handle Send OTP
         btnSendOtp.setOnClickListener {
             val phone = phoneInput.text.toString().trim()
             if (phone.isNotEmpty()) {
-                startPhoneNumberVerification("+63$phone")  // You can change country code
+                startPhoneNumberVerification(phone)
             } else {
                 Toast.makeText(this, "Enter a valid phone number", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Handle Verify OTP
         btnVerifyOtp.setOnClickListener {
             val code = otpInput.text.toString().trim()
             if (!storedVerificationId.isNullOrEmpty() && code.isNotEmpty()) {
@@ -106,14 +106,12 @@ class LoginTwo : AppCompatActivity() {
             }
         }
 
-        // Handle Google Sign-In
         btnGoogleSignIn.setOnClickListener {
             val signInIntent = googleSignInClient.signInIntent
             googleSignInLauncher.launch(signInIntent)
         }
     }
 
-    // Firebase Phone Auth
     private fun startPhoneNumberVerification(phoneNumber: String) {
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(phoneNumber)
@@ -147,8 +145,6 @@ class LoginTwo : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val user = task.result?.user
-                    Toast.makeText(this, "Logged in as ${user?.phoneNumber}", Toast.LENGTH_SHORT).show()
                     goToDashboard()
                 } else {
                     Toast.makeText(this, "Login failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
@@ -156,13 +152,11 @@ class LoginTwo : AppCompatActivity() {
             }
     }
 
-    // Google Sign-In Setup
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))  // From google-services.json
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
@@ -177,8 +171,6 @@ class LoginTwo : AppCompatActivity() {
                 auth.signInWithCredential(credential)
                     .addOnCompleteListener(this) { signInTask ->
                         if (signInTask.isSuccessful) {
-                            val user = auth.currentUser
-                            Toast.makeText(this, "Welcome ${user?.displayName}", Toast.LENGTH_SHORT).show()
                             goToDashboard()
                         } else {
                             Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
@@ -191,23 +183,48 @@ class LoginTwo : AppCompatActivity() {
         }
     }
 
-    // Navigation
     private fun goToDashboard() {
         val uid = auth.currentUser?.uid ?: return
-        val user = auth.currentUser
         val db = FirebaseFirestore.getInstance()
-
         val userDocRef = db.collection("users").document(uid)
 
         userDocRef.get()
             .addOnSuccessListener { document ->
+                val selectedRole = when (radioGroupRole.checkedRadioButtonId) {
+                    R.id.radio_patient -> "patient"
+                    R.id.radio_doctor -> "doctor"
+                    else -> "patient"
+                }
+
                 if (document.exists()) {
-                    // Profile exists → go to MainActivity
-                    startActivity(Intent(this, MainActivity::class.java))
+                    val role = document.getString("role")
+
+                    if (selectedRole == "doctor" && role != "doctor") {
+                        // Not allowed to log in as doctor
+                        Toast.makeText(this, "You are not authorized as a doctor.", Toast.LENGTH_LONG).show()
+                        FirebaseAuth.getInstance().signOut()
+                        return@addOnSuccessListener
+                    }
+
+                    val intent = if (role == "doctor") {
+                        Intent(this, DoctorDashboardActivity::class.java)
+                    } else {
+                        Intent(this, MainActivity::class.java)
+                    }
+                    startActivity(intent)
+                    finish()
+
                 } else {
-                    // Create a new user document with email and role
-                    val email = user?.email ?: ""
-                    val phone = user?.phoneNumber ?: ""
+                    // New user trying to register
+                    if (selectedRole == "doctor") {
+                        // Prevent doctors from signing up themselves
+                        Toast.makeText(this, "Only admin can register a doctor.", Toast.LENGTH_LONG).show()
+                        FirebaseAuth.getInstance().signOut()
+                        return@addOnSuccessListener
+                    }
+
+                    val email = auth.currentUser?.email ?: ""
+                    val phone = auth.currentUser?.phoneNumber ?: ""
 
                     val newUser = hashMapOf(
                         "email" to email,
@@ -217,32 +234,18 @@ class LoginTwo : AppCompatActivity() {
 
                     userDocRef.set(newUser)
                         .addOnSuccessListener {
-                            startActivity(Intent(this, DashboardActivity::class.java))
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(this, "Failed to save user: ${e.message}", Toast.LENGTH_SHORT).show()
                             Log.e("LoginTwo", "Error creating user", e)
                         }
                 }
-                finish()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error checking profile: ${e.message}", Toast.LENGTH_SHORT).show()
-                Log.e("LoginTwo", "Error checking Firestore", e)
+                Log.e("LoginTwo", "Firestore error", e)
             }
     }
-
-    fun signOutGoogle() {
-        auth.signOut()
-        googleSignInClient.signOut().addOnCompleteListener {
-            Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, LoginTwo::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
-    }
-
-
-
 }

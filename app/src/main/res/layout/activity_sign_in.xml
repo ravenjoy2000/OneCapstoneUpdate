@@ -96,49 +96,6 @@
                             android:textSize="@dimen/et_text_size" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Phone Number -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/et_phone"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:hint="Phone Number (e.g. +639123456789)"
-                            android:inputType="phone" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Send OTP -->
-                    <Button
-                        android:id="@+id/btn_send_otp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Send OTP" />
-
-                    <!-- OTP -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp">
-
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/et_otp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Enter OTP"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Verify OTP -->
-                    <Button
-                        android:id="@+id/btn_verify_otp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Verify OTP" />
 
 
                     <!-- Email/Password Sign-In -->

@@ -9,6 +9,13 @@
     <string name="Login">Login</string>
 
 
+    <string name="speciality">Speciality</string>
+    <string name="address">Address</string>
+    <string name="website">Website</string>
+    <string name="bio">Bio</string>
+
+
+
 
     <string name="lets_get_started">Let\'s Get Started</string>"
 

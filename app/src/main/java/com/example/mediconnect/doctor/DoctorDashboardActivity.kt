@@ -22,6 +22,7 @@ import com.example.mediconnect.activities.IntroActivity
 import com.example.mediconnect.firebase.FireStoreClass
 import com.example.mediconnect.models.Appointment
 import com.example.mediconnect.models.User
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -56,6 +57,29 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
 
         // Load doctor user data and then setup header
         FireStoreClass().loadUserData(this)
+
+
+    }
+
+
+    private fun signOutUser() {
+        FirebaseAuth.getInstance().signOut()
+
+        // Sign out from Google account too
+        val googleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(
+            this,
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+        )
+
+        googleSignInClient.signOut().addOnCompleteListener {
+            val intent = Intent(this, IntroActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun handleBackPressBehavior() {
@@ -77,17 +101,12 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
             R.id.nav_doctor_appointment_history -> startActivity(Intent(this, DoctorAppointmentHistory::class.java))
             R.id.nav_doctor_medical_log -> startActivity(Intent(this, DoctorMedicalLog::class.java))
             R.id.nav_doctor_feedback -> startActivity(Intent(this, DoctorFeedback::class.java))
-            R.id.nav_doctor_sign_out -> {
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, IntroActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
-            }
+            R.id.nav_doctor_sign_out -> signOutUser()
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
 
     fun updateNavigationUserDetails(user: User) {
         val headerView = navigationView.getHeaderView(0)

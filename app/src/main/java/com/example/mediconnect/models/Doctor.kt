@@ -11,7 +11,8 @@ data class Doctor(
     val email: String = "",
     val address: String = "",
     val website: String = "",
-    val bio: String = ""
+    val bio: String = "",
+    val role : String = "doctor"
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
@@ -21,7 +22,9 @@ data class Doctor(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
+        parcel.readString() ?: "",
         parcel.readString() ?: ""
+
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -33,6 +36,7 @@ data class Doctor(
         parcel.writeString(address)
         parcel.writeString(website)
         parcel.writeString(bio)
+        parcel.writeString(role)
     }
 
     override fun describeContents(): Int = 0

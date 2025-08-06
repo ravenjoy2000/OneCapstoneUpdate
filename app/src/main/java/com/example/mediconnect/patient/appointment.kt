@@ -67,7 +67,7 @@ class appointment : BaseActivity() {
     private var selectedDoctorId: String? = null
     private val doctorMap = mutableMapOf<String, DoctorInfo>()
 
-    private val allowedTimeSlots = listOf("2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM")
+    private val allowedTimeSlots = listOf("1:00 PM", "3:00 PM", "4:00 PM", "5:00 PM")
 
     data class DoctorInfo(val id: String, val phone: String, val address: String)
 

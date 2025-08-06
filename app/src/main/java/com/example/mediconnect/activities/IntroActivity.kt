@@ -8,14 +8,16 @@ import android.view.WindowManager
 import android.widget.Button
 import com.example.mediconnect.R
 import com.example.mediconnect.doctor.DoctorDashboardActivity
+import com.example.mediconnect.patient.MainActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class IntroActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Fullscreen support for old and new Android versions
+        // Fullscreen support
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
@@ -28,19 +30,47 @@ class IntroActivity : BaseActivity() {
 
         setContentView(R.layout.activity_intro)
 
-        // Check if already logged in
+        // If user is logged in, determine role and redirect
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // You may want to check if it's a doctor/patient and redirect accordingly
-            startActivity(Intent(this, DoctorDashboardActivity::class.java))
-            finish()
-            return
+            val uid = currentUser.uid
+            FirebaseFirestore.getInstance().collection("users").document(uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        when (document.getString("role")) {
+                            "doctor" -> {
+                                startActivity(Intent(this, DoctorDashboardActivity::class.java))
+                                finish()
+                            }
+                            "patient" -> {
+                                startActivity(Intent(this, MainActivity::class.java))
+                                finish()
+                            }
+                            else -> {
+                                // Unknown role, force logout
+                                FirebaseAuth.getInstance().signOut()
+                            }
+                        }
+                    } else {
+                        // No user doc found, force logout
+                        FirebaseAuth.getInstance().signOut()
+                    }
+                }
+                .addOnFailureListener {
+                    FirebaseAuth.getInstance().signOut()
+                }
+
+            return // prevent buttons from showing while waiting
         }
 
-
-        // Sign In button
+        // Not logged in → Show sign-in/signup buttons
         findViewById<Button>(R.id.btn_sign_in_intro).setOnClickListener {
-            startActivity(Intent(this, LoginTwo::class.java))
+            startActivity(Intent(this, SignInActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btn_sign_up_intro).setOnClickListener {
+            startActivity(Intent(this, SignUpActivity::class.java))
         }
     }
 }

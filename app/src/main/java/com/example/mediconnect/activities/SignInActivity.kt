@@ -19,7 +19,6 @@ import com.example.mediconnect.patient.MainActivity
 import com.example.mediconnect.utils.Constants
 import com.google.android.gms.auth.api.signin.*
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -31,20 +30,11 @@ class SignInActivity : BaseActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN = 1001
 
-    private var storedVerificationId: String? = null
-    private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
-
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
-    private lateinit var etPhone: EditText
-    private lateinit var etOtp: EditText
     private lateinit var btnSignIn: Button
     private lateinit var btnGoogleSignIn: Button
-    private lateinit var btnSendOtp: Button
-    private lateinit var btnVerifyOtp: Button
     private lateinit var tvForgotPassword: TextView
-
-    private var isOtpVerified = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,13 +51,8 @@ class SignInActivity : BaseActivity() {
     private fun bindViews() {
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
-        etPhone = findViewById(R.id.et_phone)
-        etOtp = findViewById(R.id.et_otp)
-
         btnSignIn = findViewById(R.id.btn_sign_in)
         btnGoogleSignIn = findViewById(R.id.btn_google_sign_in)
-        btnSendOtp = findViewById(R.id.btn_send_otp)
-        btnVerifyOtp = findViewById(R.id.btn_verify_otp)
         tvForgotPassword = findViewById(R.id.tv_forgot_password)
     }
 
@@ -92,20 +77,6 @@ class SignInActivity : BaseActivity() {
         btnSignIn.setOnClickListener { signInRegisteredUser() }
         btnGoogleSignIn.setOnClickListener {
             startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
-        }
-        btnSendOtp.setOnClickListener {
-            val phone = etPhone.text.toString().trim()
-            if (phone.isNotEmpty()) sendVerificationCode(phone)
-            else showErrorSnackBar("Please enter your phone number.")
-        }
-        btnVerifyOtp.setOnClickListener {
-            val code = etOtp.text.toString().trim()
-            if (storedVerificationId == null) {
-                showErrorSnackBar("Please request OTP first.")
-                return@setOnClickListener
-            }
-            if (code.isNotEmpty()) verifyOTP(code)
-            else showErrorSnackBar("Please enter the OTP.")
         }
         tvForgotPassword.setOnClickListener { showForgotPasswordDialog() }
     }
@@ -139,80 +110,6 @@ class SignInActivity : BaseActivity() {
         builder.show()
     }
 
-    private fun sendVerificationCode(phone: String) {
-        showProgressDialog("Sending OTP...")
-
-        val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phone)
-            .setTimeout(60L, java.util.concurrent.TimeUnit.SECONDS)
-            .setActivity(this)
-            .setCallbacks(phoneAuthCallbacks)
-            .build()
-
-        PhoneAuthProvider.verifyPhoneNumber(options)
-    }
-
-    private val phoneAuthCallbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            hideProgressDialog()
-            firebaseAuthWithCredential(credential, "Phone")
-        }
-
-        override fun onVerificationFailed(e: FirebaseException) {
-            hideProgressDialog()
-            showErrorSnackBar("Verification failed: ${e.message}")
-        }
-
-        override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
-            hideProgressDialog()
-            storedVerificationId = verificationId
-            resendToken = token
-            showCustomToast("OTP sent. Please check your phone.")
-        }
-    }
-
-    private fun verifyOTP(code: String) {
-        showProgressDialog("Verifying OTP...")
-
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val verificationId = storedVerificationId
-            if (verificationId != null) {
-                val credential = PhoneAuthProvider.getCredential(verificationId, code)
-                currentUser.linkWithCredential(credential)
-                    .addOnCompleteListener { task ->
-                        hideProgressDialog()
-                        if (task.isSuccessful) {
-                            isOtpVerified = true
-                            showCustomToast("Phone number verified and linked to your account.")
-
-                            etEmail.isEnabled = true
-                            etPassword.isEnabled = true
-                            btnSignIn.isEnabled = true
-
-                            etPhone.isEnabled = false
-                            etOtp.isEnabled = false
-                            btnSendOtp.isEnabled = false
-                            btnVerifyOtp.isEnabled = false
-                        } else {
-                            val exception = task.exception
-                            if (exception is FirebaseAuthUserCollisionException) {
-                                showErrorSnackBar("This phone number is already linked to another account.")
-                            } else {
-                                showErrorSnackBar("Failed to link phone number: ${exception?.message}")
-                            }
-                        }
-                    }
-            } else {
-                hideProgressDialog()
-                showErrorSnackBar("Verification ID is null.")
-            }
-        } else {
-            hideProgressDialog()
-            showErrorSnackBar("Please sign in with email/password first before verifying phone.")
-        }
-    }
-
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -243,16 +140,17 @@ class SignInActivity : BaseActivity() {
                                     doc.getString("name") ?: auth.currentUser?.displayName
                                 )
                             } else {
-                                val newUser = hashMapOf(
+                                val User = hashMapOf(
                                     "name" to auth.currentUser?.displayName,
                                     "email" to auth.currentUser?.email,
                                     "role" to "patient"
                                 )
-                                db.collection("users").document(userId).set(newUser)
+                                db.collection("users").document(userId).set(User)
                                     .addOnSuccessListener {
-                                        showCustomToast("Welcome, ${newUser["name"]}!")
-                                        startActivity(Intent(this, MainActivity::class.java))
+                                        showCustomToast("Welcome, ${User["name"]}!")
+                                        startActivity(Intent(this, DashboardActivity::class.java))
                                         finish()
+
                                     }
                             }
                         }
@@ -263,11 +161,6 @@ class SignInActivity : BaseActivity() {
     }
 
     private fun signInRegisteredUser() {
-        if (!isOtpVerified) {
-            showErrorSnackBar("Please verify your phone number with OTP first.")
-            return
-        }
-
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
 
@@ -283,6 +176,7 @@ class SignInActivity : BaseActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null && user.isEmailVerified) {
+                        // Get role from Firestore
                         db.collection("users").document(user.uid).get()
                             .addOnSuccessListener { document ->
                                 hideProgressDialog()
@@ -317,6 +211,7 @@ class SignInActivity : BaseActivity() {
             }
     }
 
+
     private fun validateForm(email: String, password: String): Boolean {
         return when {
             TextUtils.isEmpty(email) -> {
@@ -347,6 +242,8 @@ class SignInActivity : BaseActivity() {
         startActivity(intent)
         finish()
     }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
