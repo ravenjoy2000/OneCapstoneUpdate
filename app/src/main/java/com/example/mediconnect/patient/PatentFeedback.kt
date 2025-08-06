@@ -13,6 +13,9 @@ import androidx.appcompat.widget.Toolbar
 import com.example.mediconnect.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class PatentFeedback : AppCompatActivity() {
 
@@ -79,13 +82,26 @@ class PatentFeedback : AppCompatActivity() {
                     existingFeedbackId = doc.id
                     val rating = doc.getDouble("rating") ?: 0.0
                     val feedback = doc.getString("feedback") ?: ""
+                    val timestamp = doc.getLong("timestamp")
+
+                    // Format the timestamp
+                    val formattedTime = timestamp?.let {
+                        val sdf = SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault())
+                        sdf.format(Date(it))
+                    } ?: "Unknown date"
 
                     // Display existing feedback
                     ratingBar.rating = rating.toFloat()
                     feedbackEditText.setText(feedback)
 
                     val stars = "★".repeat(rating.toInt()) + "☆".repeat(5 - rating.toInt())
-                    feedbackResultTextView.text = "You rated: $stars\n\nYour feedback:\n\"$feedback\""
+                    feedbackResultTextView.text = """
+                    You rated: $stars
+                    Date: $formattedTime
+                    
+                    Your feedback:
+                    "$feedback"
+                """.trimIndent()
                     feedbackResultTextView.visibility = View.VISIBLE
 
                     // Disable editing initially
@@ -94,6 +110,7 @@ class PatentFeedback : AppCompatActivity() {
                 }
             }
     }
+
 
     private fun showEditDialog() {
         AlertDialog.Builder(this)

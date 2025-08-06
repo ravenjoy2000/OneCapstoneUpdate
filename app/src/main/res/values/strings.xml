@@ -15,8 +15,6 @@
     <string name="bio">Bio</string>
 
 
-
-
     <string name="lets_get_started">Let\'s Get Started</string>"
 
     <string name="before_we_begin">Before We Begin</string>
@@ -67,6 +65,7 @@
     <string name="facebook_app_id">1234</string>
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">56789</string>
+    <string name="doctor_feedback_title">"Patient Rates "</string>
 
 
 </resources>

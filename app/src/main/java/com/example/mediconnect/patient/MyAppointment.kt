@@ -37,6 +37,7 @@ class MyAppointment : AppCompatActivity() {
     private lateinit var tvAppointmentReason: TextView
     private lateinit var btnCancel: Button
     private lateinit var btnReschedule: Button
+    private var alreadyReloaded = false
 
     // Firebase
     private val db = FirebaseFirestore.getInstance()
@@ -169,6 +170,14 @@ class MyAppointment : AppCompatActivity() {
 
     private fun updateAppointmentUI(statusRaw: String?, cancelReason: String?) {
         val status = statusRaw?.lowercase() ?: "booked"
+
+        // Reload the activity if status is "cancelled" or "late", but only once
+        if ((status == "cancelled" || status == "late" || status == "no_show" || status == "completed" || status == "rescheduled") && !alreadyReloaded) {
+            alreadyReloaded = true
+            recreate()  // You could also use: finish(); startActivity(intent)
+            return
+        }
+
         tvStatus.text = when (status) {
             "cancelled" -> if (!cancelReason.isNullOrBlank()) "Status: Cancelled\nReason: $cancelReason" else "Status: Cancelled"
             "rescheduled", "rescheduled_once" -> "Status: Rescheduled"
@@ -188,6 +197,7 @@ class MyAppointment : AppCompatActivity() {
             })
         )
     }
+
 
     // -------------------- Alarm Reminders --------------------
 
@@ -310,4 +320,7 @@ class MyAppointment : AppCompatActivity() {
         private const val DEFAULT_ADDRESS = "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"
         private const val DEFAULT_PHONE = "0961-053-9277"
     }
+
+
+
 }
