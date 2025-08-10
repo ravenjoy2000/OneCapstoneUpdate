@@ -2,7 +2,10 @@ package com.example.mediconnect.patient
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -14,6 +17,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.appcompat.widget.Toolbar // ✅ AppCompat Toolbar for setSupportActionBar()
+
 
 class RescheduleActivity : AppCompatActivity() {
 
@@ -32,6 +37,16 @@ class RescheduleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reschedule)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
 
         tvNewDate = findViewById(R.id.tvNewDate)
         tvNewTime = findViewById(R.id.tvNewTime)
@@ -57,7 +72,21 @@ class RescheduleActivity : AppCompatActivity() {
 
             rescheduleAppointment()
         }
+
+        setupActionBar()
     }
+
+    private fun setupActionBar() {
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar_reschedule)
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
+            title = getString(R.string.reschedule_title)
+        }
+        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+    }
+
 
     private fun showDatePicker() {
         val now = Calendar.getInstance()

@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediconnect.R
 import com.example.mediconnect.databinding.ActivityDoctorFeedbackBinding
+import com.example.mediconnect.doctor_adapter.Doctor_feedbackAdapter
 import com.example.mediconnect.models.FeedbackModel
 import com.google.firebase.firestore.FirebaseFirestore
 

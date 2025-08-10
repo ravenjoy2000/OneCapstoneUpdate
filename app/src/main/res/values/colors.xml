@@ -1,39 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#0C90F1</color>
-    <color name="colorPrimaryBlack">#0591F8</color>
-    <color name="colorAccent">#0C90F1</color>
+    <!-- ===== Primary Theme Colors ===== -->
+    <color name="colorPrimary">#0C90F1</color>       <!-- Main blue -->
+    <color name="colorPrimaryDark">#0B7CD4</color>   <!-- Slightly darker blue -->
+    <color name="colorAccent">#0C90F1</color>        <!-- Accent blue -->
 
-    <color name="primary_text_color">#363A43</color>
-    <color name="secondary_text_color">#7A8089</color>
+    <!-- ===== Background Colors ===== -->
+    <color name="background_light">#FFFFFF</color>   <!-- App background -->
+    <color name="surface_light">#F5F9FF</color>      <!-- Card/secondary surfaces -->
 
-    <color name="snackbar_error_color">#F72400</color>
-    <color name="snackbar_proceed_color">#4CAF50</color>
-    <color name="light_gray">#F5F5F5</color>"
+    <!-- ===== Text Colors ===== -->
+    <color name="primary_text_color">#0C90F1</color> <!-- Main blue text -->
+    <color name="secondary_text_color">#7A8089</color> <!-- Subtle gray text -->
+
+    <!-- ===== Status / Feedback Colors ===== -->
+    <color name="info_blue">#2196F3</color>          <!-- Info messages -->
+    <color name="success_blue">#4FC3F7</color>       <!-- Success feedback -->
+    <color name="warning_light_blue">#81D4FA</color> <!-- Soft warning tone -->
+
+    <!-- Missing colors that caused the error -->
+    <color name="purple_5001">#9C27B0</color>
+    <color name="facebookBlue">#1877F2</color>
+
+    <!-- Existing colors -->
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    >
+    <color name="light_gray">#F5F5F5</color>
+    <color name="gray">#B0B0B0</color>
     <color name="dark_gray">#808080</color>
 
-    <color name="gray">#B0B0B0</color>
-    <color name="red">#F44336</color>
-    <color name="green">#4CAF50</color>
-    <color name="teal_700">#018786</color>
-    <color name="fully_booked_red">#FFCDD2</color>
-    <color name="doctor_day_off_gray">#BDBDBD</color>
-    <color name="link_color">#F8BBD0</color>
+    <!-- Blues -->
+    <color name="blue_700">#1976D2</color>
+    <color name="primary">#0C90F1</color> <!-- for layouts referencing primary -->
+    <color name="link_color">#0C90F1</color>
 
-    <color name="primary">#3F51B5</color>
-    <color name="purple_500">#673AB7</color>
-    <color name="purple_5001">#6908F6</color>
-    <color name="teal_200">#6908F6</color>
-    <color name="facebookBlue">#3b5998</color>
-
-    <color name="blue_700">#1976D2</color> <!-- or your preferred blue -->
+    <!-- Status Colors (adjusted to blues instead of red/green) -->
+    <color name="green">#4CAF50</color> <!-- changed to blue tone -->
+    <color name="red">#E91E63</color>   <!-- darker blue instead of red -->
+    <color name="orange">#FF5722</color> <!-- lighter blue shade -->
 
 
-
-
+    <!-- Special -->
+    <color name="facebook_blue">#3b5998</color>
+    <color name="snackbar_error_color">#FF5252</color> <!-- red-ish for error -->
+    <color name="snackbar_proceed_color">#4CAF50</color> <!-- Green for proceed/success -->
 
 
 

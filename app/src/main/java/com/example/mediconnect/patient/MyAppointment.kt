@@ -7,6 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.example.mediconnect.R
+import com.example.mediconnect.patient_adapter.AppointmentReminderUtil
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -49,6 +52,16 @@ class MyAppointment : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_my_appointment)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+
         setupActionBar()
         initViews()
         loadAppointment()
@@ -61,13 +74,21 @@ class MyAppointment : AppCompatActivity() {
 
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_my_appointment)
-        setSupportActionBar(toolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
-            title = getString(R.string.my_appointment_title)
+        if (toolbar != null) {
+            setSupportActionBar(toolbar)
+            supportActionBar?.apply {
+                setDisplayHomeAsUpEnabled(true)
+                setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
+                title = getString(R.string.my_appointment_title)
+            }
+            toolbar.setNavigationOnClickListener {
+                onBackPressedDispatcher.onBackPressed()
+                // Optionally ensure the activity finishes
+                // finish()
+            }
+        } else {
+            Log.e("SetupActionBar", "Toolbar not found in layout.")
         }
-        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     private fun initViews() {

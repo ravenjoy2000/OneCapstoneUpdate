@@ -1,4 +1,4 @@
-package com.example.mediconnect.doctor
+package com.example.mediconnect.doctor_adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.databinding.ItemFeedbackBinding
 import com.example.mediconnect.models.FeedbackModel
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class Doctor_feedbackAdapter(private val feedbackList: List<FeedbackModel>) :
     RecyclerView.Adapter<Doctor_feedbackAdapter.FeedbackViewHolder>() {

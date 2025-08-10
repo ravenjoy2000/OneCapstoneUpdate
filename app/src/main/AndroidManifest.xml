@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.mediconnect">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -24,6 +24,7 @@
         android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" />
 
+    <!-- API Key -->
     <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="YOUR_API_KEY_HERE" />
@@ -36,123 +37,115 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/mclogo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar.">
-        <activity
-            android:name=".doctor.DoctorCalendar"
-            android:exported="false" />
-        <activity
-            android:name=".activities.DoctorIntro"
-            android:exported="false" />
-        <activity
-            android:name=".activities.DashboardActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.LoginTwo"
-            android:exported="false" />
-        <activity
-            android:name=".doctor.AppointmentDetailsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".doctor.DoctorProfile"
+        android:theme="@style/AppTheme.NoActionBar">
+
+        <!-- Activities -->
+        <activity android:name=".activities.DoctorIntro" android:exported="false" />
+        <activity android:name=".activities.DashboardActivity" android:exported="false" />
+        <activity android:name=".activities.LoginTwo" android:exported="false" />
+        <activity android:name=".doctor.AppointmentDetailsActivity" android:exported="false" />
+        <activity android:name=".doctor.DoctorProfile"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mediconnect" />
-        <activity
-            android:name=".doctor.DoctorFeedback"
+            android:theme="@style/Theme.MediConnect" />
+
+        <activity android:name=".doctor.DoctorFeedback"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".doctor.DoctorMedicalLog"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- Updated to use Theme.MediConnect -->
+        <activity android:name=".doctor.DoctorMedicalLog"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".doctor.DoctorAppointmentHistory"
+            android:theme="@style/Theme.MediConnect" />
+
+        <activity android:name=".doctor.DoctorAppointmentHistory"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".doctor.DoctorAppointment"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".doctor.DoctorAppointment"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".doctor.DoctorDashboardActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".doctor.DoctorDashboardActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.PatentFeedback"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.PatentFeedback"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.MedicalLogs"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.MedicalLogs"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.RescheduleActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.RescheduleActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.AppointmentHistoryUser"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.AppointmentHistoryUser"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.MyAppointment"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.MyAppointment"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.appointment"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.appointment"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".patient.MyProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".patient.MyProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".activities.BaseActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".activities.BaseActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".activities.SignInActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".activities.SignInActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".activities.SignUpActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".activities.SignUpActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".activities.IntroActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".activities.IntroActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar." />
-        <activity
-            android:name=".activities.SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- Launcher Activity -->
+        <activity android:name=".activities.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar.">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".patient.MainActivity"
-            android:exported="false" />
 
-        <receiver android:name=".patient.ReminderReceiver" />
+        <activity android:name=".patient.MainActivity" android:exported="false" />
+
+        <!-- Receiver -->
+        <receiver android:name=".patient_adapter.ReminderReceiver" />
+
     </application>
 
 </manifest>

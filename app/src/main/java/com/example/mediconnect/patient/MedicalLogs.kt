@@ -1,8 +1,11 @@
 package com.example.mediconnect.patient
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.MedicalLog
+import com.example.mediconnect.patient_adapter.patient_MedicalLogAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -18,7 +22,7 @@ class MedicalLogs : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyTextView: TextView
-    private lateinit var adapter: MedicalLogAdapter
+    private lateinit var adapter: patient_MedicalLogAdapter
     private val logs = mutableListOf<MedicalLog>()
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -27,12 +31,22 @@ class MedicalLogs : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_medical_logs)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+
         setupActionBar()
 
         recyclerView = findViewById(R.id.logsRecyclerView)
         emptyTextView = findViewById(R.id.emptyLogsText)
 
-        adapter = MedicalLogAdapter(logs)
+        adapter = patient_MedicalLogAdapter(logs)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 

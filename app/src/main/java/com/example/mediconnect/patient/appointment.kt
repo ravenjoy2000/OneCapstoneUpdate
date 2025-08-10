@@ -14,6 +14,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -32,6 +34,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.activities.BaseActivity
 import com.example.mediconnect.models.Booking
+import com.example.mediconnect.patient_adapter.AppointmentReminderWorker
+import com.example.mediconnect.patient_adapter.TimeSlotAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -74,6 +78,16 @@ class appointment : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appointment)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
 
         setupActionBar()
         supportActionBar?.title = getString(R.string.my_appointment_title)
@@ -184,7 +198,12 @@ class appointment : BaseActivity() {
                 tvSelectedDate.text = "Selected Date: $selectedDateFormatted"
 
                 fetchBookedSlotsForDate(selectedDateFormatted) { bookedSlots ->
-                    val adapter = TimeSlotAdapter(allowedTimeSlots, bookedSlots, false, selectedDateFormatted) { selectedTime ->
+                    val adapter = TimeSlotAdapter(
+                        allowedTimeSlots,
+                        bookedSlots,
+                        false,
+                        selectedDateFormatted
+                    ) { selectedTime ->
                         selectedTimeSlot = selectedTime
                     }
                     rvTimeSlots.adapter = adapter

@@ -9,37 +9,28 @@
     android:clipToPadding="false"
     android:layout_marginHorizontal="8dp">
 
-    <!-- Patient Name -->
+
     <TextView
-        android:id="@+id/doctor_patient_name"
-        android:layout_width="match_parent"
+        android:id="@+id/tv_patient_name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Patient Name"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="4dp" />
+        android:textSize="16sp"
+        android:textStyle="bold"/>
 
-    <!-- Appointment Date -->
     <TextView
         android:id="@+id/doctor_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Aug 5, 2025"
-        android:textSize="15sp"
-        android:textColor="@color/black"
-        android:layout_marginBottom="2dp" />
+        android:text="2025-08-11"
+        android:textSize="14sp"/>
 
-    <!-- Appointment Time -->
     <TextView
         android:id="@+id/doctor_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2:00 PM"
-        android:textSize="15sp"
-        android:textColor="@color/black"
-        android:layout_marginBottom="6dp" />
-
+        android:text="3:00 pm"
+        android:textSize="14sp"/>
     <!-- Status -->
     <TextView
         android:id="@+id/doctor_status"

@@ -66,6 +66,8 @@
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">56789</string>
     <string name="doctor_feedback_title">"Patient Rates "</string>
+    <string name="reschedule_title">Reschedule</string>
+    <string name="medical_log_title">Medical_log_title</string>
 
 
 </resources>

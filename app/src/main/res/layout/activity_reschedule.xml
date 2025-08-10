@@ -2,46 +2,65 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
     tools:context=".patient.RescheduleActivity">
 
-    <TextView
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_reschedule"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Select New Date:" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:title="Reschedule Appointment"
+        app:titleTextColor="@android:color/white"
+        android:elevation="4dp" />
 
-    <TextView
-        android:id="@+id/tvNewDate"
-        android:text="Choose Date"
-        android:padding="10dp"
-        android:background="#E0E0E0"
-        android:layout_marginTop="10dp"
+    <!-- Main Content -->
+    <LinearLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Select New Time:" android:layout_marginTop="20dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select New Date:" />
 
-    <TextView
-        android:id="@+id/tvNewTime"
-        android:text="Choose Time"
-        android:padding="10dp"
-        android:background="#E0E0E0"
-        android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvNewDate"
+            android:text="Choose Date"
+            android:padding="10dp"
+            android:background="#E0E0E0"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/btnConfirmReschedule"
-        android:text="Confirm Reschedule"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select New Time:"
+            android:layout_marginTop="20dp" />
 
+        <TextView
+            android:id="@+id/tvNewTime"
+            android:text="Choose Time"
+            android:padding="10dp"
+            android:background="#E0E0E0"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btnConfirmReschedule"
+            android:text="Confirm Reschedule"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 </LinearLayout>

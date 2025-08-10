@@ -1,4 +1,4 @@
-package com.example.mediconnect.patient
+package com.example.mediconnect.patient_adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.Appointment
-import com.google.firebase.firestore.FirebaseFirestore
 
 class AppointmentHistoryAdapter(private val appointments: List<Appointment>) :
     RecyclerView.Adapter<AppointmentHistoryAdapter.ViewHolder>() {

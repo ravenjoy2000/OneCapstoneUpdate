@@ -1,174 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F9F9"
-    android:padding="16dp"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_my_appointment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:title="@string/my_appointment_title"
+        app:titleTextColor="@android:color/white"
+        android:elevation="4dp" />
 
-        <!-- Toolbar -->
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_my_appointment"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:elevation="4dp" />
+    <!-- Scrollable Content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F9F9F9"
+        android:fillViewport="true"
+        android:padding="16dp">
 
-        <!-- Appointment Info Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:background="@android:color/white">
-
-                <TextView
-                    android:id="@+id/tv_doctor_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Dr. Name"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:textColor="#222222" />
-
-                <TextView
-                    android:id="@+id/tv_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Status: None"
-                    android:textSize="16sp"
-                    android:textColor="#4CAF50"
-                    android:layout_marginTop="4dp"
-                    android:textStyle="bold" />
-
-                <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:background="#DDDDDD" />
-
-                <!-- Details -->
-                <TextView
-                    android:id="@+id/tv_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Date: None"
-                    android:textSize="16sp"
-                    android:textColor="#333333"
-                    android:layout_marginTop="12dp" />
-
-                <!-- NEW: Previous Date Display -->
-                <TextView
-                    android:id="@+id/tv_previous_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Rescheduled from: "
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="14sp"
-                    android:paddingTop="4dp"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/tv_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Time: None"
-                    android:textSize="16sp"
-                    android:textColor="#333333"
-                    android:layout_marginTop="4dp" />
-
-                <TextView
-                    android:id="@+id/tv_mode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Mode: None"
-                    android:textSize="16sp"
-                    android:textColor="#333333"
-                    android:layout_marginTop="4dp" />
-
-                <TextView
-                    android:id="@+id/tv_location"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Location: None"
-                    android:textSize="16sp"
-                    android:textColor="#333333"
-                    android:layout_marginTop="4dp" />
-
-                <TextView
-                    android:id="@+id/tv_notes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Note: None"
-                    android:textSize="16sp"
-                    android:textColor="#333333"
-                    android:layout_marginTop="4dp" />
-
-                <TextView
-                    android:id="@+id/tv_appointment_reason"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Reason: Not feeling well"
-                    android:textSize="16sp"
-                    android:textColor="#D32F2F"
-                    android:layout_marginTop="4dp"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="24dp">
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_cancel"
-                android:layout_width="0dp"
+            <!-- Appointment Info Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:backgroundTint="@android:color/holo_red_dark"
-                android:drawableLeft="@android:drawable/ic_menu_close_clear_cancel"
-                android:drawablePadding="8dp"
-                android:padding="10dp" />
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp">
 
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@android:color/white">
 
-            <Button
-                android:id="@+id/btn_reschedule"
-                android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/tv_doctor_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Dr. Name"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:textColor="#222222" />
+
+                    <TextView
+                        android:id="@+id/tv_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status: None"
+                        android:textSize="16sp"
+                        android:textColor="#4CAF50"
+                        android:layout_marginTop="4dp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#DDDDDD" />
+
+                    <TextView
+                        android:id="@+id/tv_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Date: None"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:layout_marginTop="12dp" />
+
+                    <TextView
+                        android:id="@+id/tv_previous_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Rescheduled from: "
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:paddingTop="4dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Time: None"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_mode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Mode: None"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Location: None"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Note: None"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_appointment_reason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Reason: Not feeling well"
+                        android:textSize="16sp"
+                        android:textColor="#D32F2F"
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Reschedule"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:drawableLeft="@android:drawable/ic_menu_today"
-                android:drawablePadding="8dp"
-                android:padding="10dp" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="24dp">
+
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cancel"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@android:color/holo_red_dark"
+                    android:drawableLeft="@android:drawable/ic_menu_close_clear_cancel"
+                    android:drawablePadding="8dp"
+                    android:padding="10dp" />
+
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/btn_reschedule"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Reschedule"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@android:color/holo_blue_dark"
+                    android:drawableLeft="@android:drawable/ic_menu_today"
+                    android:drawablePadding="8dp"
+                    android:padding="10dp" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

@@ -1,4 +1,4 @@
-package com.example.mediconnect.patient
+package com.example.mediconnect.patient_adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.MedicalLog
 
-class MedicalLogAdapter(private val logs: List<MedicalLog>) :
-    RecyclerView.Adapter<MedicalLogAdapter.LogViewHolder>() {
+class patient_MedicalLogAdapter(private val logs: List<MedicalLog>) :
+    RecyclerView.Adapter<patient_MedicalLogAdapter.LogViewHolder>() {
 
     inner class LogViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val date: TextView = view.findViewById(R.id.logDate)
