@@ -1,5 +1,6 @@
 package com.example.mediconnect.doctor
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,9 @@ import com.example.mediconnect.R
 import com.example.mediconnect.models.Appointment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.example.mediconnect.models.AppConstant
 
 class AppointmentDetailsActivity : AppCompatActivity() {
 
@@ -130,17 +134,23 @@ class AppointmentDetailsActivity : AppCompatActivity() {
 
 
     private fun startConsultation(appointment: Appointment) {
-        // TODO: Replace with actual consultation start logic
-        // For example, open video call activity or Jitsi Meet room
+        val patientId = appointment.patientId      // Patient UID
+        val patientName = appointment.patientName  // Patient display name
 
-        // Example placeholder:
-        Toast.makeText(this, "Starting consultation with ${appointment.patientName}", Toast.LENGTH_SHORT).show()
+        val currentUserId = auth.currentUser?.uid ?: ""   // Doctor UID
+        val currentUserName = "Doctor"                     // Doctor display name (hardcoded or fetch real name)
 
-        // Example if using Intent to open a video call activity:
-        // val intent = Intent(this, VideoCallActivity::class.java)
-        // intent.putExtra("appointment_id", appointment.id)
-        // startActivity(intent)
+        val config = ZegoUIKitPrebuiltCallInvitationConfig()
+        ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, currentUserId, currentUserName, config)
+
+        val intent = Intent(this, VideoCallActivity::class.java)
+        intent.putExtra("targetUserId", patientId)   // Who doctor will call
+        intent.putExtra("targetUserName", patientName)
+        intent.putExtra("currentUserId", currentUserId)       // Pass doctor UID
+        intent.putExtra("currentUserName", currentUserName)   // Pass doctor name
+        startActivity(intent)
     }
+
 
     private fun rescheduleAppointment(appointment: Appointment) {
         // TODO: Open a reschedule screen or dialog where you can pick new date/time

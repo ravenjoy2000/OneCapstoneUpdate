@@ -21,6 +21,10 @@ import com.google.android.gms.auth.api.signin.*
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.example.mediconnect.models.AppConstant
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoTranslationText
 
 class SignInActivity : BaseActivity() {
 
@@ -150,7 +154,6 @@ class SignInActivity : BaseActivity() {
                                         showCustomToast("Welcome, ${User["name"]}!")
                                         startActivity(Intent(this, DashboardActivity::class.java))
                                         finish()
-
                                     }
                             }
                         }
@@ -211,7 +214,6 @@ class SignInActivity : BaseActivity() {
             }
     }
 
-
     private fun validateForm(email: String, password: String): Boolean {
         return when {
             TextUtils.isEmpty(email) -> {
@@ -227,7 +229,18 @@ class SignInActivity : BaseActivity() {
     }
 
     private fun handleRoleAndRedirect(role: String?, name: String?) {
-        showCustomToast("Welcome, $name!")
+        val userId = auth.currentUser?.uid ?: ""
+        val userName = name ?: "User"
+
+        val config = ZegoUIKitPrebuiltCallInvitationConfig().apply {
+            // Initialize translationText to avoid NullPointerException
+            translationText = ZegoTranslationText()
+        }
+
+        // Initialize Zego call service on login
+        ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, userId, userName, config)
+
+        showCustomToast("Welcome, $userName!")
 
         val intent = when (role) {
             "doctor" -> Intent(this, DoctorDashboardActivity::class.java)
@@ -243,7 +256,20 @@ class SignInActivity : BaseActivity() {
         finish()
     }
 
+    // Add this logout method — call it when user logs out
+    fun logout() {
+        // Uninitialize Zego call service to stop listening for calls
+        ZegoUIKitPrebuiltCallService.unInit()
 
+        // Firebase sign out
+        auth.signOut()
+
+        // Redirect to sign-in screen
+        val intent = Intent(this, SignInActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

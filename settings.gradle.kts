@@ -17,7 +17,12 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
 
-        maven("https://jitpack.io") // ✅ Required
+        maven {
+            url = uri("https://maven.zego.im")
+        }
+        maven {
+            url = uri("https://www.jitpack.io")
+        }
 
 
     }

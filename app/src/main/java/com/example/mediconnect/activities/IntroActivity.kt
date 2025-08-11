@@ -12,6 +12,11 @@ import com.example.mediconnect.patient.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.example.mediconnect.models.AppConstant
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoTranslationText
+
 class IntroActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,10 +39,20 @@ class IntroActivity : BaseActivity() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             val uid = currentUser.uid
+            val userName = currentUser.displayName ?: "User"
+
             FirebaseFirestore.getInstance().collection("users").document(uid)
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
+                        // Setup Zego Call Invitation Config
+                        val config = ZegoUIKitPrebuiltCallInvitationConfig().apply {
+                            translationText = ZegoTranslationText() // avoid NullPointerException
+                        }
+
+                        // Initialize Zego Call Service
+                        ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, uid, userName, config)
+
                         when (document.getString("role")) {
                             "doctor" -> {
                                 startActivity(Intent(this, DoctorDashboardActivity::class.java))

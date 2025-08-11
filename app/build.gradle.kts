@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mediconnect"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -82,6 +82,9 @@ dependencies {
 
     implementation("com.facebook.android:facebook-login:latest.release")
     implementation("com.facebook.android:facebook-android-sdk:latest.release")
+
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+
 
 
 
