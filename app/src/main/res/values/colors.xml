@@ -53,5 +53,19 @@
     <color name="snackbar_proceed_color">#4CAF50</color> <!-- Green for proceed/success -->
 
 
+    <color name="colorOnPrimary">#FFFFFF</color> <!-- Text on blue -->
+
+    <!-- Backgrounds -->
+    <color name="colorBackground">#FFFFFF</color> <!-- Always white -->
+    <color name="colorSurface">#FFFFFF</color> <!-- Card/Surface -->
+
+    <!-- Text -->
+    <color name="colorOnBackground">#000000</color>
+    <color name="colorOnSurface">#000000</color>
+
+
+
+
+
 
 </resources>

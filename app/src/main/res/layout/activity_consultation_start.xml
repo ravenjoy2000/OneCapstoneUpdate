@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    tools:context=".patient.ConsultationStart">
+
+    <!-- Loading spinner -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Waiting text -->
+    <TextView
+        android:id="@+id/waitingMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please wait for your doctor to call..."
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Payment notice -->
+    <!-- Payment notice (Initially hidden) -->
+    <TextView
+        android:id="@+id/paymentNotice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠ Payment Reminder:\n\nYou must pay for your consultation at the clinic's front desk. The app does not support online payment. If payment is not made, you will not receive your medical certificate PDF or any other medical records in the Medical Log."
+        android:textSize="16sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:gravity="center"
+        android:padding="12dp"
+        android:background="#FFF3CD"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone" />
+
+
+    <!-- Medical Log Button (Initially hidden) -->
+    <Button
+        android:id="@+id/btnMedicalLog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Medical Log"
+        android:backgroundTint="@color/teal_700"
+        android:textColor="@android:color/white"
+        android:visibility="gone" />
+</LinearLayout>

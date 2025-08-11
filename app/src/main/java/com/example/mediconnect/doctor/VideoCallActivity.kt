@@ -1,6 +1,9 @@
 package com.example.mediconnect.doctor
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +25,8 @@ class VideoCallActivity : AppCompatActivity() {
 
     lateinit var targetuserInput: EditText
 
+    lateinit var btnAddMedicalLog: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,17 +36,17 @@ class VideoCallActivity : AppCompatActivity() {
         videoCallBtn = findViewById(R.id.video_call_btn)
         currentUsernameTextView = findViewById(R.id.current_user_name_textview)
         targetuserInput = findViewById(R.id.target_usernae_input)
+        btnAddMedicalLog = findViewById(R.id.btn_add_medical_log)
 
         // Receive extras
         val targetUserId = intent.getStringExtra("targetUserId") ?: ""
         val targetUserName = intent.getStringExtra("targetUserName") ?: ""
         val currentUserId = intent.getStringExtra("currentUserId") ?: ""
         val currentUserName = intent.getStringExtra("currentUserName") ?: ""
+        val appointmentId = intent.getStringExtra("appointmentId") ?: ""
 
-        // Display current user name
         currentUsernameTextView.text = currentUserName
 
-        // Setup call buttons with target info
         if (targetUserId.isNotEmpty() && targetUserName.isNotEmpty()) {
             targetuserInput.setText(targetUserName)
             setupVoiceCall(targetUserId, targetUserName)
@@ -50,8 +55,21 @@ class VideoCallActivity : AppCompatActivity() {
 
         targetuserInput.isEnabled = false
 
-        // Initialize Zego call service for current user here (optional, if not initialized yet)
-        // ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, currentUserId, currentUserName, ZegoUIKitPrebuiltCallInvitationConfig())
+        // Simulate call end (replace with real event from Zego)
+        videoCallBtn.setOnClickListener {
+            setupVideoCall(targetUserId, targetUserName)
+
+            // After call ends -> show button
+            btnAddMedicalLog.visibility = View.VISIBLE
+        }
+
+        btnAddMedicalLog.setOnClickListener {
+            val intent = Intent(this, AddMedicalLogActivity::class.java)
+            intent.putExtra("appointmentId", appointmentId)
+            intent.putExtra("patientId", targetUserId)
+            intent.putExtra("doctorId", currentUserId)
+            startActivity(intent)
+        }
     }
 
     fun setupVoiceCall(userId: String, userName: String) {

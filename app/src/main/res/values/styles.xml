@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base App Theme without Action Bar -->
     <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 
-    <!-- Explicit Action Bar Removal (optional) -->
+    <!-- Explicit Action Bar Removal -->
     <style name="AppTheme.NoActionBar.Explicit">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 
     <!-- App Bar Overlay -->
@@ -27,14 +29,26 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <!-- Main App Theme -->
-    <style name="Theme.MediConnect" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:windowLightStatusBar">true</item>
+    <!-- Main MediConnect Theme (Blue + White, works in Light & Dark mode) -->
+    <style name="Theme.MediConnect" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary Colors -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:statusBarColor">@color/background_light</item>
-        <item name="android:textColorPrimary">@android:color/black</item>
+
+        <!-- Background Colors -->
+        <item name="android:colorBackground">@color/white</item> <!-- Android system -->
+        <item name="colorSurface">@android:color/white</item>
+        <item name="colorOnSurface">@android:color/black</item>
+        <item name="colorOnBackground">@android:color/black</item>
+
+        <!-- Status Bar Color -->
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Keep colors the same in dark mode -->
+        <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
     </style>
 
 </resources>

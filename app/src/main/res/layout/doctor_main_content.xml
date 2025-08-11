@@ -1,7 +1,8 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -9,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="24dp"
         android:gravity="center_horizontal">
@@ -36,7 +37,7 @@
             android:textColor="@color/black"
             android:layout_marginBottom="12dp" />
 
-        <!-- No Appointments Placeholder (optional) -->
+        <!-- No Appointments Placeholder -->
         <TextView
             android:id="@+id/tvNoAppointments"
             android:layout_width="wrap_content"
@@ -51,11 +52,11 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_current_appointments"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:padding="16dp"
             tools:listitem="@layout/doctor_item_appointment" />
 
-
     </LinearLayout>
-</ScrollView>
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

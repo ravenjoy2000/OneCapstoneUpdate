@@ -32,9 +32,6 @@
         <include layout="@layout/doctor_main_content" />
 
 
-
-
-
     </LinearLayout>
 
     <!-- Navigation drawer -->

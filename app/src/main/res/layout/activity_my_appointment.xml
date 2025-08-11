@@ -163,11 +163,11 @@
                     android:layout_height="wrap_content" />
 
                 <Button
-                    android:id="@+id/btn_reschedule"
+                    android:id="@+id/btn_start_consultation"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Reschedule"
+                    android:text="Consultation Start"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:backgroundTint="@android:color/holo_blue_dark"

@@ -31,7 +31,6 @@ class FireStoreClass : BaseActivity() {
     }
 
     // 🔹 Load current user's data from Firestore
-    val currentUserId = getCurrentUserID()
 
     fun loadUserData(activity: Activity) {
         val currentUserId = getCurrentUserID()

@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.Continuation
 
 class MyAppointment : AppCompatActivity() {
 
@@ -39,7 +40,7 @@ class MyAppointment : AppCompatActivity() {
     private lateinit var tvNotes: TextView
     private lateinit var tvAppointmentReason: TextView
     private lateinit var btnCancel: Button
-    private lateinit var btnReschedule: Button
+    private lateinit var btn_start_consultation: Button
     private var alreadyReloaded = false
 
     // Firebase
@@ -67,7 +68,7 @@ class MyAppointment : AppCompatActivity() {
         loadAppointment()
 
         btnCancel.setOnClickListener { showCancelDialog() }
-        btnReschedule.setOnClickListener { onRescheduleClicked() }
+        btn_start_consultation.setOnClickListener { btn_start_consultation() }
     }
 
     // -------------------- Setup & Initialization --------------------
@@ -102,7 +103,7 @@ class MyAppointment : AppCompatActivity() {
         tvNotes = findViewById(R.id.tv_notes)
         tvAppointmentReason = findViewById(R.id.tv_appointment_reason)
         btnCancel = findViewById(R.id.btn_cancel)
-        btnReschedule = findViewById(R.id.btn_reschedule)
+        btn_start_consultation = findViewById(R.id.btn_start_consultation)
     }
 
     // -------------------- Load Appointment & Populate UI --------------------
@@ -136,7 +137,7 @@ class MyAppointment : AppCompatActivity() {
                     else -> true
                 }
                 btnCancel.isEnabled = isModifiable
-                btnReschedule.isEnabled = isModifiable
+                btn_start_consultation.isEnabled = isModifiable
 
                 loadDoctorInfo(doc.getString("doctorId"))
 
@@ -161,12 +162,40 @@ class MyAppointment : AppCompatActivity() {
                 val timeSlot = doc.getString("timeSlot")
                 if (!appointmentDate.isNullOrBlank() && !timeSlot.isNullOrBlank()) {
                     checkAndScheduleReminders(appointmentDate, timeSlot)
+
+                    // ✅ Check if current time has passed appointment time
+                    val sdf = SimpleDateFormat("yyyy-MM-dd h:mma", Locale.getDefault())
+                    try {
+                        val apptDateTime = sdf.parse("$appointmentDate $timeSlot")
+                        if (apptDateTime != null) {
+                            val now = Date()
+                            if (now.after(apptDateTime)) {
+                                val diffMinutes = (now.time - apptDateTime.time) / (1000 * 60)
+                                val newStatus = if (diffMinutes >= 60) "no_show" else "late"
+
+                                if (status in listOf("booked", "rescheduled", "rescheduled_once")) {
+                                    db.collection("appointments").document(doc.id)
+                                        .update("status", newStatus)
+                                        .addOnSuccessListener {
+                                            Log.d("MyAppointment", "Status updated to $newStatus")
+                                            updateAppointmentUI(newStatus, null)
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("MyAppointment", "Failed to update status", e)
+                                        }
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MyAppointment", "Error parsing date/time", e)
+                    }
                 }
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to load appointment.", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun loadDoctorInfo(doctorId: String?) {
         if (doctorId.isNullOrBlank()) {
@@ -246,7 +275,7 @@ class MyAppointment : AppCompatActivity() {
 
     // -------------------- Cancel & Reschedule --------------------
 
-    private fun onRescheduleClicked() {
+    private fun btn_start_consultation() {
         if (appointmentId == null) {
             Toast.makeText(this, "No appointment to reschedule.", Toast.LENGTH_SHORT).show()
             return
@@ -255,7 +284,7 @@ class MyAppointment : AppCompatActivity() {
         db.collection("appointments").document(appointmentId!!)
             .get()
             .addOnSuccessListener { doc ->
-                val intent = Intent(this, RescheduleActivity::class.java)
+                val intent = Intent(this, ConsultationStart()::class.java)
                 intent.putExtra("appointmentId", appointmentId)
                 intent.putExtra("doctorId", doc.getString("doctorId") ?: "")
                 startActivity(intent)

@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_gray"
+    android:background="@android:color/white"
     tools:context=".doctor.DoctorProfile">
 
     <!-- Top App Bar -->
@@ -186,6 +186,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Save Changes"
+                android:textColor="@android:color/white"
                 android:layout_marginTop="32dp"
                 app:cornerRadius="24dp"
                 app:backgroundTint="@color/blue_700"
