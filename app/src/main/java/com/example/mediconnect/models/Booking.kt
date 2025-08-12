@@ -5,6 +5,7 @@ import android.os.Parcelable
 
 // Data class para sa Booking na pwedeng i-pass sa intents dahil nag-implement ng Parcelable
 data class Booking(
+    val appointmentId: String = "",        // ID ng appointment
     val patientId: String = "",            // ID ng pasyente
     val patientName: String = "",          // Pangalan ng pasyente
     val doctorId: String = "",             // ID ng doktor
@@ -21,6 +22,7 @@ data class Booking(
 
     // Constructor para i-create ang object mula sa Parcel (pagbasa mula Intent o Bundle)
     constructor(parcel: Parcel) : this(
+        parcel.readString() ?: "",
         parcel.readString() ?: "",          // Basa ng patientId mula sa parcel
         parcel.readString() ?: "",          // Basa ng patientName mula sa parcel
         parcel.readString() ?: "",          // Basa ng doctorId mula sa parcel
@@ -37,6 +39,7 @@ data class Booking(
 
     // Isinusulat ang properties papunta sa Parcel para maipasa sa Intent o Bundle
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(appointmentId)    // Isinusulat ang appointmentId
         parcel.writeString(patientId)       // Isinusulat ang patientId
         parcel.writeString(patientName)     // Isinusulat ang patientName
         parcel.writeString(doctorId)        // Isinusulat ang doctorId

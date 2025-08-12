@@ -5,27 +5,29 @@ import android.os.Parcelable
 
 // Data class para sa MedicalLog na pwedeng i-pass gamit Parcelable
 data class MedicalLog(
-    val patientName: String?,          // Pangalan ng pasyente (nullable)
-    val appointmentDate: String?,      // Petsa ng appointment (nullable)
-    val diagnosis: String?,            // Diagnosis ng pasyente (nullable)
-    val notes: String?,                // Notes tungkol sa pasyente o appointment (nullable)
-    val status: String?,               // Status ng appointment (nullable)
-    val doctorNotes: String?,          // Notes ng doktor (nullable)
-    val date: String?,                 // Petsa ng record (nullable)
-    val doctorName: String?,           // Pangalan ng doktor (nullable)
-    val doctorId: String?,             // ID ng doktor (nullable)
-    val patientId: String?,            // ID ng pasyente (nullable)
-    val appointmentId: String?,        // ID ng appointment (nullable)
-    val appointmentTime: String?,      // Oras ng appointment (nullable)
-    val appointmentDay: String?,       // Araw ng appointment (nullable)
-    val appointmentMonth: String?,     // Buwan ng appointment (nullable)
-    val appointmentYear: String?,      // Taon ng appointment (nullable)
-    val appointmentHour: String?,      // Oras (hour) ng appointment (nullable)
-    val appointmentMinute: String?     // Oras (minute) ng appointment (nullable)
+    val medicalLogId: String? = null,
+    val patientName: String? = null,
+    val appointmentDate: String? = null,
+    val diagnosis: String? = null,
+    val notes: String? = null,
+    val status: String? = null,
+    val doctorNotes: String? = null,
+    val date: String? = null,
+    val doctorName: String? = null,
+    val doctorId: String? = null,
+    val patientId: String? = null,
+    val appointmentId: String? = null,
+    val appointmentTime: String? = null,
+    val appointmentDay: String? = null,
+    val appointmentMonth: String? = null,
+    val appointmentYear: String? = null,
+    val appointmentHour: String? = null,
+    val appointmentMinute: String? = null
 ) : Parcelable {
 
     // Constructor para i-create ang object mula sa Parcel (Parcelable implementation)
     constructor(parcel: Parcel) : this(
+        parcel.readString(),   // Basa ng medicallogId
         parcel.readString(),   // Basa ng patientName
         parcel.readString(),   // Basa ng appointmentDate
         parcel.readString(),   // Basa ng diagnosis
@@ -47,6 +49,7 @@ data class MedicalLog(
 
     // Isinusulat ang mga fields papunta sa Parcel para maipasa sa Intent/Bundle
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(medicalLogId)        // Isinusulat ang medicallogId
         parcel.writeString(patientName)        // Isinusulat ang patientName
         parcel.writeString(appointmentDate)    // Isinusulat ang appointmentDate
         parcel.writeString(diagnosis)          // Isinusulat ang diagnosis

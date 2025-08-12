@@ -2,6 +2,8 @@ package com.example.mediconnect.patient
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -20,6 +22,8 @@ class ConsultationStart : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance() // Firestore database instance
     private val auth = FirebaseAuth.getInstance()    // Firebase Authentication instance
 
+    private var canUpdateUI = false  // Flag para kontrolin kung pwede nang mag-update ng UI
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_consultation_start)  // I-set ang layout ng activity
@@ -35,6 +39,14 @@ class ConsultationStart : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Ipakita agad ang loading screen habang naghihintay
+        showWaiting()
+
+        // Itakda ang 1 minutong delay bago payagang mag-update ang UI mula waiting papuntang finished
+        Handler(Looper.getMainLooper()).postDelayed({
+            canUpdateUI = true
+        }, 15_000) // 60,000 milliseconds = 1 minuto
+
         // Simulan ang pakikinig sa Firestore para sa consultation status update
         listenForConsultationStatus()
     }
@@ -45,8 +57,8 @@ class ConsultationStart : AppCompatActivity() {
 
         db.collection("appointments")                    // Access sa "appointments" collection
             .whereEqualTo("patientId", patientId)       // Filter: appointments ng kasalukuyang pasyente
-            .whereEqualTo("status", "ongoing")           // Filter: appointments na ongoing pa
-            .addSnapshotListener { snapshot, error ->    // Mag-subscribe sa real-time changes
+            .whereEqualTo("status", "ongoing")          // Filter: appointments na ongoing pa
+            .addSnapshotListener { snapshot, error ->   // Mag-subscribe sa real-time changes
                 if (error != null) return@addSnapshotListener  // Kung may error, wag mag-proceed
 
                 if (snapshot != null && !snapshot.isEmpty) {  // Kung may data
@@ -54,9 +66,13 @@ class ConsultationStart : AppCompatActivity() {
                     val consultationStatus = appointment.getString("consultationStatus") ?: ""  // Kunin ang status
 
                     if (consultationStatus == "finished") {    // Kapag finished na ang consultation
-                        onConsultationFinished()                // Tawagin ang function para ipakita na tapos na
+                        if (canUpdateUI) {
+                            onConsultationFinished()            // Tawagin ang function para ipakita na tapos na
+                        } else {
+                            showWaiting()                      // Hindi pa pwede mag-update, ipakita loading pa rin
+                        }
                     } else {
-                        showWaiting()                            // Kung hindi pa tapos, ipakita na naghihintay pa
+                        showWaiting()                            // Hindi pa tapos, ipakita loading
                     }
                 }
             }

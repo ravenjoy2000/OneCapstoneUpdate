@@ -21,30 +21,27 @@
     <!-- Waiting text -->
     <TextView
         android:id="@+id/waitingMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please wait for your doctor to call..."
+        android:text="⏳ Please wait... Your doctor will call you shortly."
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
         android:gravity="center"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="16dp" />
 
     <!-- Payment notice -->
-    <!-- Payment notice (Initially hidden) -->
     <TextView
         android:id="@+id/paymentNotice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⚠ Payment Reminder:\n\nYou must pay for your consultation at the clinic's front desk. The app does not support online payment. If payment is not made, you will not receive your medical certificate PDF or any other medical records in the Medical Log."
+        android:text="⚠ Payment Reminder:\n\nThis app does not support online payments. You must pay for your consultation at the clinic's front desk.\n\nFailure to pay means you will NOT receive your medical log, medical certificate PDF, or other related records."
         android:textSize="16sp"
         android:textColor="@android:color/holo_red_dark"
         android:gravity="center"
         android:padding="12dp"
         android:background="#FFF3CD"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone" />
-
+        android:layout_marginBottom="20dp" />
 
     <!-- Medical Log Button (Initially hidden) -->
     <Button

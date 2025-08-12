@@ -50,10 +50,12 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name=".doctor.AddMedicalLogActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".patient.ConsultationStart"
-            android:exported="false" /> <!-- Doctor Activities -->
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- Doctor Activities -->
         <activity
             android:name=".doctor.VideoCallActivity"
             android:exported="false"

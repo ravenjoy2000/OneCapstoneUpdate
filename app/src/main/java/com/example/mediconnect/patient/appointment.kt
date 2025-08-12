@@ -193,24 +193,31 @@ class appointment  : BaseActivity() {
         }
 
         btnBookNow.setOnClickListener {
-            val reason = etReason.text.toString().trim()   // Kunin ang dahilan ng appointment
-            // Check kung kompleto ang lahat ng kailangan
+            val reason = etReason.text.toString().trim()
+
+            // Validation
             if (reason.isEmpty() || selectedDate == null || selectedTimeSlot.isEmpty() ||
                 (!rbInPerson.isChecked && !rbTeleconsult.isChecked)
             ) {
                 Toast.makeText(this, "Please fill all details", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            selectedMode = if (rbInPerson.isChecked) "in_person" else "teleconsult"  // Piliin ang mode ng appointment
 
-            // Kunin ang pangalan ng user mula Firestore bago mag-book
+            selectedMode = if (rbInPerson.isChecked) "in_person" else "teleconsult"
+
+            // Get user name from Firestore
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
                     val userName = document.getString("name") ?: "Anonymous"
                     val doctorInfo = doctorMap[selectedDoctorName]
 
-                    // Gumawa ng Booking object
+                    // Create a Firestore doc reference first to get the ID
+                    val appointmentRef = db.collection("appointments").document()
+                    val appointmentId = appointmentRef.id
+
+                    // Build booking object with the appointmentId included
                     val booking = Booking(
+                        appointmentId = appointmentId,  // <-- now set
                         patientId = userId,
                         patientName = userName,
                         doctorId = doctorInfo?.id.orEmpty(),
@@ -225,21 +232,21 @@ class appointment  : BaseActivity() {
                         doctorAddress = doctorInfo?.address.orEmpty()
                     )
 
-                    // I-save ang booking sa Firestore
-                    db.collection("appointments").add(booking)
+                    // Save booking with the known ID
+                    appointmentRef.set(booking)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
-                            // Mag-schedule ng alarms para paalalahanan ang pasyente
-                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30) // 30 min bago
-                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)  // oras mismo ng appointment
-                            startActivity(Intent(this, MyAppointment::class.java))  // Buksan ang appointment screen
-                            finish()  // Isara ang current activity
+                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30) // 30 min before
+                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)  // at appointment time
+                            startActivity(Intent(this, MyAppointment::class.java))
+                            finish()
                         }
                         .addOnFailureListener {
                             Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
                         }
                 }
         }
+
     }
 
     // Mag-schedule ng alarm para sa paalala sa appointment

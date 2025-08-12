@@ -1,3 +1,4 @@
+/* ---------- Updated DoctorDashboardActivity with Auto Top Refresh ---------- */
 package com.example.mediconnect.doctor
 
 import android.content.Intent
@@ -38,80 +39,91 @@ import java.util.Locale
 
 class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    // Declare DrawerLayout para sa side navigation drawer
     private lateinit var drawerLayout: DrawerLayout
-
-    // Declare NavigationView para sa drawer menu
     private lateinit var navigationView: NavigationView
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_doctor_dashboard)
 
-        setContentView(R.layout.activity_doctor_dashboard)  // I-set ang layout ng dashboard
+        hideStatusBar()
+        setupToolbarAndDrawer()
+        setupBackPressHandler()
+        setupSwipeRefresh()
+        setupRecyclerAutoRefresh()
 
-        hideStatusBar()                // Itago ang status bar para fullscreen experience
-        setupToolbarAndDrawer()        // I-setup ang toolbar at navigation drawer
-        setupBackPressHandler()        // I-handle ang back press para isara ang drawer o exit app
-        setupSwipeRefresh()            // I-setup ang swipe-to-refresh para mag-refresh ng appointments
-
-        FireStoreClass().loadUserData(this)  // Load ang detalye ng doctor user mula Firestore
+        FireStoreClass().loadUserData(this)
     }
 
     /* ---------- UI Setup ---------- */
 
-    // Function para itago ang status bar sa iba't ibang Android versions
     private fun hideStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(WindowInsets.Type.statusBars())  // For Android 11+
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
             @Suppress("DEPRECATION")
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )   // For older Android versions
+            )
         }
     }
 
-    // I-setup ang toolbar at side drawer toggle
     private fun setupToolbarAndDrawer() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_doctor_dashboard)
-        setSupportActionBar(toolbar)   // Itakda ang toolbar bilang action bar
+        setSupportActionBar(toolbar)
 
-        drawerLayout = findViewById(R.id.drawer_doctor_layout)  // Kunin ang DrawerLayout mula sa layout
+        drawerLayout = findViewById(R.id.drawer_doctor_layout)
         val toggle = ActionBarDrawerToggle(
             this,
             drawerLayout,
             toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
-        )   // Gumawa ng toggle button sa toolbar para buksan/sara ang drawer
+        )
 
-        drawerLayout.addDrawerListener(toggle)   // I-add ang toggle listener sa drawer
-        toggle.syncState()                        // Sync ang toggle state para maayos ang icon
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
 
-        navigationView = findViewById(R.id.nav_doctor_view)  // Kunin ang NavigationView (drawer menu)
-        navigationView.setNavigationItemSelectedListener(this)  // I-set ang item selected listener
+        navigationView = findViewById(R.id.nav_doctor_view)
+        navigationView.setNavigationItemSelectedListener(this)
     }
 
-    // I-setup ang swipe-to-refresh functionality para i-refresh ang appointment list
     private fun setupSwipeRefresh() {
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
         swipeRefresh.setOnRefreshListener {
             FirebaseAuth.getInstance().currentUser?.uid?.let {
-                loadDoctorAppointments(it, showProgress = false)  // Reload ang mga appointment ng doctor
+                loadDoctorAppointments(it, showProgress = false)
             }
-            swipeRefresh.isRefreshing = false   // Patayin ang refresh animation
+            swipeRefresh.isRefreshing = false
         }
     }
 
-    // I-handle ang back press behavior, close drawer muna bago exit app
+    private fun setupRecyclerAutoRefresh() {
+        recyclerView = findViewById(R.id.rv_current_appointments)
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(rv, dx, dy)
+
+                val layoutManager = rv.layoutManager as LinearLayoutManager
+                // Trigger refresh when first item is fully visible & user scrolls upward
+                if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 && dy < 0) {
+                    FirebaseAuth.getInstance().currentUser?.uid?.let {
+                        loadDoctorAppointments(it, showProgress = false)
+                    }
+                }
+            }
+        })
+    }
+
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START)   // Isara ang drawer kung bukas
+                    drawerLayout.closeDrawer(GravityCompat.START)
                 } else {
-                    doubleBackToExit()   // Tawagin ang function para double back tap para exit
+                    doubleBackToExit()
                 }
             }
         })
@@ -119,86 +131,77 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
 
     /* ---------- Navigation ---------- */
 
-    // I-handle ang pagpili ng item sa navigation drawer menu
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_doctor_profile -> startActivity(Intent(this, DoctorProfile::class.java))  // Profile screen
-            R.id.nav_doctor_appointment -> startActivity(Intent(this, DoctorAppointment::class.java))  // Current appointments
-            R.id.nav_doctor_appointment_history -> startActivity(Intent(this, DoctorAppointmentHistory::class.java))  // History ng appointments
-            R.id.nav_doctor_medical_log -> startActivity(Intent(this, DoctorMedicalLog::class.java))  // Medical logs
-            R.id.nav_doctor_feedback -> startActivity(Intent(this, DoctorFeedback::class.java))  // Feedback page
-            R.id.nav_doctor_sign_out -> signOutUser()   // Sign out ng user
+            R.id.nav_doctor_profile -> startActivity(Intent(this, DoctorProfile::class.java))
+            R.id.nav_doctor_appointment -> startActivity(Intent(this, DoctorAppointment::class.java))
+            R.id.nav_doctor_appointment_history -> startActivity(Intent(this, DoctorAppointmentHistory::class.java))
+            R.id.nav_doctor_medical_log -> startActivity(Intent(this, DoctorMedicalLog::class.java))
+            R.id.nav_doctor_feedback -> startActivity(Intent(this, DoctorFeedback::class.java))
+            R.id.nav_doctor_sign_out -> signOutUser()
         }
-        drawerLayout.closeDrawer(GravityCompat.START)  // Isara ang drawer pagkatapos pumili
+        drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    // Function para mag-sign out ang user at logout sa Google Sign-In
     private fun signOutUser() {
-        FirebaseAuth.getInstance().signOut()    // Firebase sign out
+        FirebaseAuth.getInstance().signOut()
 
-        // Setup Google sign-in client para logout sa Google account
         val googleSignInClient = GoogleSignIn.getClient(
             this,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))  // Request ID token
-                .requestEmail()   // Request email
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
                 .build()
         )
 
-        // Sign out sa Google account, pagkatapos balik sa IntroActivity
         googleSignInClient.signOut().addOnCompleteListener {
             val intent = Intent(this, IntroActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK  // Clear history ng activities
-            startActivity(intent)   // Simulan ang IntroActivity (login screen)
-            finish()               // Tapusin ang kasalukuyang activity
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
         }
     }
 
     /* ---------- Data Loading ---------- */
 
-    // I-update ang user details sa navigation drawer header kapag nakuha ang user data
     fun updateNavigationUserDetails(user: User) {
-        val headerView = navigationView.getHeaderView(0)     // Kunin ang header view ng navigation drawer
-        val imageView = headerView.findViewById<ImageView>(R.id.iv_doctor_image)  // ImageView ng user image
-        val tvUsername = headerView.findViewById<TextView>(R.id.tv_doctor_user)  // TextView ng user name
+        val headerView = navigationView.getHeaderView(0)
+        val imageView = headerView.findViewById<ImageView>(R.id.iv_doctor_image)
+        val tvUsername = headerView.findViewById<TextView>(R.id.tv_doctor_user)
 
-        // I-load ang user image gamit ang Glide (efficient image loading)
         Glide.with(this)
             .load(user.image)
             .centerCrop()
-            .placeholder(R.drawable.ic_user_place_holder)   // Placeholder habang naglo-load
+            .placeholder(R.drawable.ic_user_place_holder)
             .into(imageView)
 
-        tvUsername.text = user.name  // Ipakita ang pangalan ng doctor sa drawer header
+        tvUsername.text = user.name
 
-        // Kunin ang kasalukuyang user UID at i-load ang mga appointments niya
         FirebaseAuth.getInstance().currentUser?.uid?.let {
             loadDoctorAppointments(it)
         }
     }
 
-    // I-load ang listahan ng mga naka-book na appointment ng doctor mula Firestore
     private fun loadDoctorAppointments(doctorId: String, showProgress: Boolean = true) {
         val db = FirebaseFirestore.getInstance()
 
-        if (showProgress) showProgressDialog("Loading appointments...")   // Ipakita loading dialog kung kailangan
+        if (showProgress) showProgressDialog("Loading appointments...")
 
         db.collection("appointments")
-            .whereEqualTo("doctorId", doctorId)   // Filter by doctor ID
-            .whereEqualTo("status", "booked")     // Filter lang ang mga naka-book na appointment
+            .whereEqualTo("doctorId", doctorId)
+            .whereEqualTo("status", "booked")
             .get()
             .addOnSuccessListener { documents ->
-                if (showProgress) hideProgressDialog()   // Itago ang loading dialog
+                if (showProgress) hideProgressDialog()
 
-                Log.d("DoctorAppointments", "Fetched ${documents.size()} documents.")  // Log ng bilang ng nakuha
+                Log.d("DoctorAppointments", "Fetched ${documents.size()} documents.")
 
                 if (documents.isEmpty) {
                     Toast.makeText(this, "No booked appointments found", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener  // Walang appointment, tapos na
+                    return@addOnSuccessListener
                 }
 
-                // I-map ang bawat document sa Appointment data class
                 val appointments = documents.map { doc ->
                     Appointment(
                         patientName = doc.getString("patientName") ?: "",
@@ -217,56 +220,51 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
                     )
                 }
 
-                setupRecyclerView(appointments)   // I-display ang mga appointments sa RecyclerView
+                setupRecyclerView(appointments)
             }
             .addOnFailureListener { e ->
-                if (showProgress) hideProgressDialog()   // Itago loading dialog kapag may error
-                Log.e("DoctorAppointments", "Error: ${e.message}", e)  // Log ang error
+                if (showProgress) hideProgressDialog()
+                Log.e("DoctorAppointments", "Error: ${e.message}", e)
                 Toast.makeText(this, "Failed to load appointments", Toast.LENGTH_SHORT).show()
             }
     }
 
     /* ---------- RecyclerView Setup ---------- */
 
-    // I-setup ang RecyclerView gamit ang listahan ng mga appointment (grouped by date)
     private fun setupRecyclerView(appointments: List<Appointment>) {
-        val recyclerView = findViewById<RecyclerView>(R.id.rv_current_appointments)
-        recyclerView.layoutManager = LinearLayoutManager(this)  // Vertical list layout
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        val groupedList = groupAppointmentsByDate(appointments)
 
-        val groupedList = groupAppointmentsByDate(appointments) // I-group ang mga appointment ayon sa petsa
-
-        // Gumawa ng adapter na may click listener para buksan ang detalye ng appointment
         val adapter = DoctorAppointmentAdapter(groupedList) { appointment ->
             val intent = Intent(this, AppointmentDetailsActivity::class.java)
-            intent.putExtra("appointment_data", appointment)   // Ipadala ang appointment object sa detalye screen
+            intent.putExtra("appointment_data", appointment)
             startActivity(intent)
         }
-        recyclerView.adapter = adapter  // I-set ang adapter sa RecyclerView
+        recyclerView.adapter = adapter
     }
 
-    // I-group ang mga appointment ayon sa petsa para sa mas maayos na display
     private fun groupAppointmentsByDate(appointments: List<Appointment>): List<AppointmentListItem> {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())   // Format ng petsa
-        val today = sdf.format(Date())                                  // Kunin ang kasalukuyang petsa
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val today = sdf.format(Date())
 
-        val grouped = appointments.groupBy { it.date }   // Group appointments by date
-        val sortedDates = grouped.keys.sorted()           // Ayusin ang mga petsa
+        val grouped = appointments.groupBy { it.date }
+        val sortedDates = grouped.keys.sorted()
 
-        val result = mutableListOf<AppointmentListItem>()  // Listahang paglalagyan ng grouped items
+        val result = mutableListOf<AppointmentListItem>()
         for (date in sortedDates) {
             val label = if (date == today) {
-                "Today's Appointment"          // Label kapag ngayong araw ang petsa
+                "Today's Appointment"
             } else {
                 val dateObj = sdf.parse(date)
                 val dayName = SimpleDateFormat("EEEE", Locale.getDefault()).format(dateObj!!)
-                "$dayName Appointment"         // Label para sa ibang araw (e.g. Monday Appointment)
+                "$dayName Appointment"
             }
 
-            result.add(AppointmentListItem.Header(label, date))    // Idagdag ang header ng date group
+            result.add(AppointmentListItem.Header(label, date))
             grouped[date]?.forEach { appointment ->
-                result.add(AppointmentListItem.AppointmentItem(appointment))   // Idagdag ang bawat appointment sa ilalim ng header
+                result.add(AppointmentListItem.AppointmentItem(appointment))
             }
         }
-        return result  // Ibalik ang grouped list para gamitin sa adapter
+        return result
     }
 }

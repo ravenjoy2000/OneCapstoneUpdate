@@ -56,12 +56,13 @@
 
 
     <Button
-        android:id="@+id/btn_add_medical_log"
+        android:id="@+id/btn_are_done_with_call"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Medical Log"
+        android:text="Are you done with the call?"
         android:visibility="gone"
         android:layout_marginTop="20dp" />
+
 
 
 </LinearLayout>
