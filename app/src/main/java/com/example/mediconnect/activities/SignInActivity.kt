@@ -28,7 +28,9 @@ import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoTranslationText
 
 class SignInActivity : BaseActivity() {
 
+    // Firebase Authentication instance
     private val auth = FirebaseAuth.getInstance()
+    // Firestore database instance
     private val db = FirebaseFirestore.getInstance()
 
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -42,16 +44,19 @@ class SignInActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Para maging fullscreen ang activity (walang status bar)
         enableEdgeToEdge()
         setContentView(R.layout.activity_sign_in)
 
-        bindViews()
-        setFullscreenMode()
-        setupActionBar()
-        setupGoogleSignIn()
-        setupButtonClicks()
+        bindViews() // I-bind ang mga view sa variables
+        setFullscreenMode() // Itago ang status bar
+        setupActionBar() // I-set ang toolbar na may back button
+        setupGoogleSignIn() // I-setup ang Google Sign In client
+        setupButtonClicks() // I-assign ang mga click listeners sa buttons
     }
 
+    /** I-bind ang mga views sa layout */
     private fun bindViews() {
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
@@ -60,6 +65,7 @@ class SignInActivity : BaseActivity() {
         tvForgotPassword = findViewById(R.id.tv_forgot_password)
     }
 
+    /** Itago ang status bar para full screen */
     private fun setFullscreenMode() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -67,6 +73,7 @@ class SignInActivity : BaseActivity() {
         }
     }
 
+    /** Setup toolbar with back arrow */
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_sign_in_activity)
         setSupportActionBar(toolbar)
@@ -77,6 +84,7 @@ class SignInActivity : BaseActivity() {
         toolbar.setNavigationOnClickListener { onBackPressed() }
     }
 
+    /** Setup click listeners for buttons */
     private fun setupButtonClicks() {
         btnSignIn.setOnClickListener { signInRegisteredUser() }
         btnGoogleSignIn.setOnClickListener {
@@ -85,13 +93,15 @@ class SignInActivity : BaseActivity() {
         tvForgotPassword.setOnClickListener { showForgotPasswordDialog() }
     }
 
+    /** Ipakita ang dialog para sa "Forgot Password" at magpadala ng reset email */
     private fun showForgotPasswordDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Reset Password")
 
-        val input = EditText(this)
-        input.hint = "Enter your email"
-        input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        val input = EditText(this).apply {
+            hint = "Enter your email"
+            inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        }
         builder.setView(input)
 
         builder.setPositiveButton("Send") { dialog, _ ->
@@ -109,25 +119,27 @@ class SignInActivity : BaseActivity() {
                 Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_SHORT).show()
             }
         }
-
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.show()
     }
 
+    /** Setup Google Sign-In client */
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.default_web_client_id)) // Web client ID sa strings.xml
             .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
+    /** Authenticate Firebase gamit ang Google ID token */
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuthWithCredential(credential, "Google")
     }
 
+    /** Common function para sa Firebase Auth gamit anumang credential */
     private fun firebaseAuthWithCredential(credential: AuthCredential, provider: String) {
         showProgressDialog("Signing in with $provider...")
 
@@ -139,19 +151,21 @@ class SignInActivity : BaseActivity() {
                     db.collection("users").document(userId).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists()) {
+                                // Kung may existing user record, i-redirect base sa role
                                 handleRoleAndRedirect(
                                     doc.getString("role"),
                                     doc.getString("name") ?: auth.currentUser?.displayName
                                 )
                             } else {
-                                val User = hashMapOf(
+                                // Kung bagong user, save default role "patient" at pangalan
+                                val newUser = hashMapOf(
                                     "name" to auth.currentUser?.displayName,
                                     "email" to auth.currentUser?.email,
                                     "role" to "patient"
                                 )
-                                db.collection("users").document(userId).set(User)
+                                db.collection("users").document(userId).set(newUser)
                                     .addOnSuccessListener {
-                                        showCustomToast("Welcome, ${User["name"]}!")
+                                        showCustomToast("Welcome, ${newUser["name"]}!")
                                         startActivity(Intent(this, DashboardActivity::class.java))
                                         finish()
                                     }
@@ -163,6 +177,7 @@ class SignInActivity : BaseActivity() {
             }
     }
 
+    /** Sign in gamit ang email at password */
     private fun signInRegisteredUser() {
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
@@ -179,7 +194,7 @@ class SignInActivity : BaseActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null && user.isEmailVerified) {
-                        // Get role from Firestore
+                        // Kunin ang role ng user mula sa Firestore
                         db.collection("users").document(user.uid).get()
                             .addOnSuccessListener { document ->
                                 hideProgressDialog()
@@ -214,6 +229,7 @@ class SignInActivity : BaseActivity() {
             }
     }
 
+    /** Simple validation ng email at password */
     private fun validateForm(email: String, password: String): Boolean {
         return when {
             TextUtils.isEmpty(email) -> {
@@ -228,16 +244,19 @@ class SignInActivity : BaseActivity() {
         }
     }
 
+    /**
+     * I-redirect ang user depende sa role (doctor/patient)
+     * At i-initialize ang Zego call service para sa realtime calls
+     */
     private fun handleRoleAndRedirect(role: String?, name: String?) {
         val userId = auth.currentUser?.uid ?: ""
         val userName = name ?: "User"
 
         val config = ZegoUIKitPrebuiltCallInvitationConfig().apply {
-            // Initialize translationText to avoid NullPointerException
-            translationText = ZegoTranslationText()
+            translationText = ZegoTranslationText() // Para maiwasan error sa translation text
         }
 
-        // Initialize Zego call service on login
+        // Initialize Zego call SDK
         ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, userId, userName, config)
 
         showCustomToast("Welcome, $userName!")
@@ -256,21 +275,18 @@ class SignInActivity : BaseActivity() {
         finish()
     }
 
-    // Add this logout method — call it when user logs out
+    /** Logout function - para i-uninitialize ang Zego at Firebase logout */
     fun logout() {
-        // Uninitialize Zego call service to stop listening for calls
-        ZegoUIKitPrebuiltCallService.unInit()
-
-        // Firebase sign out
+        ZegoUIKitPrebuiltCallService.unInit() // Itigil ang pakikinig sa tawag
         auth.signOut()
 
-        // Redirect to sign-in screen
         val intent = Intent(this, SignInActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
     }
 
+    /** Result mula sa Google Sign-In Intent */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -289,6 +305,7 @@ class SignInActivity : BaseActivity() {
         }
     }
 
+    /** Optional: Call kapag successful ang sign-in gamit User model */
     fun signInSuccess(user: User) {
         hideProgressDialog()
         val intent = Intent(this, MainActivity::class.java)

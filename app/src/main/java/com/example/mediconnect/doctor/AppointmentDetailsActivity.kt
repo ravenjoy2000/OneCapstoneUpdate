@@ -24,29 +24,34 @@ import com.example.mediconnect.models.AppConstant
 
 class AppointmentDetailsActivity : AppCompatActivity() {
 
-    private lateinit var ivPatientProfile: ImageView
-    private lateinit var tvPatientName: TextView
-    private lateinit var tvAppointmentStatus: TextView
-    private lateinit var tvAppointmentDateTime: TextView
-    private lateinit var tvConsultationType: TextView
-    private lateinit var btnStartConsultation: Button
-    private lateinit var btnReschedule: Button
-    private lateinit var btnCancel: Button
+    // UI components declaration
+    private lateinit var ivPatientProfile: ImageView      // ImageView para sa profile picture ng pasyente
+    private lateinit var tvPatientName: TextView          // TextView para sa pangalan ng pasyente
+    private lateinit var tvAppointmentStatus: TextView    // TextView para sa status ng appointment
+    private lateinit var tvAppointmentDateTime: TextView  // TextView para sa petsa at oras ng appointment
+    private lateinit var tvConsultationType: TextView     // TextView para sa mode ng consultation
+    private lateinit var btnStartConsultation: Button     // Button para simulan ang consultation (video call)
+    private lateinit var btnReschedule: Button             // Button para i-reschedule ang appointment
+    private lateinit var btnCancel: Button                  // Button para i-cancel ang appointment
 
-    private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+    // Firebase Authentication at Firestore instances
+    private val auth = FirebaseAuth.getInstance()          // Firebase Auth instance para sa kasalukuyang user (doctor)
+    private val db = FirebaseFirestore.getInstance()       // Firestore database instance
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_appointment_details)
 
-        setFullscreenMode()
-        initViews()
+        enableEdgeToEdge()                                   // Para edge-to-edge na display ng app
+        setContentView(R.layout.activity_appointment_details)  // Itakda ang layout file para sa activity
 
+        setFullscreenMode()                                  // Gawing fullscreen ang activity (tanggal status bar)
+        initViews()                                          // I-bind ang mga UI components sa variables
+
+        // Kunin ang appointment object na ipinasa sa intent (parcelable)
         val appointment = intent.getParcelableExtra<Appointment>("appointment_data")
 
         if (appointment != null) {
+            // Ipakita ang detalye ng appointment sa UI
             tvPatientName.text = appointment.patientName
             tvAppointmentStatus.text = "Status: ${appointment.status}"
             tvAppointmentDateTime.text = "Date: ${appointment.date}\nTime: ${appointment.time}"
@@ -54,25 +59,26 @@ class AppointmentDetailsActivity : AppCompatActivity() {
 
             val patientId = appointment.patientId
             if (!patientId.isNullOrEmpty()) {
-                fetchUserImage(patientId)
+                fetchUserImage(patientId)    // Kunin at ipakita ang profile image ng pasyente mula Firestore
             } else {
-                ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
+                ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)  // Default placeholder image
             }
 
-            // Set button listeners
+            // I-setup ang click listeners para sa mga buttons
             btnStartConsultation.setOnClickListener {
-                startConsultation(appointment)
+                startConsultation(appointment)    // Simulan ang video consultation
             }
 
             btnReschedule.setOnClickListener {
-                rescheduleAppointment(appointment)
+                rescheduleAppointment(appointment)  // Tawagin ang reschedule function
             }
 
             btnCancel.setOnClickListener {
-                cancelAppointment(appointment)
+                cancelAppointment(appointment)      // Tawagin ang cancel function
             }
 
         } else {
+            // Kapag walang appointment data, ipakita default info at i-disable ang mga buttons
             ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
             tvPatientName.text = "No appointment data"
             tvAppointmentStatus.text = ""
@@ -85,35 +91,35 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         }
     }
 
-
+    // Function para kunin ang profile image ng pasyente mula sa Firestore
     private fun fetchUserImage(userId: String) {
         val firestore = FirebaseFirestore.getInstance()
 
         firestore.collection("users").document(userId).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    val imageUrl = document.getString("image")
+                    val imageUrl = document.getString("image")    // Kunin ang image URL mula sa document
                     if (!imageUrl.isNullOrEmpty()) {
-                        // Load image with Glide
+                        // Load image gamit ang Glide library para sa efficient loading at caching
                         Glide.with(this@AppointmentDetailsActivity)
                             .load(imageUrl)
-                            .placeholder(R.drawable.ic_user_place_holder) // while loading
-                            .error(R.drawable.ic_user_place_holder) // if failed
-                            .diskCacheStrategy(DiskCacheStrategy.ALL) // cache for faster reload
+                            .placeholder(R.drawable.ic_user_place_holder) // Placeholder habang naglo-load
+                            .error(R.drawable.ic_user_place_holder)       // Ipakita kapag nag-fail mag-load
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)     // I-cache para mabilis ang susunod na load
                             .into(ivPatientProfile)
                     } else {
-                        ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
+                        ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder) // Default image kapag walang URL
                     }
                 } else {
-                    ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
+                    ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)  // Default kapag walang document
                 }
             }
             .addOnFailureListener {
-                ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
+                ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)  // Default kapag may error
             }
     }
 
-
+    // Function para gawing fullscreen ang activity (tanggal status bar)
     private fun setFullscreenMode() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -121,6 +127,7 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // I-bind ang mga UI components gamit findViewById
     private fun initViews() {
         ivPatientProfile = findViewById(R.id.iv_patient_profile)
         tvPatientName = findViewById(R.id.tv_patient_name)
@@ -132,43 +139,40 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         btnCancel = findViewById(R.id.btn_cancel)
     }
 
-
+    // Function para simulan ang video consultation gamit ang ZegoUIKitPrebuiltCallService
     private fun startConsultation(appointment: Appointment) {
-        val patientId = appointment.patientId      // Patient UID
-        val patientName = appointment.patientName  // Patient display name
+        val patientId = appointment.patientId              // Kunin ang patient ID (UID)
+        val patientName = appointment.patientName          // Kunin ang pangalan ng pasyente
 
-        val currentUserId = auth.currentUser?.uid ?: ""   // Doctor UID
-        val currentUserName = "Doctor"                     // Doctor display name (hardcoded or fetch real name)
+        val currentUserId = auth.currentUser?.uid ?: ""    // Kunin ang doctor UID mula sa FirebaseAuth
+        val currentUserName = "Doctor"                      // Pangalan ng doctor (pwedeng palitan o kunin dynamic)
 
-        val config = ZegoUIKitPrebuiltCallInvitationConfig()
+        val config = ZegoUIKitPrebuiltCallInvitationConfig()  // Config para sa Zego call service
+
+        // I-initialize ang Zego call service gamit ang app credentials at user info
         ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, currentUserId, currentUserName, config)
 
+        // Gumawa ng intent para simulan ang VideoCallActivity (custom video call screen)
         val intent = Intent(this, VideoCallActivity::class.java)
-        intent.putExtra("targetUserId", patientId)   // Who doctor will call
+
+        // Ipadala ang mga user info para malaman kung sino ang tatawagan at sino ang caller
+        intent.putExtra("targetUserId", patientId)      // Sino ang tatawagan (pasyente)
         intent.putExtra("targetUserName", patientName)
-        intent.putExtra("currentUserId", currentUserId)       // Pass doctor UID
-        intent.putExtra("currentUserName", currentUserName)   // Pass doctor name
-        startActivity(intent)
+        intent.putExtra("currentUserId", currentUserId)   // Caller (doctor)
+        intent.putExtra("currentUserName", currentUserName)
+
+        startActivity(intent)  // Simulan ang video call activity
     }
 
-
+    // Placeholder function para sa reschedule ng appointment
     private fun rescheduleAppointment(appointment: Appointment) {
-        // TODO: Open a reschedule screen or dialog where you can pick new date/time
+        // TODO: I-implement ang reschedule screen or dialog para pumili ng bagong petsa at oras
 
-        // Example placeholder:
         Toast.makeText(this, "Open reschedule screen for ${appointment.patientName}", Toast.LENGTH_SHORT).show()
-
-        // Example:
-        // val intent = Intent(this, RescheduleActivity::class.java)
-        // intent.putExtra("appointment_data", appointment)
-        // startActivity(intent)
     }
 
+    // Placeholder function para sa pagkansela ng appointment
     private fun cancelAppointment(appointment: Appointment) {
-
+        // TODO: I-implement ang cancellation logic dito
     }
-
-
-
-
 }

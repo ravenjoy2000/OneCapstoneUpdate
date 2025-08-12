@@ -22,14 +22,12 @@ import com.example.mediconnect.patient_adapter.AppointmentReminderUtil
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.Continuation
 
 class MyAppointment : AppCompatActivity() {
 
-    // Views
+    // Declare UI views
     private lateinit var tvDoctorName: TextView
     private lateinit var tvStatus: TextView
     private lateinit var tvDate: TextView
@@ -41,18 +39,20 @@ class MyAppointment : AppCompatActivity() {
     private lateinit var tvAppointmentReason: TextView
     private lateinit var btnCancel: Button
     private lateinit var btn_start_consultation: Button
-    private var alreadyReloaded = false
 
-    // Firebase
+    private var alreadyReloaded = false  // To prevent multiple reloads of UI
+
+    // Firebase instances
     private val db = FirebaseFirestore.getInstance()
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-    private var appointmentId: String? = null
+    private var appointmentId: String? = null  // Current appointment document ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_my_appointment)
+        enableEdgeToEdge()                     // Enable edge-to-edge UI display
+        setContentView(R.layout.activity_my_appointment)  // Set layout file
 
+        // Hide status bar depending on SDK version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
@@ -63,16 +63,16 @@ class MyAppointment : AppCompatActivity() {
             )
         }
 
-        setupActionBar()
-        initViews()
-        loadAppointment()
+        setupActionBar()   // Setup toolbar/action bar
+        initViews()        // Initialize all UI views
+        loadAppointment()  // Load appointment data from Firestore
 
+        // Set button click listeners
         btnCancel.setOnClickListener { showCancelDialog() }
         btn_start_consultation.setOnClickListener { btn_start_consultation() }
     }
 
-    // -------------------- Setup & Initialization --------------------
-
+    // Setup the ActionBar / Toolbar with back button and title
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_my_appointment)
         if (toolbar != null) {
@@ -84,14 +84,13 @@ class MyAppointment : AppCompatActivity() {
             }
             toolbar.setNavigationOnClickListener {
                 onBackPressedDispatcher.onBackPressed()
-                // Optionally ensure the activity finishes
-                // finish()
             }
         } else {
             Log.e("SetupActionBar", "Toolbar not found in layout.")
         }
     }
 
+    // Initialize all view references from layout
     private fun initViews() {
         tvDoctorName = findViewById(R.id.tv_doctor_name)
         tvStatus = findViewById(R.id.tv_status)
@@ -106,8 +105,7 @@ class MyAppointment : AppCompatActivity() {
         btn_start_consultation = findViewById(R.id.btn_start_consultation)
     }
 
-    // -------------------- Load Appointment & Populate UI --------------------
-
+    // Load the appointment details for the current user and update UI
     @SuppressLint("SetTextI18n")
     private fun loadAppointment() {
         if (currentUserId == null) {
@@ -115,6 +113,7 @@ class MyAppointment : AppCompatActivity() {
             return
         }
 
+        // Query Firestore for active appointment of current user
         db.collection("appointments")
             .whereEqualTo("patientId", currentUserId)
             .whereIn("status", listOf("booked", "rescheduled", "rescheduled_once"))
@@ -128,10 +127,12 @@ class MyAppointment : AppCompatActivity() {
 
                 val doc = documents.documents[0]
                 appointmentId = doc.id
+
                 val status = doc.getString("status")
                 val cancelReason = doc.getString("cancelReason")
-                updateAppointmentUI(status, cancelReason)
+                updateAppointmentUI(status, cancelReason)  // Update UI based on status
 
+                // Determine if Cancel and Start Consultation buttons should be enabled
                 val isModifiable = when (status?.lowercase()) {
                     "cancelled", "completed", "no_show", "late" -> false
                     else -> true
@@ -139,18 +140,22 @@ class MyAppointment : AppCompatActivity() {
                 btnCancel.isEnabled = isModifiable
                 btn_start_consultation.isEnabled = isModifiable
 
+                // Load doctor info for the appointment
                 loadDoctorInfo(doc.getString("doctorId"))
 
+                // Display location and contact info (with defaults if missing)
                 val location = doc.getString("doctorAddress") ?: DEFAULT_ADDRESS
                 val contact = doc.getString("doctorPhone") ?: DEFAULT_PHONE
                 tvLocation.text = "Location: $location"
                 tvNotes.text = "Contact: $contact"
 
+                // Show appointment reason, date, time, mode
                 tvAppointmentReason.text = "Reason: ${doc.getString("reason") ?: "No reason provided."}"
                 tvDate.text = "Date: ${doc.getString("date") ?: "--"}"
                 tvTime.text = "Time: ${doc.getString("timeSlot") ?: "--"}"
                 tvMode.text = "Mode: ${doc.getString("mode") ?: "--"}"
 
+                // Show previous date if rescheduled
                 doc.getString("previousDate")?.let {
                     tvPreviousDate.text = "Rescheduled from: $it"
                     tvPreviousDate.visibility = TextView.VISIBLE
@@ -158,12 +163,13 @@ class MyAppointment : AppCompatActivity() {
                     tvPreviousDate.visibility = TextView.GONE
                 }
 
+                // Schedule reminders and check if appointment time has passed
                 val appointmentDate = doc.getString("date")
                 val timeSlot = doc.getString("timeSlot")
                 if (!appointmentDate.isNullOrBlank() && !timeSlot.isNullOrBlank()) {
                     checkAndScheduleReminders(appointmentDate, timeSlot)
 
-                    // ✅ Check if current time has passed appointment time
+                    // Parse date and time to check if appointment is late or no-show
                     val sdf = SimpleDateFormat("yyyy-MM-dd h:mma", Locale.getDefault())
                     try {
                         val apptDateTime = sdf.parse("$appointmentDate $timeSlot")
@@ -173,6 +179,7 @@ class MyAppointment : AppCompatActivity() {
                                 val diffMinutes = (now.time - apptDateTime.time) / (1000 * 60)
                                 val newStatus = if (diffMinutes >= 60) "no_show" else "late"
 
+                                // Update appointment status if still booked or rescheduled
                                 if (status in listOf("booked", "rescheduled", "rescheduled_once")) {
                                     db.collection("appointments").document(doc.id)
                                         .update("status", newStatus)
@@ -196,7 +203,7 @@ class MyAppointment : AppCompatActivity() {
             }
     }
 
-
+    // Load doctor's information and update UI
     private fun loadDoctorInfo(doctorId: String?) {
         if (doctorId.isNullOrBlank()) {
             tvDoctorName.text = "Doctor"
@@ -218,16 +225,18 @@ class MyAppointment : AppCompatActivity() {
             }
     }
 
+    // Update appointment status text and colors on UI
     private fun updateAppointmentUI(statusRaw: String?, cancelReason: String?) {
         val status = statusRaw?.lowercase() ?: "booked"
 
-        // Reload the activity if status is "cancelled" or "late", but only once
+        // Reload the activity once for certain statuses to refresh UI
         if ((status == "cancelled" || status == "late" || status == "no_show" || status == "completed" || status == "rescheduled") && !alreadyReloaded) {
             alreadyReloaded = true
-            recreate()  // You could also use: finish(); startActivity(intent)
+            recreate()
             return
         }
 
+        // Set status text based on status and cancellation reason
         tvStatus.text = when (status) {
             "cancelled" -> if (!cancelReason.isNullOrBlank()) "Status: Cancelled\nReason: $cancelReason" else "Status: Cancelled"
             "rescheduled", "rescheduled_once" -> "Status: Rescheduled"
@@ -237,6 +246,7 @@ class MyAppointment : AppCompatActivity() {
             else -> "Status: Booked"
         }
 
+        // Set text color based on status
         tvStatus.setTextColor(
             ContextCompat.getColor(this, when (status) {
                 "cancelled" -> android.R.color.holo_red_dark
@@ -248,15 +258,14 @@ class MyAppointment : AppCompatActivity() {
         )
     }
 
-
-    // -------------------- Alarm Reminders --------------------
-
+    // Check and request permissions to schedule exact alarms and schedule reminders
     private fun checkAndScheduleReminders(appointmentDate: String, timeSlot: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
             if (alarmManager.canScheduleExactAlarms()) {
                 AppointmentReminderUtil.scheduleAppointmentReminders(this, appointmentDate, timeSlot)
             } else {
+                // Prompt user to allow scheduling exact alarms
                 AlertDialog.Builder(this)
                     .setTitle("Allow Appointment Reminders")
                     .setMessage("To receive timely notifications for your appointment, please allow this app to schedule exact alarms.")
@@ -273,8 +282,7 @@ class MyAppointment : AppCompatActivity() {
         }
     }
 
-    // -------------------- Cancel & Reschedule --------------------
-
+    // Start the consultation by opening ConsultationStart activity with appointment info
     private fun btn_start_consultation() {
         if (appointmentId == null) {
             Toast.makeText(this, "No appointment to reschedule.", Toast.LENGTH_SHORT).show()
@@ -294,6 +302,7 @@ class MyAppointment : AppCompatActivity() {
             }
     }
 
+    // Show dialog for selecting cancellation reason
     private fun showCancelDialog() {
         if (appointmentId == null) {
             Toast.makeText(this, "No appointment to cancel.", Toast.LENGTH_SHORT).show()
@@ -308,6 +317,7 @@ class MyAppointment : AppCompatActivity() {
             .show()
     }
 
+    // Perform cancellation transaction and update counters & statuses
     private fun cancelAppointment(reason: String) {
         val userRef = db.collection("users").document(currentUserId!!)
         val appointmentRef = db.collection("appointments").document(appointmentId!!)
@@ -318,11 +328,13 @@ class MyAppointment : AppCompatActivity() {
             val prevDate = cancelInfo?.get("date") as? String
             val currentCount = (cancelInfo?.get("count") as? Long)?.toInt() ?: 0
 
+            // Limit cancellations to 3 per day
             if (prevDate == today && currentCount >= 3) {
                 Toast.makeText(this, "⚠️ You’ve already cancelled 3 appointments today. Try again tomorrow.", Toast.LENGTH_LONG).show()
                 return@addOnSuccessListener
             }
 
+            // Run Firestore transaction to update user and appointment
             db.runTransaction { transaction ->
                 val newCount = if (prevDate == today) currentCount + 1 else 1
                 transaction.update(userRef, "cancellationInfo", mapOf(
@@ -349,6 +361,7 @@ class MyAppointment : AppCompatActivity() {
         }
     }
 
+    // Show dialog asking if user wants to book a new appointment after cancellation
     private fun showRebookDialog() {
         AlertDialog.Builder(this)
             .setTitle("Book a new appointment?")
@@ -367,10 +380,9 @@ class MyAppointment : AppCompatActivity() {
     }
 
     companion object {
+        // Default clinic address and phone number
         private const val DEFAULT_ADDRESS = "Pineda Medical Clinic 206 Paulette St. Josefa Subv. Malabanias, Angeles City, Pampanga"
         private const val DEFAULT_PHONE = "0961-053-9277"
     }
-
-
 
 }

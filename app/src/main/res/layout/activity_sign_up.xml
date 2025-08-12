@@ -84,24 +84,6 @@
                             android:textSize="@dimen/et_text_size" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Username -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
-
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/et_username"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/user_name"
-                            android:inputType="textPersonName"
-                            android:minHeight="48dp"
-                            android:textSize="@dimen/et_text_size" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
                     <!-- Email -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"

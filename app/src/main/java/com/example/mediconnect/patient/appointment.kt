@@ -30,8 +30,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
+// Activity para sa booking ng appointment ng pasyente
 class appointment  : BaseActivity() {
 
+    // Declare mga UI components
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnSelectDate: Button
     private lateinit var btnBookNow: Button
@@ -43,24 +45,30 @@ class appointment  : BaseActivity() {
     private lateinit var tvDoctorAddress: TextView
     private lateinit var spinnerDoctor: Spinner
 
+    // Firebase instances para sa database at authentication
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // Variables para sa mga pinili ng user
     private var selectedDate: String? = null
     private var selectedTimeSlot: String = ""
     private var selectedMode: String = ""
     private var selectedDoctorName: String? = null
     private var selectedDoctorId: String? = null
 
+    // Map para sa mga doktor info (id, phone, address)
     private val doctorMap = mutableMapOf<String, DoctorInfo>()
+    // Allowed time slots para sa appointment booking
     private val allowedTimeSlots = listOf("1:00 PM", "3:00 PM", "4:00 PM", "5:00 PM")
 
+    // Data class para sa info ng doktor
     data class DoctorInfo(val id: String, val phone: String, val address: String)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appointment)
 
+        // Para itago ang status bar (fullscreen mode) depende sa Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
@@ -71,19 +79,20 @@ class appointment  : BaseActivity() {
             )
         }
 
-        setupActionBar()
-        initViews()
-        requestNotificationPermission()
+        setupActionBar()    // I-setup ang toolbar/action bar
+        initViews()         // I-initialize ang mga UI components
+        requestNotificationPermission()  // Hingiin ang permission para sa notifications kung kailangan
 
-        val userId = auth.currentUser?.uid.orEmpty()
-        checkIfUserHasActiveAppointment(userId) { hasActive ->
-            if (hasActive) disableBookingUI()
-            else setupBookingUI(userId)
+        val userId = auth.currentUser?.uid.orEmpty()  // Kunin ang kasalukuyang user id
+        checkIfUserHasActiveAppointment(userId) { hasActive -> // Tsek kung may active appointment
+            if (hasActive) disableBookingUI()   // Kung meron, i-disable ang booking UI
+            else setupBookingUI(userId)          // Kung wala, i-setup ang booking UI
         }
 
-        fetchDoctors()
+        fetchDoctors()  // Kunin ang listahan ng mga doktor mula sa Firestore
     }
 
+    // Initialize lahat ng view references
     private fun initViews() {
         tvSelectedDate = findViewById(R.id.tv_selected_date)
         btnSelectDate = findViewById(R.id.btn_select_date)
@@ -96,14 +105,15 @@ class appointment  : BaseActivity() {
         tvDoctorAddress = findViewById(R.id.tv_doctor_address)
         spinnerDoctor = findViewById(R.id.spinner_doctor)
 
-        rvTimeSlots.layoutManager = LinearLayoutManager(this)
+        rvTimeSlots.layoutManager = LinearLayoutManager(this)  // Set layout manager ng RecyclerView
     }
 
+    // Kuhanin ang mga doktor mula sa Firestore at i-display sa Spinner
     private fun fetchDoctors() {
-        val doctorNames = mutableListOf<String>()
+        val doctorNames = mutableListOf<String>()  // List para sa pangalan ng doktor
 
         db.collection("users")
-            .whereEqualTo("role", "doctor")
+            .whereEqualTo("role", "doctor")   // Kunin lang mga users na may role na doctor
             .get()
             .addOnSuccessListener { result ->
                 for (doc in result) {
@@ -111,17 +121,18 @@ class appointment  : BaseActivity() {
                     val id = doc.id
                     val phone = doc.getString("phone") ?: "Not provided"
                     val address = doc.getString("clinicAddress") ?: "Not provided"
-                    doctorMap[name] = DoctorInfo(id, phone, address)
-                    doctorNames.add(name)
+                    doctorMap[name] = DoctorInfo(id, phone, address)  // I-save sa map
+                    doctorNames.add(name)   // Idagdag sa list ng pangalan
                 }
 
-                if (doctorNames.isEmpty()) doctorNames.add("No doctors available")
+                if (doctorNames.isEmpty()) doctorNames.add("No doctors available") // Kapag walang doktor
 
                 val doctorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, doctorNames).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
-                spinnerDoctor.adapter = doctorAdapter
+                spinnerDoctor.adapter = doctorAdapter   // I-set ang adapter ng spinner
 
+                // Listener kapag may napiling doktor sa spinner
                 spinnerDoctor.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                         selectedDoctorName = doctorNames[position]
@@ -142,6 +153,7 @@ class appointment  : BaseActivity() {
             }
     }
 
+    // Setup UI para sa booking, kasama ang date picker at booking button
     private fun setupBookingUI(userId: String) {
         btnSelectDate.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -152,46 +164,52 @@ class appointment  : BaseActivity() {
                         set(year, month, day)
                     }
                     val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
+                    // Limit lang sa Monday, Wednesday, at Friday ang pwedeng piliin
                     if (dayOfWeek !in listOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)) {
                         Toast.makeText(this, "Available only Mon/Wed/Fri.", Toast.LENGTH_LONG).show()
                         return@DatePickerDialog
                     }
                     selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedCalendar.time)
                     tvSelectedDate.text = "Selected Date: $selectedDate"
+
+                    // Kunin ang mga booked na time slots sa araw na iyon
                     fetchBookedSlotsForDate(selectedDate!!) { bookedSlots ->
                         rvTimeSlots.adapter = TimeSlotAdapter(
                             allowedTimeSlots,
                             bookedSlots,
                             false,
                             selectedDate!!
-                        ) { selectedTimeSlot = it }
+                        ) { selectedTimeSlot = it }  // Itakda ang napiling time slot
                     }
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
-            datePicker.datePicker.minDate = calendar.timeInMillis
+            datePicker.datePicker.minDate = calendar.timeInMillis  // Minimum date ngayon
             calendar.add(Calendar.MONTH, 6)
-            datePicker.datePicker.maxDate = calendar.timeInMillis
-            datePicker.show()
+            datePicker.datePicker.maxDate = calendar.timeInMillis  // Maximum date 6 na buwan mula ngayon
+            datePicker.show()  // Ipakita ang date picker
         }
 
         btnBookNow.setOnClickListener {
-            val reason = etReason.text.toString().trim()
+            val reason = etReason.text.toString().trim()   // Kunin ang dahilan ng appointment
+            // Check kung kompleto ang lahat ng kailangan
             if (reason.isEmpty() || selectedDate == null || selectedTimeSlot.isEmpty() ||
                 (!rbInPerson.isChecked && !rbTeleconsult.isChecked)
             ) {
                 Toast.makeText(this, "Please fill all details", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            selectedMode = if (rbInPerson.isChecked) "in_person" else "teleconsult"
+            selectedMode = if (rbInPerson.isChecked) "in_person" else "teleconsult"  // Piliin ang mode ng appointment
 
+            // Kunin ang pangalan ng user mula Firestore bago mag-book
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
                     val userName = document.getString("name") ?: "Anonymous"
                     val doctorInfo = doctorMap[selectedDoctorName]
 
+                    // Gumawa ng Booking object
                     val booking = Booking(
                         patientId = userId,
                         patientName = userName,
@@ -207,13 +225,15 @@ class appointment  : BaseActivity() {
                         doctorAddress = doctorInfo?.address.orEmpty()
                     )
 
+                    // I-save ang booking sa Firestore
                     db.collection("appointments").add(booking)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
-                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30) // 30 min before
-                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)  // at time
-                            startActivity(Intent(this, MyAppointment::class.java))
-                            finish()
+                            // Mag-schedule ng alarms para paalalahanan ang pasyente
+                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30) // 30 min bago
+                            scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)  // oras mismo ng appointment
+                            startActivity(Intent(this, MyAppointment::class.java))  // Buksan ang appointment screen
+                            finish()  // Isara ang current activity
                         }
                         .addOnFailureListener {
                             Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
@@ -222,11 +242,13 @@ class appointment  : BaseActivity() {
         }
     }
 
+    // Mag-schedule ng alarm para sa paalala sa appointment
     private fun scheduleAlarm(date: String, time: String, mode: String, minutesBefore: Int) {
         val sdf = SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.getDefault())
         val dateTime = sdf.parse("$date $time") ?: return
-        val triggerTime = dateTime.time - (minutesBefore * 60 * 1000)
+        val triggerTime = dateTime.time - (minutesBefore * 60 * 1000) // Oras ng trigger
 
+        // Mensahe para sa notification depende kung ilang minuto bago
         val message = if (minutesBefore > 0) {
             "Reminder: Your appointment is in $minutesBefore minutes ($mode)."
         } else {
@@ -238,21 +260,26 @@ class appointment  : BaseActivity() {
         }
         val pendingIntent = PendingIntent.getBroadcast(
             this,
-            minutesBefore, // unique request code
+            minutesBefore, // Unique request code para sa alarm
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Check kung pinapayagan ng system ang exact alarms (Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
-            startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+            startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))  // Buksan settings para payagan
             Toast.makeText(this, "Enable exact alarms for reminders", Toast.LENGTH_LONG).show()
             return
         }
+
+        // I-set ang eksaktong alarm kahit naka-idle device
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
         Log.d("Reminder", "Alarm set for ${Date(triggerTime)}")
     }
 
+    // Tsek kung may active appointment ang user (status booked o rescheduled_once)
     private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
         db.collection("appointments")
             .whereEqualTo("patientId", userId)
@@ -262,6 +289,7 @@ class appointment  : BaseActivity() {
             .addOnFailureListener { onResult(false) }
     }
 
+    // Kunin ang mga booked time slots sa isang partikular na date
     private fun fetchBookedSlotsForDate(date: String, onResult: (List<String>) -> Unit) {
         db.collection("appointments")
             .whereEqualTo("date", date)
@@ -271,6 +299,7 @@ class appointment  : BaseActivity() {
             .addOnFailureListener { onResult(emptyList()) }
     }
 
+    // I-disable ang booking UI kapag may active appointment na
     private fun disableBookingUI() {
         btnSelectDate.isEnabled = false
         rbInPerson.isEnabled = false
@@ -279,6 +308,7 @@ class appointment  : BaseActivity() {
         tvSelectedDate.text = "You already have an active appointment."
     }
 
+    // I-setup ang toolbar/action bar na may back button at title
     private fun setupActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_appointment)
         setSupportActionBar(toolbar)
@@ -288,6 +318,7 @@ class appointment  : BaseActivity() {
         toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
+    // Hilingin ang notification permission kung Android 13+
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -296,6 +327,7 @@ class appointment  : BaseActivity() {
         }
     }
 
+    // Support sa back navigation
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
