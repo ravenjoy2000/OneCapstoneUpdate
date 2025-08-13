@@ -26,7 +26,6 @@ class SignUpActivity : BaseActivity() {
 
     // ========== UI Elements ==========
     private lateinit var etName: EditText  // Input para sa pangalan
-    private lateinit var etUsername: EditText  // Input para sa username
     private lateinit var etEmail: EditText  // Input para sa email
     private lateinit var etPassword: EditText  // Input para sa password
     private lateinit var etPhone: EditText  // Input para sa phone number
@@ -60,7 +59,6 @@ class SignUpActivity : BaseActivity() {
     // I-bind ang mga UI elements gamit findViewById
     private fun bindViews() {
         etName = findViewById(R.id.et_name)
-        etUsername = findViewById(R.id.et_username)
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
         etPhone = findViewById(R.id.et_phone)
@@ -109,13 +107,12 @@ class SignUpActivity : BaseActivity() {
     private fun registerUser() {
         // Kunin ang mga input na string at i-trim ang whitespace
         val name = etName.text.toString().trim()
-        val username = etUsername.text.toString().trim()
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
         val phone = etPhone.text.toString().trim()
 
         // I-validate ang mga inputs bago magproceed
-        if (validateForm(name, username, email, password, phone)) {
+        if (validateForm(name,  email, password, phone)) {
             showProgressDialog("Please wait...") // Ipakita ang progress dialog
 
             // Gamitin ang Firebase Authentication para gumawa ng bagong user
@@ -130,7 +127,7 @@ class SignUpActivity : BaseActivity() {
                                 // Ipakita ang success message sa user
                                 showCustomToast("Verification email sent to ${user.email}. Please verify before logging in.")
                                 // I-upload ang PhilHealth ID image sa Firebase Storage
-                                uploadPhilhealthIdImage(user.uid, name, username, email, phone)
+                                uploadPhilhealthIdImage(user.uid, name, email, phone)
                             }
                             .addOnFailureListener {
                                 hideProgressDialog() // Itago ang progress dialog kapag may error
@@ -149,7 +146,7 @@ class SignUpActivity : BaseActivity() {
     }
 
     // Function para i-upload ang PhilHealth ID image sa Firebase Storage
-    private fun uploadPhilhealthIdImage(userId: String, name: String, username: String, email: String, phone: String) {
+    private fun uploadPhilhealthIdImage(userId: String, name: String, email: String, phone: String) {
         // Kunin ang file extension ng selected image (png, jpg, etc)
         val extension = getFileExtension(selectedPhilhealthIdUri)
 
@@ -166,7 +163,7 @@ class SignUpActivity : BaseActivity() {
                         mPhilIdGovermentImageURL = downloadUri.toString()  // I-save ang URL
 
                         // Gumawa ng User object para i-save sa Firestore
-                        val user = User(userId, name, username, email, mPhilIdGovermentImageURL, "patient", phone)
+                        val user = User(userId, name, email, mPhilIdGovermentImageURL, "patient", phone)
 
                         // Tawagin ang FireStoreClass para i-register ang user sa Firestore
                         FireStoreClass().registerUser(this, user)
@@ -187,14 +184,10 @@ class SignUpActivity : BaseActivity() {
     }
 
     // Validation ng mga input fields at uploaded image
-    private fun validateForm(name: String, username: String, email: String, password: String, phone: String): Boolean {
+    private fun validateForm(name: String, email: String, password: String, phone: String): Boolean {
         return when {
             TextUtils.isEmpty(name) -> {
                 showErrorSnackBar("Please enter your name.")  // Error kapag walang pangalan
-                false
-            }
-            TextUtils.isEmpty(username) -> {
-                showErrorSnackBar("Please enter your username.")  // Error kapag walang username
                 false
             }
             TextUtils.isEmpty(email) -> {

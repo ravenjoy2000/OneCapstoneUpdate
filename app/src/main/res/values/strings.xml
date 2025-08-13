@@ -34,7 +34,7 @@
 
     <string name="email">Email</string>
 
-    <string name="sign_in_description_text">Login with Google Account or Phone Number</string>
+    <string name="sign_in_description_text">Login with Google Account</string>
 
     <string name="please_click_back_again_to_exit">Please click back again to exit.</string>
     <string name="please_wait">Please Wait&#8230;</string>
@@ -49,6 +49,7 @@
     <string name="mobile">Mobile</string>
     <string name="update">UPDATE</string>
     <string name="my_profile_title">My Profile</string>
+    <string name="Doctor_Appointment_History">Doctor Appointment History</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

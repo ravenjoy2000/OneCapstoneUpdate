@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splashone"
+    android:background="@drawable/homepage"
     android:orientation="vertical"
     tools:context=".activities.SignUpActivity">
 
@@ -43,8 +43,10 @@
             android:layout_marginEnd="@dimen/authentication_screen_marginStartEnd"
             android:gravity="center"
             android:text="@string/sign_up_description_text"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="@dimen/authentication_description_text_size" />
+            android:textColor="@color/background_light"
+            android:textSize="@dimen/authentication_description_text_size"
+            android:textStyle="bold"
+            />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

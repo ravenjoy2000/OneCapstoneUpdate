@@ -17,7 +17,6 @@
         android:fitsSystemWindows="true">
 
 
-
         <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_doctor_dashboard"

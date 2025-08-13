@@ -41,6 +41,9 @@ class DoctorProfile : BaseActivity() {
     private val currentUser = FirebaseAuth.getInstance().currentUser  // Currently logged in user
     private var imageUri: Uri? = null                              // Uri for selected profile image
 
+    private var existingImageUrl: String? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -152,19 +155,23 @@ class DoctorProfile : BaseActivity() {
 
                     // Kunin ang URL ng profile image kung meron
                     val photoUrl = doc.getString("image")
+                    existingImageUrl = photoUrl // keep the current image URL
+
                     if (!photoUrl.isNullOrEmpty()) {
-                        // I-load gamit ang Glide at ipakita sa ImageView
                         Glide.with(this)
                             .load(photoUrl)
                             .apply(RequestOptions.placeholderOf(R.drawable.outline_account_circle_24))
                             .into(ivProfile)
                     }
+
                 }
             }.addOnFailureListener {
                 // Kapag may error sa pagkuha ng data, itago ang loading at ipakita error message
                 progressDialog.dismiss()
                 Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
             }
+
+
     }
 
     // I-save ang profile data sa Firestore at storage (kung may bagong larawan)
@@ -220,9 +227,13 @@ class DoctorProfile : BaseActivity() {
                     Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show()
                 }
         } else {
-            // Kung walang bagong larawan, diretso na sa pag-save sa Firestore
+            // Keep the existing image if no new image is selected
+            existingImageUrl?.let {
+                profileData["image"] = it
+            }
             saveToFirestore(uid, profileData)
         }
+
     }
 
     // I-save ang profile data sa Firestore

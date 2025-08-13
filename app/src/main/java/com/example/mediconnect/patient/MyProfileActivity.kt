@@ -290,29 +290,28 @@ class MyProfileActivity : BaseActivity() {
      * Ipakita ang user data sa UI mula sa Firestore User object
      */
     fun setUserDataInUI(user: User) {
-        mUserDetails = user  // I-save locally ang user data
+        mUserDetails = user  // Save user data locally
 
-        // I-load gamit Glide ang profile image
+        // Load profile image
         Glide.with(this)
             .load(user.image)
             .placeholder(R.drawable.ic_user_place_holder)
             .centerCrop()
             .into(findViewById(R.id.iv_profile_user_image))
 
-        // Ipakita ang pangalan sa input field
+        // Show name in input field
         findViewById<AppCompatEditText>(R.id.et_name).setText(user.name)
-        // Ipakita ang username sa input field
-        findViewById<AppCompatEditText>(R.id.et_username).setText(user.username)
-        // Ipakita ang email sa input field
+
+        // Show email in input field
         findViewById<AppCompatEditText>(R.id.et_email).setText(user.email)
 
-        // Kung may phone number, i-format at ipakita sa mobile input field
+        // Show mobile number if available
         if (user.phone != "") {
             val mobile = " ${user.phone.toString().chunked(3).joinToString(" ")}"
             findViewById<AppCompatEditText>(R.id.et_mobile).setText(mobile)
         }
 
-        // Kung may PhilHealth ID image URL, i-load at ipakita ito
+        // Show PhilHealth ID image if available
         if (user.goverment_or_phealtID.isNotEmpty()) {
             Glide.with(this)
                 .load(user.goverment_or_phealtID)
@@ -320,6 +319,7 @@ class MyProfileActivity : BaseActivity() {
                 .into(findViewById(R.id.change_philhealth_id_preview))
         }
     }
+
 
     /**
      * Ipatupad kapag successful ang profile update

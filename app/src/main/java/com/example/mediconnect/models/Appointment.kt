@@ -19,7 +19,9 @@ data class Appointment(
     val note: String = "",                  // Additional notes para sa appointment
     val reason: String = "",                // Reason o dahilan ng appointment
     val bookedAt: Date? = null,             // Date kung kailan na-book ang appointment
-    val previousDate: String = ""           // Dating petsa ng appointment kung na-reschedule
+    val previousDate: String = "",           // Dating petsa ng appointment kung na-reschedule
+    val dateTime: Long = 0L,  // <-- Make sure this exists
+
 ) : Parcelable {                           // Ginagamit para maipasa ang object sa intents o bundles
 
     // Constructor para i-unparcel ang data mula sa Parcel
@@ -38,7 +40,9 @@ data class Appointment(
         reason = parcel.readString() ?: "",             // Basahin reason
         // Basahin bookedAt bilang Long timestamp, -1L kung wala, kaya convert sa Date o null
         bookedAt = parcel.readLong().let { if (it != -1L) Date(it) else null },
-        previousDate = parcel.readString() ?: ""        // Basahin previousDate
+        previousDate = parcel.readString() ?: "" ,       // Basahin previousDate
+        dateTime = parcel.readLong()                    // Basahin dateTime
+
     )
 
     // Isusulat ang mga properties sa parcel para maipasa sa ibang activity/fragment
@@ -57,6 +61,7 @@ data class Appointment(
         parcel.writeString(reason)            // Isulat reason
         parcel.writeLong(bookedAt?.time ?: -1L)  // Isulat bookedAt bilang Long timestamp o -1L kung null
         parcel.writeString(previousDate)     // Isulat previousDate
+        parcel.writeLong(dateTime)            // Isulat dateTime
     }
 
     override fun describeContents(): Int = 0  // Default implementation ng describeContents para sa Parcelable

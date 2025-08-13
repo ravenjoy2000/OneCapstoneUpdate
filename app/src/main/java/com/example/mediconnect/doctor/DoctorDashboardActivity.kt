@@ -43,6 +43,8 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
     private lateinit var navigationView: NavigationView
     private lateinit var recyclerView: RecyclerView
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_doctor_dashboard)
@@ -54,6 +56,7 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
         setupRecyclerAutoRefresh()
 
         FireStoreClass().loadUserData(this)
+
     }
 
     /* ---------- UI Setup ---------- */

@@ -42,16 +42,12 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/mclogo"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/mclogo"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity
-            android:name=".doctor.AddMedicalLogActivity"
-            android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".patient.ConsultationStart"
             android:exported="false"
