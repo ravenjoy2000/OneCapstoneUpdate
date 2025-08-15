@@ -26,7 +26,7 @@ import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationC
 import com.example.mediconnect.models.AppConstant
 import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoTranslationText
 
-class SignInActivity : BaseActivity() {
+class SignInActivity : BaseActivity() { // Class
 
     // Firebase Authentication instance
     private val auth = FirebaseAuth.getInstance()

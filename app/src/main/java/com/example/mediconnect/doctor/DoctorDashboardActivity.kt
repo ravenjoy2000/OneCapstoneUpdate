@@ -109,16 +109,14 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(rv, dx, dy)
 
-                val layoutManager = rv.layoutManager as LinearLayoutManager
-                // Trigger refresh when first item is fully visible & user scrolls upward
-                if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 && dy < 0) {
-                    FirebaseAuth.getInstance().currentUser?.uid?.let {
-                        loadDoctorAppointments(it, showProgress = false)
-                    }
+                // If user scrolls down
+                if (dy > 0) {
+                    recreate() // Full activity restart
                 }
             }
         })
     }
+
 
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

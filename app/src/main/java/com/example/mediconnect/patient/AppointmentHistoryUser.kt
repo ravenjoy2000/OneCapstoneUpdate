@@ -77,15 +77,19 @@ class AppointmentHistoryUser : BaseActivity() {
 
     // Kunin ang appointment history ng pasyente mula sa Firestore database
     private fun loadAppointmentHistory(userId: String) {
-        val db = FirebaseFirestore.getInstance()  // Kunin ang Firestore instance
+        val db = FirebaseFirestore.getInstance()
         db.collection("appointments")
-            .whereEqualTo("patientId", userId)   // Kunin lang mga appointment ng kasalukuyang pasyente
-            .whereIn("status", listOf("completed", "cancelled", "late", "no_show")) // Mga status na kasama sa history
-            .get()
-            .addOnSuccessListener { documents ->
-                historyList.clear()  // Linisin ang list bago mag-load ng bagong data
-                for (doc in documents) {
-                    // Gumawa ng Appointment object mula sa data ng Firestore document
+            .whereEqualTo("patientId", userId)
+            .whereIn("status", listOf("Complete", "cancelled", "late", "No Show"))
+            .addSnapshotListener { documents, e ->
+                if (e != null) {
+                    Log.e("FirestoreError", "Failed to load appointment history", e)
+                    Toast.makeText(this, "Failed to load appointments.", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                historyList.clear()
+                documents?.forEach { doc ->
                     val appointment = Appointment(
                         date = doc.getString("date") ?: "",
                         time = doc.getString("timeSlot") ?: "",
@@ -97,15 +101,12 @@ class AppointmentHistoryUser : BaseActivity() {
                         location = doc.getString("doctorAddress") ?: doc.getString("location") ?: "N/A",
                         bookedAt = doc.getTimestamp("bookedAt")?.toDate()
                     )
-                    historyList.add(appointment)  // Idagdag sa listahan ng history
+                    historyList.add(appointment)
                 }
-                adapter.notifyDataSetChanged()  // I-refresh ang RecyclerView para ipakita ang bagong data
-            }
-            .addOnFailureListener { e ->
-                Log.e("FirestoreError", "Failed to load appointment history", e)  // Log kapag may error
-                Toast.makeText(this, "Failed to load appointments.", Toast.LENGTH_SHORT).show()
+                adapter.notifyDataSetChanged()
             }
     }
+
 
     // Bantayan ang mga nakatakdang appointment kung late na at markahan ang status na 'late'
     private fun monitorLateAppointments(userId: String) {

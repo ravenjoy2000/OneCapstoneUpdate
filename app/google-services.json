@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "1071465062452-qodic871i4ljsmhkfqap6m00ksk6cj6t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mediconnect",
+            "certificate_hash": "142de1bf363647c8226c845e5af3ccb039a46165"
+          }
+        },
+        {
+          "client_id": "1071465062452-sgibsorcjak7v2mhqhrr986sbsdp8rg1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mediconnect",
+            "certificate_hash": "d156cb2bf11bc5f19fc75fbe7a40e744102b5fa7"
+          }
+        },
+        {
           "client_id": "1071465062452-ivd1srad1l8c39v7u79t48f4pkte1pna.apps.googleusercontent.com",
           "client_type": 3
         }

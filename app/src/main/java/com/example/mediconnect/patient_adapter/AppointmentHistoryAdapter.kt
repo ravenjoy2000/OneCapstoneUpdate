@@ -42,7 +42,7 @@ class AppointmentHistoryAdapter(private val appointments: List<Appointment>) :
         ) {
             "Dr. Penida"
         } else {
-            "Dr. ${appointment.doctorName}"
+            " ${appointment.doctorName}"
         }
 
         holder.tvDoctorName.text = doctorDisplayName                          // Ipakita ang pangalan ng doktor

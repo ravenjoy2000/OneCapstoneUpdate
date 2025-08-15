@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.*
@@ -157,39 +158,72 @@ class appointment  : BaseActivity() {
     private fun setupBookingUI(userId: String) {
         btnSelectDate.setOnClickListener {
             val calendar = Calendar.getInstance()
-            val datePicker = DatePickerDialog(
+
+            val datePickerDialog = DatePickerDialog(
                 this,
                 { _, year, month, day ->
                     val selectedCalendar = Calendar.getInstance().apply {
                         set(year, month, day)
                     }
+
                     val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
-                    // Limit lang sa Monday, Wednesday, at Friday ang pwedeng piliin
-                    if (dayOfWeek !in listOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)) {
-                        Toast.makeText(this, "Available only Mon/Wed/Fri.", Toast.LENGTH_LONG).show()
+                    if (dayOfWeek != Calendar.MONDAY &&
+                        dayOfWeek != Calendar.WEDNESDAY &&
+                        dayOfWeek != Calendar.FRIDAY
+                    ) {
+                        Toast.makeText(this, "Only Monday, Wednesday, and Friday are available.", Toast.LENGTH_SHORT).show()
                         return@DatePickerDialog
                     }
+
                     selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedCalendar.time)
                     tvSelectedDate.text = "Selected Date: $selectedDate"
 
-                    // Kunin ang mga booked na time slots sa araw na iyon
                     fetchBookedSlotsForDate(selectedDate!!) { bookedSlots ->
                         rvTimeSlots.adapter = TimeSlotAdapter(
                             allowedTimeSlots,
                             bookedSlots,
                             false,
                             selectedDate!!
-                        ) { selectedTimeSlot = it }  // Itakda ang napiling time slot
+                        ) { selectedTimeSlot = it }
                     }
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
-            datePicker.datePicker.minDate = calendar.timeInMillis  // Minimum date ngayon
+
+            // Limit to 6 months ahead
+            datePickerDialog.datePicker.minDate = calendar.timeInMillis
             calendar.add(Calendar.MONTH, 6)
-            datePicker.datePicker.maxDate = calendar.timeInMillis  // Maximum date 6 na buwan mula ngayon
-            datePicker.show()  // Ipakita ang date picker
+            datePickerDialog.datePicker.maxDate = calendar.timeInMillis
+
+            // Disable non-MWF days & change colors
+            datePickerDialog.datePicker.setOnDateChangedListener { view, year, month, dayOfMonth ->
+                val tempCal = Calendar.getInstance().apply {
+                    set(year, month, dayOfMonth)
+                }
+                val dayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK)
+
+                if (dayOfWeek != Calendar.MONDAY &&
+                    dayOfWeek != Calendar.WEDNESDAY &&
+                    dayOfWeek != Calendar.FRIDAY
+                ) {
+                    // Move forward to next valid day
+                    do {
+                        tempCal.add(Calendar.DAY_OF_MONTH, 1)
+                    } while (tempCal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY &&
+                        tempCal.get(Calendar.DAY_OF_WEEK) != Calendar.WEDNESDAY &&
+                        tempCal.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY)
+
+                    view.updateDate(
+                        tempCal.get(Calendar.YEAR),
+                        tempCal.get(Calendar.MONTH),
+                        tempCal.get(Calendar.DAY_OF_MONTH)
+                    )
+                }
+            }
+
+            datePickerDialog.show()
         }
 
         btnBookNow.setOnClickListener {

@@ -24,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
+import android.os.Handler
+import android.os.Looper
 
 class MyAppointment : AppCompatActivity() {
 
@@ -47,10 +49,12 @@ class MyAppointment : AppCompatActivity() {
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     private var appointmentId: String? = null  // Current appointment document ID
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()                     // Enable edge-to-edge UI display
-        setContentView(R.layout.activity_my_appointment)  // Set layout file
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_my_appointment)
 
         // Hide status bar depending on SDK version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -63,11 +67,19 @@ class MyAppointment : AppCompatActivity() {
             )
         }
 
-        setupActionBar()   // Setup toolbar/action bar
-        initViews()        // Initialize all UI views
-        loadAppointment()  // Load appointment data from Firestore
+        setupActionBar()
+        initViews()
 
-        // Set button click listeners
+        // Hide button initially
+        btn_start_consultation.visibility = Button.VISIBLE
+
+        // Show button after 10 seconds
+        Handler(Looper.getMainLooper()).postDelayed({
+            btn_start_consultation.visibility = Button.VISIBLE
+        }, 10000) // 10,000 ms = 10 seconds
+
+        loadAppointment()
+
         btnCancel.setOnClickListener { showCancelDialog() }
         btn_start_consultation.setOnClickListener { btn_start_consultation() }
     }
