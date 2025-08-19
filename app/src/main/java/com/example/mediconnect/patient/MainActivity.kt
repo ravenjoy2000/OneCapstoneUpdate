@@ -194,7 +194,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             R.id.nav_medical_log -> {
                 // Buksan ang medical logs screen
-                startActivity(Intent(this, MedicalLogs::class.java))
+                startActivity(Intent(this, PatientMedicalLogs::class.java))
             }
             R.id.nav_patent_feedback -> {
                 // Buksan ang patient feedback screen

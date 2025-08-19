@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
+import com.example.mediconnect.doctor_adapter.DoctorAppointmentHistoryAdapter
 import com.example.mediconnect.models.Appointment
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth

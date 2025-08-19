@@ -43,6 +43,7 @@
     <string name="nav_my_appointment">My Appointment</string>
     <string name="nav_my_appointment_history">My Appointment History</string>
     <string name="nav_medical_log">Medical Log</string>
+    <string name="nav_schedule">Schedule</string>
     <string name="nav_patent_feedback">Patent Feedback</string>
     <string name="nav_sign_out">Sign Out</string>
 
@@ -69,6 +70,34 @@
     <string name="doctor_feedback_title">"Patient Rates "</string>
     <string name="reschedule_title">Reschedule</string>
     <string name="medical_log_title">Medical_log_title</string>
+
+    <string-array name="time_slots">
+        <item>12:00 AM</item>
+        <item>1:00 AM</item>
+        <item>2:00 AM</item>
+        <item>3:00 AM</item>
+        <item>4:00 AM</item>
+        <item>5:00 AM</item>
+        <item>6:00 AM</item>
+        <item>7:00 AM</item>
+        <item>8:00 AM</item>
+        <item>9:00 AM</item>
+        <item>10:00 AM</item>
+        <item>11:00 AM</item>
+        <item>12:00 PM</item>
+        <item>1:00 PM</item>
+        <item>2:00 PM</item>
+        <item>3:00 PM</item>
+        <item>4:00 PM</item>
+        <item>5:00 PM</item>
+        <item>6:00 PM</item>
+        <item>7:00 PM</item>
+        <item>8:00 PM</item>
+        <item>9:00 PM</item>
+        <item>10:00 PM</item>
+        <item>11:00 PM</item>
+    </string-array>
+
 
 
 </resources>

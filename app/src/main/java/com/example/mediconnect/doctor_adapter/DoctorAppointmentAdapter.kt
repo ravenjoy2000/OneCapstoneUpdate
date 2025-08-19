@@ -1,5 +1,6 @@
 package com.example.mediconnect.doctor_adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,13 +9,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.Appointment
 import com.example.mediconnect.models.AppointmentListItem
+import com.google.android.material.card.MaterialCardView
 import java.util.Locale
 
-// Adapter para sa RecyclerView na nagpapakita ng list ng appointment kasama ang mga header
 class DoctorAppointmentAdapter(
-    private val items: List<AppointmentListItem>,
-    private val onItemClick: (Appointment) -> Unit
+    private var items: List<AppointmentListItem>,
+    private val onAppointmentClick: (Appointment) -> Unit,
+    private val onSelectionChanged: (Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private val selectedAppointments = mutableSetOf<String>()
+    private var selectionMode = false
 
     companion object {
         private const val TYPE_HEADER = 0
@@ -29,38 +34,31 @@ class DoctorAppointmentAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            TYPE_HEADER -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.doctor_item_appointment_header, parent, false)
-                HeaderViewHolder(view)
-            }
-            TYPE_APPOINTMENT -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.doctor_item_appointment, parent, false)
-                AppointmentViewHolder(view)
-            }
-            else -> throw IllegalArgumentException("Invalid view type")
+            TYPE_HEADER -> HeaderViewHolder(
+                inflater.inflate(R.layout.doctor_item_appointment_header, parent, false)
+            )
+            TYPE_APPOINTMENT -> AppointmentViewHolder(
+                inflater.inflate(R.layout.doctor_item_appointment, parent, false)
+            )
+            else -> throw IllegalArgumentException("Invalid view type: $viewType")
         }
     }
 
     override fun getItemCount() = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = items[position]
-        when (holder) {
-            is HeaderViewHolder -> {
-                if (item is AppointmentListItem.Header) holder.bind(item)
-            }
-            is AppointmentViewHolder -> {
-                if (item is AppointmentListItem.AppointmentItem) holder.bind(item.appointment)
-            }
+        when (val item = items[position]) {
+            is AppointmentListItem.Header -> (holder as HeaderViewHolder).bind(item)
+            is AppointmentListItem.AppointmentItem -> (holder as AppointmentViewHolder).bind(item.appointment)
         }
     }
 
     inner class HeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvHeaderLabel: TextView = itemView.findViewById(R.id.tv_header_label)
         private val tvHeaderDate: TextView = itemView.findViewById(R.id.tv_header_date)
+
         fun bind(header: AppointmentListItem.Header) {
             tvHeaderLabel.text = header.label
             tvHeaderDate.text = header.date
@@ -68,23 +66,82 @@ class DoctorAppointmentAdapter(
     }
 
     inner class AppointmentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val card: MaterialCardView = itemView.findViewById(R.id.card_appointment)
         private val tvPatientName: TextView = itemView.findViewById(R.id.tv_patient_name)
+        private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
         private val tvTime: TextView = itemView.findViewById(R.id.doctor_time)
         private val tvStatus: TextView = itemView.findViewById(R.id.doctor_status)
-        private val tvMode: TextView = itemView.findViewById(R.id.tv_mode) // Add this in your layout
+        private val tvMode: TextView = itemView.findViewById(R.id.tv_mode)
+        private val tvCancellationReason: TextView = itemView.findViewById(R.id.tv_cancellation_reason)
 
         fun bind(appointment: Appointment) {
             tvPatientName.text = appointment.patientName
+            tvDate.text = appointment.date
             tvTime.text = appointment.time
             tvStatus.text = appointment.status
 
             tvMode.text = when (appointment.mode.lowercase(Locale.getDefault())) {
                 "in-person" -> "In-Person"
-                "teleconsultation" -> "Teleconsultation"
+                "teleconsult", "teleconsultation" -> "Teleconsultation"
                 else -> appointment.mode
             }
 
-            itemView.setOnClickListener { onItemClick(appointment) }
+            // Show cancellation reason only if cancelled
+            if (appointment.status.equals("cancelled", ignoreCase = true) &&
+                !appointment.cancellationReason.isNullOrBlank()
+            ) {
+                tvCancellationReason.visibility = View.VISIBLE
+                tvCancellationReason.text = "Reason: ${appointment.cancellationReason}"
+            } else {
+                tvCancellationReason.visibility = View.GONE
+            }
+
+            // Selection highlight
+            val isSelected = selectedAppointments.contains(appointment.appointmentId)
+            card.strokeWidth = if (isSelected) 6 else 0
+            card.strokeColor = Color.BLUE
+
+            // Click listeners
+            itemView.setOnClickListener {
+                val pos = adapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    if (selectionMode) toggleSelection(appointment, pos)
+                    else onAppointmentClick(appointment)
+                }
+            }
+
+            itemView.setOnLongClickListener {
+                val pos = adapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    if (!selectionMode) {
+                        selectionMode = true
+                        toggleSelection(appointment, pos)
+                    }
+                }
+                true
+            }
+
         }
+    }
+
+    private fun toggleSelection(appointment: Appointment, position: Int) {
+        if (selectedAppointments.contains(appointment.appointmentId)) {
+            selectedAppointments.remove(appointment.appointmentId)
+        } else {
+            selectedAppointments.add(appointment.appointmentId)
+        }
+
+        if (selectedAppointments.isEmpty()) selectionMode = false
+        onSelectionChanged(selectedAppointments.size)
+        notifyItemChanged(position)
+    }
+
+    fun getSelectedAppointments(): List<String> = selectedAppointments.toList()
+
+    fun updateList(newItems: List<AppointmentListItem>) {
+        items = newItems
+        selectedAppointments.clear()
+        selectionMode = false
+        notifyDataSetChanged()
     }
 }

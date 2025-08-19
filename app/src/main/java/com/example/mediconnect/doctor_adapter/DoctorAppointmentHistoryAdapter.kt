@@ -1,4 +1,4 @@
-package com.example.mediconnect.doctor
+package com.example.mediconnect.doctor_adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater

@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.*
@@ -220,6 +221,13 @@ class AppointmentDetailsActivity : AppCompatActivity() {
             fetchUserImage(appointment.patientId)
         } else {
             ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
+        }
+
+        // ✅ Hide consultation button if in_person
+        if (appointment.mode.equals("in_person", ignoreCase = true)) {
+            btnStartConsultation.visibility = View.GONE
+        } else {
+            btnStartConsultation.visibility = View.VISIBLE
         }
     }
 

@@ -71,25 +71,25 @@ class DoctorMedicalLog : AppCompatActivity() {
                 medicalLogs.clear()
                 for (doc in documents) {
                     val log = MedicalLog(
-                        medicalLogId = doc.getString("medicalLogId"),
-                        patientName = doc.getString("patientName"),
-                        appointmentDate = doc.getString("appointmentDate"),
-                        diagnosis = doc.getString("diagnosis"),
-                        notes = doc.getString("doctorNotes"),
-                        status = doc.getString("status"),
-                        doctorNotes = doc.getString("doctorNotes"),
-                        date = doc.getString("timest amp"), // Could format serverTimestamp to string
-                        doctorName = doc.getString("doctorName"),
-                        doctorId = doc.getString("doctorId"),
-                        patientId = doc.getString("patientId"),
-                        appointmentId = doc.getString("appointmentId"),
-                        appointmentTime = doc.getString("appointmentTime"),
+                        medicalLogId = doc.getString("medicalLogId") ?: "",
+                        patientName = doc.getString("patientName") ?: "",
+                        appointmentDate = doc.getTimestamp("appointmentDate"),
+                        diagnosis = doc.getString("diagnosis") ?: "",
+                        doctorNotes = doc.getString("doctorNotes") ?: "",
+                        status = doc.getString("status") ?: "",
+                        date = doc.getTimestamp("timestamp")?.toDate().toString(), // safely convert
+                        doctorName = doc.getString("doctorName") ?: "",
+                        doctorId = doc.getString("doctorId") ?: "",
+                        patientId = doc.getString("patientId") ?: "",
+                        appointmentId = doc.getString("appointmentId") ?: "",
+                        appointmentTime = doc.getString("appointmentTime") ?: "",
                         appointmentDay = null,
                         appointmentMonth = null,
                         appointmentYear = null,
                         appointmentHour = null,
                         appointmentMinute = null
                     )
+
 
                     medicalLogs.add(log)
                 }
@@ -100,9 +100,10 @@ class DoctorMedicalLog : AppCompatActivity() {
     private fun filterLogs(query: String) {
         val filtered = medicalLogs.filter {
             it.patientName?.contains(query, ignoreCase = true) == true ||
-                    it.appointmentDate?.contains(query, ignoreCase = true) == true ||
-                    it.diagnosis?.contains(query, ignoreCase = true) == true
+                    it.diagnosis?.contains(query, ignoreCase = true) == true ||
+                    it.appointmentDate?.toDate()?.toString()?.contains(query, ignoreCase = true) == true
         }
         adapter.updateList(filtered)
     }
+
 }

@@ -103,7 +103,7 @@ class ConsultationStart : AppCompatActivity() {
             .setTitle("View Medical Log")
             .setMessage("Are you sure you want to view your medical log for this consultation?")
             .setPositiveButton("Yes") { _: DialogInterface, _: Int ->
-                val intent = Intent(this, MedicalLogs::class.java)
+                val intent = Intent(this, PatientMedicalLogs::class.java)
                 startActivity(intent)
             }
             .setNegativeButton("No", null)

@@ -15,9 +15,9 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" /> <!-- Sensors -->
     <uses-permission android:name="android.permission.BODY_SENSORS" /> <!-- Storage Permissions -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
-
-    <!-- For Android 12 and below -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" /> <!-- For Android 12 and below -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" /> <!-- For Android 13+ -->
@@ -50,6 +50,12 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
+        <activity
+            android:name=".doctor.DoctorSchedule"
+            android:exported="false" />
+        <activity
+            android:name=".doctor.DoctorRescheduleActivity"
+            android:exported="false" />
         <activity
             android:name=".patient.ConsultationStart"
             android:exported="false"
@@ -98,7 +104,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".patient.MedicalLogs"
+            android:name=".patient.PatientMedicalLogs"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />

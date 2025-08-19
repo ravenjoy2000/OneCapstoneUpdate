@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -43,6 +44,7 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
     private lateinit var navigationView: NavigationView
     private lateinit var recyclerView: RecyclerView
 
+    private var cancelMenuItem: MenuItem? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,10 +58,22 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
         setupRecyclerAutoRefresh()
 
         FireStoreClass().loadUserData(this)
-
     }
 
     /* ---------- UI Setup ---------- */
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_doctor_dashboard, menu)
+        return true
+    }
+
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        cancelMenuItem = menu.findItem(R.id.action_cancel)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
 
     private fun hideStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -109,14 +123,17 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(rv, dx, dy)
 
-                // If user scrolls down
                 if (dy > 0) {
-                    recreate() // Full activity restart
+                    // Restart the whole app
+                    val intent = baseContext.packageManager
+                        .getLaunchIntentForPackage(baseContext.packageName)
+                    intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                    finishAffinity() // close all current activities
                 }
             }
         })
     }
-
 
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -236,13 +253,24 @@ class DoctorDashboardActivity : BaseActivity(), NavigationView.OnNavigationItemS
         recyclerView.layoutManager = LinearLayoutManager(this)
         val groupedList = groupAppointmentsByDate(appointments)
 
-        val adapter = DoctorAppointmentAdapter(groupedList) { appointment ->
-            val intent = Intent(this, AppointmentDetailsActivity::class.java)
-            intent.putExtra("appointment_data", appointment)
-            startActivity(intent)
-        }
+        val adapter = DoctorAppointmentAdapter(
+            groupedList,
+            onAppointmentClick = { appointment ->
+                val intent = Intent(this, AppointmentDetailsActivity::class.java)
+                intent.putExtra("appointment_data", appointment)
+                startActivity(intent)
+            },
+            onSelectionChanged = { count ->
+                // Example: show selection count in toolbar or toast
+                if (count > 0) {
+                    Toast.makeText(this, "$count selected", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+
         recyclerView.adapter = adapter
     }
+
 
     private fun groupAppointmentsByDate(appointments: List<Appointment>): List<AppointmentListItem> {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

@@ -29,6 +29,7 @@
             />
 
 
+
         <item
             android:id="@+id/nav_doctor_feedback"
             android:title="@string/nav_patent_feedback"
@@ -40,6 +41,7 @@
             android:title="@string/nav_sign_out"
             android:icon="@drawable/ic_nav_sign_out"
             />
+
 
     </group>
 

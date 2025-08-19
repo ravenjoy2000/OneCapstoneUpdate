@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics") version "2.9.9"
+    id ("kotlin-parcelize")
+
 
 
 }
@@ -45,14 +47,14 @@ android {
 }
 
 dependencies {
-    // AndroidX Core Libraries
+    // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // Firebase
+    // Firebase (use BoM for version alignment)
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx")
@@ -63,38 +65,28 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
 
     // Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation("com.google.android.gms:play-services-auth")
 
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    // Circular Image View
+    // Circle ImageView
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
+    // Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+    // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-    implementation("com.google.android.material:material:1.12.0") // or latest
 
-    implementation("com.google.firebase:firebase-auth:22.3.0") // or latest
+    // Facebook Login (pick one version, don’t mix `latest.release`)
+    implementation("com.facebook.android:facebook-login:16.3.0")
 
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
-    implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
+    // Zego Call
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:latest.release")
 
-    implementation("com.facebook.android:facebook-login:latest.release")
-    implementation("com.facebook.android:facebook-android-sdk:latest.release")
-
-    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
-
-
-
-
-
-
-
-
-
-
-
+    // FirebaseUI Auth (optional — remove if doing custom login flows)
+    // implementation("com.firebaseui:firebase-ui-auth:8.0.2")
 
     // Testing
     testImplementation(libs.junit)

@@ -1,5 +1,6 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_appointment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
@@ -26,10 +27,10 @@
 
         <!-- Date -->
         <TextView
-            android:id="@+id/doctor_date"
+            android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2025-08-11"
+            android:text=""
             android:textSize="14sp"
             android:textColor="@color/gray" />
 
@@ -88,6 +89,17 @@
                 android:drawableLeft="@drawable/ic_video"
                 android:drawablePadding="6dp" />
         </LinearLayout>
+
+        <!-- Cancellation Reason -->
+        <TextView
+            android:id="@+id/tv_cancellation_reason"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:textStyle="italic"
+            android:visibility="gone"
+            android:text="Reason: Sample reason" />
 
     </LinearLayout>
 
