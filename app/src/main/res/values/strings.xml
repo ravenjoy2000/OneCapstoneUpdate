@@ -43,6 +43,7 @@
     <string name="nav_my_appointment">My Appointment</string>
     <string name="nav_my_appointment_history">My Appointment History</string>
     <string name="nav_medical_log">Medical Log</string>
+    <string name="nav_basic_monitoring">Basic Monitoring</string>"
     <string name="nav_schedule">Schedule</string>
     <string name="nav_patent_feedback">Patent Feedback</string>
     <string name="nav_sign_out">Sign Out</string>
@@ -97,7 +98,6 @@
         <item>10:00 PM</item>
         <item>11:00 PM</item>
     </string-array>
-
 
 
 </resources>

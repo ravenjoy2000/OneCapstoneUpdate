@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:strokeColor="@color/teal_700"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Medication Name -->
+        <TextView
+            android:id="@+id/tvDrugName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Paracetamol"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black" />
+
+        <!-- Dosage + Frequency -->
+        <TextView
+            android:id="@+id/tvDosage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="500mg - Twice a day"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:textColor="#555555" />
+
+        <!-- Next Reminder Time -->
+        <TextView
+            android:id="@+id/tvNextReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next: Today at 8:00 PM"
+            android:textSize="14sp"
+            android:layout_marginTop="6dp"
+            android:textColor="#00897B"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

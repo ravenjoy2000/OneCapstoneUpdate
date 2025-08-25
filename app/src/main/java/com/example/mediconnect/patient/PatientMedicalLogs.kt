@@ -3,19 +3,23 @@ package com.example.mediconnect.patient
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.models.MedicalLog
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PatientMedicalLogs : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyLogsText: View
+    private lateinit var progressBar: ProgressBar
     private val logsList = mutableListOf<MedicalLog>()
     private lateinit var adapter: MedicalLogsAdapter
 
@@ -25,6 +29,7 @@ class PatientMedicalLogs : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.logsRecyclerView)
         emptyLogsText = findViewById(R.id.emptyLogsText)
+        progressBar = findViewById(R.id.progressBar)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = MedicalLogsAdapter(this, logsList)
@@ -35,20 +40,21 @@ class PatientMedicalLogs : AppCompatActivity() {
 
     private fun loadLogs() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-        if (currentUserId == null) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
             Log.e("MedicalLogs", "No logged in user")
             showEmptyState()
             return
         }
 
-        Log.d("MedicalLogs", "Loading logs for patientId=$currentUserId")
+        progressBar.visibility = View.VISIBLE
 
         FirebaseFirestore.getInstance()
-            .collection("medicalLogs")
+            .collection("medical_logs")
             .whereEqualTo("patientId", currentUserId)
-            .whereEqualTo("status", "paid") // ✅ Only fetch 'paid' logs
-            .orderBy("appointmentDate", Query.Direction.DESCENDING)
+            .whereEqualTo("status", "Complete")
             .addSnapshotListener { snapshots, e ->
+                progressBar.visibility = View.GONE
+
                 if (e != null) {
                     Log.e("MedicalLogs", "Firestore error: ", e)
                     showEmptyState()
@@ -56,23 +62,54 @@ class PatientMedicalLogs : AppCompatActivity() {
                 }
 
                 if (snapshots == null || snapshots.isEmpty) {
-                    Log.d("MedicalLogs", "No logs found (paid) for patientId=$currentUserId")
+                    Log.d("MedicalLogs", "No logs found for patientId=$currentUserId")
                     showEmptyState()
                     return@addSnapshotListener
                 }
 
                 logsList.clear()
-                for (doc in snapshots) {
-                    Log.d("MedicalLogs", "Log found: ${doc.data}")
-                    val log = doc.toObject(MedicalLog::class.java)
-                    logsList.add(log)
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                snapshots.forEach { doc ->
+                    val appointmentDateValue = doc.getString("appointmentDate")
+                    val timestamp: Timestamp? = try {
+                        sdf.parse(appointmentDateValue ?: "")?.let { Timestamp(it) }
+                    } catch (ex: Exception) {
+                        Log.e("MedicalLogs", "Date parse error: $appointmentDateValue", ex)
+                        null
+                    }
+
+                    if (timestamp == null) {
+                        Log.w("MedicalLogs", "Skipping log with invalid date: $appointmentDateValue")
+                        return@forEach
+                    }
+
+                    logsList.add(
+                        MedicalLog(
+                            medicalLogId = doc.getString("medicalLogId") ?: "",
+                            patientName = doc.getString("patientName") ?: "",
+                            appointmentDate = timestamp,
+                            diagnosis = doc.getString("diagnosis") ?: "",
+                            doctorNotes = doc.getString("doctorNotes") ?: "",
+                            status = doc.getString("status") ?: "",
+                            date = doc.getTimestamp("timestamp")?.toDate().toString(),
+                            doctorName = doc.getString("doctorName") ?: "",
+                            doctorId = doc.getString("doctorId") ?: "",
+                            patientId = doc.getString("patientId") ?: "",
+                            appointmentId = doc.getString("appointmentId") ?: "",
+                            appointmentTime = doc.getString("appointmentTime") ?: "",
+                            appointmentDay = null,
+                            appointmentMonth = null,
+                            appointmentYear = null,
+                            appointmentHour = null,
+                            appointmentMinute = null
+                        )
+                    )
                 }
 
-                if (logsList.isEmpty()) {
-                    showEmptyState()
-                } else {
-                    showList()
-                }
+                logsList.sortByDescending { it.appointmentDate?.toDate() }
+                Log.d("MedicalLogs", "Loaded ${logsList.size} logs")
+                if (logsList.isEmpty()) showEmptyState() else showList()
                 adapter.notifyDataSetChanged()
             }
     }

@@ -88,6 +88,7 @@ dependencies {
     // FirebaseUI Auth (optional — remove if doing custom login flows)
     // implementation("com.firebaseui:firebase-ui-auth:8.0.2")
 
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

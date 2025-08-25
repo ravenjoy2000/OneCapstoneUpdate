@@ -53,18 +53,11 @@ class MedicalLogsAdapter(
         holder.tvDiagnosis.text = "Diagnosis: ${log.diagnosis}"
         holder.tvDoctorNotes.text = "Doctor Notes: ${log.doctorNotes}"
 
-        // ✅ Disable button if payment is pending
-        if (log.status?.lowercase() == "payment_pending") {
-            holder.btnDownloadPdf.isEnabled = false
-            holder.btnDownloadPdf.alpha = 0.5f
-        } else {
-            holder.btnDownloadPdf.isEnabled = true
-            holder.btnDownloadPdf.alpha = 1f
-            holder.btnDownloadPdf.setOnClickListener {
-                createPdf(log)
-            }
-        }
+        // Disable button if payment is pending
+        holder.btnDownloadPdf.isEnabled = log.status?.lowercase() != "payment_pending"
+        holder.btnDownloadPdf.alpha = if (holder.btnDownloadPdf.isEnabled) 1f else 0.5f
 
+        // Set click listener only once
         holder.btnDownloadPdf.setOnClickListener {
             savePdfToDownloads(context, log)
         }
@@ -72,83 +65,6 @@ class MedicalLogsAdapter(
     }
 
     override fun getItemCount(): Int = logs.size
-
-    private fun createPdf(log: MedicalLog) {
-        try {
-            val pdfDocument = PdfDocument()
-            val pageInfo = PdfDocument.PageInfo.Builder(300, 600, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
-
-            val titlePaint = Paint().apply {
-                textSize = 16f
-                isFakeBoldText = true
-            }
-            val textPaint = Paint().apply {
-                textSize = 12f
-            }
-
-            var y = 20f
-            canvas.drawText("Medical Log", 10f, y, titlePaint)
-            y += 20f
-            canvas.drawText("===================", 10f, y, textPaint)
-            y += 20f
-
-            val lines = listOf(
-                "Patient: ${log.patientName}",
-                "Doctor: ${log.doctorName}",
-                "Date: ${log.appointmentDate}",
-                "Time: ${log.appointmentTime}",
-                "Status: ${log.status}",
-                "Diagnosis: ${log.diagnosis}",
-                "Notes: ${log.notes}",
-                "Doctor Notes: ${log.doctorNotes}"
-            )
-
-            for (line in lines) {
-                canvas.drawText(line, 10f, y, textPaint)
-                y += 20f
-            }
-
-            pdfDocument.finishPage(page)
-
-            val fileName = "MedicalLog_${log.appointmentId ?: System.currentTimeMillis()}.pdf"
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Scoped storage save (Android 10+)
-                val resolver = context.contentResolver
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                    put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
-                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/MedicalLogs")
-                }
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                uri?.let {
-                    resolver.openOutputStream(it)?.use { outputStream ->
-                        pdfDocument.writeTo(outputStream)
-                    }
-                }
-                Toast.makeText(context, "PDF saved to Downloads/MedicalLogs", Toast.LENGTH_LONG).show()
-
-            } else {
-                // Legacy save for Android 9 and below
-                val directory = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "MedicalLogs"
-                )
-                if (!directory.exists()) directory.mkdirs()
-                val file = File(directory, fileName)
-                pdfDocument.writeTo(FileOutputStream(file))
-                Toast.makeText(context, "PDF saved: ${file.absolutePath}", Toast.LENGTH_LONG).show()
-            }
-
-            pdfDocument.close()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(context, "Error creating PDF", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private fun savePdfToDownloads(context: Context, log: MedicalLog) {
         val pdfDocument = PdfDocument()
@@ -169,7 +85,9 @@ class MedicalLogsAdapter(
         y += 20
         canvas.drawText("Doctor: ${log.doctorName}", 50f, y, paint)
         y += 20
-        canvas.drawText("Date: ${log.appointmentDate}", 50f, y, paint)
+        canvas.drawText("Date: ${log.appointmentDate?.toDate()}", 50f, y, paint)
+        y += 20
+        canvas.drawText("Time: ${log.appointmentTime}", 50f, y, paint)
         y += 20
         canvas.drawText("Status: ${log.status}", 50f, y, paint)
         y += 20
@@ -179,28 +97,46 @@ class MedicalLogsAdapter(
 
         pdfDocument.finishPage(page)
 
-        val fileName = "MedicalLog_${log.appointmentDate}.pdf"
+        val fileName = "MedicalLog_${log.appointmentId ?: System.currentTimeMillis()}.pdf"
 
         try {
-            val resolver = context.contentResolver
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
-                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/MedicalLogs")
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10+ use MediaStore
+                val resolver = context.contentResolver
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
+                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/MedicalLogs")
+                }
 
-            val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
-            uri?.let {
-                resolver.openOutputStream(it)?.use { outputStream ->
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                if (uri != null) {
+                    resolver.openOutputStream(uri)?.use { outputStream ->
+                        pdfDocument.writeTo(outputStream)
+                    }
+                    Toast.makeText(context, "PDF saved to Downloads/MedicalLogs", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, "Failed to create PDF file", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // Android 9 and below: use traditional File API
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val folder = File(downloadsDir, "MedicalLogs")
+                if (!folder.exists()) folder.mkdirs()
+
+                val file = File(folder, fileName)
+                FileOutputStream(file).use { outputStream ->
                     pdfDocument.writeTo(outputStream)
                 }
+                Toast.makeText(context, "PDF saved to Downloads/MedicalLogs", Toast.LENGTH_LONG).show()
             }
-            Toast.makeText(context, "PDF saved to Downloads/MedicalLogs", Toast.LENGTH_LONG).show()
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "Error saving PDF", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error saving PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         } finally {
             pdfDocument.close()
         }
     }
+
+
 }

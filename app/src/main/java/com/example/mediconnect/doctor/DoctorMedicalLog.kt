@@ -65,6 +65,7 @@ class DoctorMedicalLog : AppCompatActivity() {
 
     private fun fetchMedicalLogs() {
         db.collection("medical_logs")
+            .whereEqualTo("status", "Complete")   // ✅ Only fetch logs with status Complete
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
@@ -77,7 +78,7 @@ class DoctorMedicalLog : AppCompatActivity() {
                         diagnosis = doc.getString("diagnosis") ?: "",
                         doctorNotes = doc.getString("doctorNotes") ?: "",
                         status = doc.getString("status") ?: "",
-                        date = doc.getTimestamp("timestamp")?.toDate().toString(), // safely convert
+                        date = doc.getTimestamp("timestamp")?.toDate().toString(),
                         doctorName = doc.getString("doctorName") ?: "",
                         doctorId = doc.getString("doctorId") ?: "",
                         patientId = doc.getString("patientId") ?: "",
@@ -89,13 +90,12 @@ class DoctorMedicalLog : AppCompatActivity() {
                         appointmentHour = null,
                         appointmentMinute = null
                     )
-
-
                     medicalLogs.add(log)
                 }
                 adapter.updateList(medicalLogs)
             }
     }
+
 
     private fun filterLogs(query: String) {
         val filtered = medicalLogs.filter {

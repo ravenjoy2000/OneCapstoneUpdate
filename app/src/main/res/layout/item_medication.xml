@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:layout_marginBottom="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginHorizontal="4dp"
+    android:backgroundTint="@color/teal_200">
+
+    <!-- Medication Name -->
+    <EditText
+        android:id="@+id/etMedicationName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Medication Name"
+        android:inputType="textCapWords"
+        android:background="@android:drawable/edit_text" />
+
+    <!-- Dosage -->
+    <EditText
+        android:id="@+id/etDosage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Dosage"
+        android:inputType="text"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text" />
+
+    <!-- Frequency -->
+    <EditText
+        android:id="@+id/etFrequency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Frequency (e.g. 1/day)"
+        android:inputType="text"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text" />
+
+    <!-- Time and Remove Buttons -->
+    <LinearLayout
+        android:id="@+id/item_medication_times"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/btnAddTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏰ Add Time" />
+
+        <Button
+            android:id="@+id/btnRemoveMedication"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="❌ Remove"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+
+</LinearLayout>

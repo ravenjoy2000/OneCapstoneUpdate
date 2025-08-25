@@ -60,9 +60,9 @@ class SignInActivity : BaseActivity() { // Class
     private fun bindViews() {
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
-        btnSignIn = findViewById(R.id.btn_sign_in)
+      //  btnSignIn = findViewById(R.id.btn_sign_in)
         btnGoogleSignIn = findViewById(R.id.btn_google_sign_in)
-        tvForgotPassword = findViewById(R.id.tv_forgot_password)
+       // tvForgotPassword = findViewById(R.id.tv_forgot_password)
     }
 
     /** Itago ang status bar para full screen */

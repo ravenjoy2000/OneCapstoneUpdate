@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -25,10 +26,9 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Page Content -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:padding="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -43,28 +43,38 @@
             android:textColor="#212121"
             android:layout_marginBottom="8dp" />
 
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
         <!-- Empty View -->
         <TextView
             android:id="@+id/emptyLogsText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No medical logs available."
+            android:text="No completed logs yet."
             android:textSize="16sp"
             android:textColor="#757575"
             android:gravity="center"
-            android:padding="8dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:layout_centerInParent="true" />
 
         <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/logsRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_below="@id/titleText"
             android:layout_marginTop="16dp"
             android:clipToPadding="false"
             android:paddingBottom="8dp"
-            android:scrollbars="vertical" />
-    </LinearLayout>
+            android:scrollbars="vertical"
+            android:visibility="gone" />
+
+    </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -88,7 +88,6 @@ class DashboardActivity : AppCompatActivity() {
                         val user = document.toObject(User::class.java)
                         user?.let {
                             findViewById<EditText>(R.id.et_name).setText(it.name)
-                            findViewById<EditText>(R.id.et_username).setText(it.username)
                             findViewById<EditText>(R.id.et_phone).setText(it.phone)
 
                             if (it.image.isNotEmpty()) {
@@ -105,11 +104,10 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun saveProfile() {
         val name = findViewById<EditText>(R.id.et_name).text.toString().trim()
-        val username = findViewById<EditText>(R.id.et_username).text.toString().trim()
         val phone = findViewById<EditText>(R.id.et_phone).text.toString().trim()
         val email = currentUser?.email ?: ""
 
-        if (name.isEmpty() || username.isEmpty() || phone.isEmpty()) {
+        if (name.isEmpty() || phone.isEmpty()) {
             Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -119,7 +117,6 @@ class DashboardActivity : AppCompatActivity() {
                 val userMap = mapOf(
                     "id" to uid,
                     "name" to name,
-                    "username" to username,
                     "phone" to phone,
                     "email" to email,
                     "image" to profileUrl,

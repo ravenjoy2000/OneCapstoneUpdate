@@ -1,4 +1,4 @@
-package com.example.mediconnect.patient
+package com.example.mediconnect.patient_adapter
 
 import android.os.Parcelable
 import com.google.android.material.datepicker.CalendarConstraints

@@ -322,7 +322,7 @@ class AppointmentDetailsActivity : AppCompatActivity() {
             "doctorNotes" to doctorNotes,                        // ✅ notes already stored
             "fileUrl" to fileUrl,
             "timestamp" to FieldValue.serverTimestamp(),
-            "status" to "PaymentPending"
+            "status" to "Complete"
         )
 
         // Save medical log to Firestore

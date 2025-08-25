@@ -1,72 +1,88 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="?attr/selectableItemBackground"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
 
-    <!-- Patient & Doctor -->
-    <TextView
-        android:id="@+id/tvPatientName"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Patient: John Doe"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#212121" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvDoctorName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Doctor: Dr. Smith"
-        android:textSize="14sp"
-        android:textColor="#555" />
+        <!-- Patient & Doctor -->
+        <TextView
+            android:id="@+id/tvPatientName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Patient: John Doe"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#212121" />
 
-    <!-- Appointment Date & Status -->
-    <TextView
-        android:id="@+id/tvAppointmentDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date: Jan 1, 2025"
-        android:textSize="14sp"
-        android:textColor="#555" />
+        <TextView
+            android:id="@+id/tvDoctorName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Doctor: Dr. Smith"
+            android:textSize="14sp"
+            android:textColor="#555" />
 
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status: Completed"
-        android:textSize="14sp"
-        android:textColor="#2E7D32" />
+        <!-- Appointment Date & Status -->
+        <TextView
+            android:id="@+id/tvAppointmentDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Date: Jan 1, 2025"
+            android:textSize="14sp"
+            android:textColor="#555" />
 
-    <!-- Diagnosis & Notes -->
-    <TextView
-        android:id="@+id/tvDiagnosis"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Diagnosis: Common Cold"
-        android:textSize="14sp"
-        android:textColor="#000" />
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: Completed"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32" />
 
-    <TextView
-        android:id="@+id/tvDoctorNotes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Doctor Notes: Take medicine twice daily."
-        android:textSize="14sp"
-        android:textColor="#000" />
+        <!-- Diagnosis & Notes -->
+        <TextView
+            android:id="@+id/tvDiagnosis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Diagnosis: Common Cold"
+            android:textSize="14sp"
+            android:textColor="#000" />
 
-    <!-- Download PDF Button -->
-    <Button
-        android:id="@+id/btnDownloadPdf"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Download PDF"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="@color/teal_700"
-        android:textColor="@android:color/white" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvDoctorNotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Doctor Notes: Take medicine twice daily."
+            android:textSize="14sp"
+            android:textColor="#000" />
+
+        <!-- Download PDF Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDownloadPdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Download PDF"
+            app:icon="@drawable/ic_download"
+            app:iconPadding="8dp"
+            app:iconTint="@android:color/white"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/teal_700"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

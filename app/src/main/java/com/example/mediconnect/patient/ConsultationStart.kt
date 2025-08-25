@@ -3,8 +3,6 @@ package com.example.mediconnect.patient
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -23,9 +21,6 @@ class ConsultationStart : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private var canUpdateUI = false
-    private var consultationFinished = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_consultation_start)
@@ -34,25 +29,10 @@ class ConsultationStart : AppCompatActivity() {
         waitingMessage = findViewById(R.id.waitingMessage)
         btnMedicalLog = findViewById(R.id.btnMedicalLog)
 
-        // Button click will only work when consultationFinished is true
-        btnMedicalLog.setOnClickListener {
-            if (consultationFinished) {
-                showConfirmationDialog()
-            }
-        }
-
-        // Make button visible but initially disabled
-        btnMedicalLog.visibility = View.VISIBLE
-        btnMedicalLog.isEnabled = false
-        btnMedicalLog.alpha = 0.5f // visual cue for disabled state
+        // Hide button initially
+        btnMedicalLog.visibility = View.GONE
 
         showWaiting()
-
-        // Allow UI update after 15s delay
-        Handler(Looper.getMainLooper()).postDelayed({
-            canUpdateUI = true
-        }, 15_000)
-
         listenForConsultationStatus()
     }
 
@@ -61,20 +41,15 @@ class ConsultationStart : AppCompatActivity() {
 
         db.collection("appointments")
             .whereEqualTo("patientId", patientId)
-            .whereEqualTo("status", "ongoing")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) return@addSnapshotListener
 
                 if (snapshot != null && !snapshot.isEmpty) {
                     val appointment = snapshot.documents[0]
-                    val consultationStatus = appointment.getString("consultationStatus") ?: ""
+                    val status = appointment.getString("status") ?: ""
 
-                    if (consultationStatus == "finished") {
-                        if (canUpdateUI) {
-                            onConsultationFinished()
-                        } else {
-                            showWaiting()
-                        }
+                    if (status == "complete") {
+                        onConsultationComplete()
                     } else {
                         showWaiting()
                     }
@@ -84,29 +59,32 @@ class ConsultationStart : AppCompatActivity() {
 
     private fun showWaiting() {
         progressBar.visibility = View.VISIBLE
-        waitingMessage.text = "Waiting for consultation to finish..."
-        consultationFinished = false
-        btnMedicalLog.isEnabled = false
-        btnMedicalLog.alpha = 0.5f
+        waitingMessage.text = "Waiting for consultation to complete..."
+        btnMedicalLog.visibility = View.GONE
     }
 
-    private fun onConsultationFinished() {
+    private fun onConsultationComplete() {
         progressBar.visibility = View.GONE
-        waitingMessage.text = "Consultation finished."
-        consultationFinished = true
+        waitingMessage.text = "Consultation complete. Please log your medication."
+        btnMedicalLog.visibility = View.VISIBLE
         btnMedicalLog.isEnabled = true
         btnMedicalLog.alpha = 1f
+
+        btnMedicalLog.setOnClickListener {
+            showMedicationPrompt()
+        }
     }
 
-    private fun showConfirmationDialog() {
+    private fun showMedicationPrompt() {
         AlertDialog.Builder(this)
-            .setTitle("View Medical Log")
-            .setMessage("Are you sure you want to view your medical log for this consultation?")
-            .setPositiveButton("Yes") { _: DialogInterface, _: Int ->
-                val intent = Intent(this, PatientMedicalLogs::class.java)
+            .setTitle("Log Your Medication")
+            .setMessage("Your consultation is complete. Please log your prescribed medication (name, dosage, frequency) to ensure proper intake.")
+            .setCancelable(false)
+            .setPositiveButton("Log Now") { _: DialogInterface, _: Int ->
+                val intent = Intent(this, MedicationLogActivity::class.java)
                 startActivity(intent)
             }
-            .setNegativeButton("No", null)
+            .setNegativeButton("Later", null)
             .show()
     }
 }

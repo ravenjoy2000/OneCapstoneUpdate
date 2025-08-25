@@ -1,6 +1,6 @@
 package com.example.mediconnect.patient
 
-import DayOfWeekValidator
+import com.example.mediconnect.patient_adapter.DayOfWeekValidator
 import android.Manifest
 import android.app.AlarmManager
 import android.app.DatePickerDialog
@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediconnect.R
 import com.example.mediconnect.activities.BaseActivity
 import com.example.mediconnect.models.Booking
+import com.example.mediconnect.patient_adapter.FutureDateValidator
 import com.example.mediconnect.patient_adapter.ReminderReceiver
 import com.example.mediconnect.patient_adapter.TimeSlotAdapter
 import com.google.android.material.datepicker.CalendarConstraints
@@ -274,18 +276,55 @@ class appointment : BaseActivity() {
                             appointmentRef.set(booking)
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
+
+                                    // Schedule reminders
                                     scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30)
                                     scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)
+
+                                    // ✅ Open Gmail composer with patient’s email pre-filled
+                                    val patientEmail = auth.currentUser?.email ?: ""
+                                    val subject = "Appointment Confirmation"
+                                    val body = """
+                                      Hi $userName,
+
+                                      Your appointment with Dr. $selectedDoctorName has been booked.
+                                      Date: $selectedDate
+                                      Time: $selectedTimeSlot
+                                      Mode: $selectedMode
+
+                                      Thank you for using MediConnect!
+                                      """.trimIndent()
+
+                                    // Build proper mailto URI with recipient
+                                    val uri = Uri.parse("mailto:$patientEmail")
+                                    val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
+                                        putExtra(Intent.EXTRA_SUBJECT, subject)
+                                        putExtra(Intent.EXTRA_TEXT, body)
+                                    }
+
+                                    try {
+                                        startActivity(Intent.createChooser(intent, "Send email via"))
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
+                                    }
+
+
                                     startActivity(Intent(this, MyAppointment::class.java))
                                     finish()
                                 }
                                 .addOnFailureListener {
                                     Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
                                 }
+
+
+
                         }
                 }
         }
     }
+
+
 
     private fun filterPastSlots(date: String, slots: List<String>): List<String> {
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())

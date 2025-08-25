@@ -1,6 +1,8 @@
-import com.google.android.material.datepicker.CalendarConstraints
+package com.example.mediconnect.patient_adapter
+
 import android.os.Parcel
 import android.os.Parcelable
+import com.google.android.material.datepicker.CalendarConstraints
 import java.util.Calendar
 
 class DayOfWeekValidator(private val allowedDays: Set<Int>) : CalendarConstraints.DateValidator {

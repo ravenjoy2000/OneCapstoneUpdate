@@ -6,33 +6,45 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- Location Permissions -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <!-- Location Permissions -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- Phone Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- Phone Permissions -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.WRITE_CALL_LOG" /> <!-- Sensors -->
-    <uses-permission android:name="android.permission.BODY_SENSORS" /> <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+
+    <!-- Sensors -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+
+    <!-- Alarm -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+
+    <!-- Storage Permissions -->
+    <!-- Legacy storage for Android 10 and below -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" /> <!-- For Android 12 and below -->
+        android:maxSdkVersion="28" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" /> <!-- For Android 13+ -->
+        android:maxSdkVersion="28" />
+
+    <!-- Scoped storage for Android 11+ -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission
-        android:name="android.permission.READ_MEDIA_DOCUMENTS"
-        tools:ignore="NewApi" /> <!-- Optional (Full access to external storage) -->
-    <!-- Requires special Google Play approval -->
-    <uses-permission
-        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" /> <!-- Other Permissions -->
+
+    <!-- Notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- Remove unused AD_ID -->
+
+
+
     <uses-permission
         android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" /> <!-- API Key -->
@@ -49,9 +61,10 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
+        android:name=".App"
         android:theme="@style/AppTheme.NoActionBar">
         <activity
-            android:name=".doctor.DoctorSchedule"
+            android:name=".patient.MedicationLogActivity"
             android:exported="false" />
         <activity
             android:name=".doctor.DoctorRescheduleActivity"
@@ -180,6 +193,8 @@
             android:name=".patient.MainActivity"
             android:exported="false" /> <!-- Receiver -->
         <receiver android:name=".patient_adapter.ReminderReceiver" />
+        <receiver android:name=".patient.MedicationAlarmReceiver" />
+
     </application>
 
 </manifest>

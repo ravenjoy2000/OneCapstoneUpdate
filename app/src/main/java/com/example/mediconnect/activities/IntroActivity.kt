@@ -6,23 +6,33 @@ import android.os.Bundle
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.mediconnect.R
 import com.example.mediconnect.doctor.DoctorDashboardActivity
 import com.example.mediconnect.patient.MainActivity
+import com.example.mediconnect.models.AppConstant
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
 import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
-import com.example.mediconnect.models.AppConstant
 import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoTranslationText
 
 class IntroActivity : BaseActivity() {
 
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Fullscreen support
+        // Fullscreen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
@@ -35,57 +45,142 @@ class IntroActivity : BaseActivity() {
 
         setContentView(R.layout.activity_intro)
 
-        // If user is logged in, determine role and redirect
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        auth = FirebaseAuth.getInstance()
+
+        // Configure Google Sign-In
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // If already logged in → skip
+        val currentUser = auth.currentUser
         if (currentUser != null) {
-            val uid = currentUser.uid
-            val userName = currentUser.displayName ?: "User"
+            checkUserRoleAndRedirect(currentUser.uid, currentUser.displayName ?: "User")
+            return
+        }
 
-            FirebaseFirestore.getInstance().collection("users").document(uid)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        // Setup Zego Call Invitation Config
-                        val config = ZegoUIKitPrebuiltCallInvitationConfig().apply {
-                            translationText = ZegoTranslationText() // avoid NullPointerException
-                        }
+        // Show Google login button
+        findViewById<Button>(R.id.btn_google_sign_in).setOnClickListener {
+            signInWithGoogle()
+        }
+    }
 
-                        // Initialize Zego Call Service
-                        ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, uid, userName, config)
+    private val googleSignInLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            if (task.isSuccessful) {
+                firebaseAuthWithGoogle(task.result)
+            } else {
+                Toast.makeText(this, "Google Sign-In Failed", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-                        when (document.getString("role")) {
-                            "doctor" -> {
-                                startActivity(Intent(this, DoctorDashboardActivity::class.java))
-                                finish()
-                            }
-                            "patient" -> {
-                                startActivity(Intent(this, MainActivity::class.java))
-                                finish()
-                            }
-                            else -> {
-                                // Unknown role, force logout
-                                FirebaseAuth.getInstance().signOut()
-                            }
-                        }
-                    } else {
-                        // No user doc found, force logout
-                        FirebaseAuth.getInstance().signOut()
+    private fun signInWithGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
+
+    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount?) {
+        if (account == null) return
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    if (user != null) {
+                        checkUserRoleAndRedirect(user.uid, user.displayName ?: "User")
                     }
+                } else {
+                    Toast.makeText(this, "Firebase Auth Failed", Toast.LENGTH_SHORT).show()
                 }
-                .addOnFailureListener {
-                    FirebaseAuth.getInstance().signOut()
+            }
+    }
+
+    private fun checkUserRoleAndRedirect(uid: String, userName: String) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Existing user → setup Zego + redirect
+                    initZego(uid, userName)
+
+                    val role = document.getString("role")
+                    val profileComplete = document.getBoolean("profileComplete") ?: false
+
+                    when (role) {
+                        "doctor" -> {
+                            startActivity(Intent(this, DoctorDashboardActivity::class.java))
+                            finish()
+                        }
+                        "patient" -> {
+                            if (profileComplete) {
+                                startActivity(Intent(this, MainActivity::class.java))
+                            } else {
+                                startActivity(Intent(this, MainActivity::class.java))
+                            }
+                            finish()
+                        }
+                        else -> {
+                            Toast.makeText(this, "Unknown role", Toast.LENGTH_SHORT).show()
+                            FirebaseAuth.getInstance().signOut()
+                        }
+                    }
+                } else {
+                    // New user → save default role (patient) and force profile setup
+                    val newUser = hashMapOf(
+                        "uid" to uid,
+                        "name" to userName,
+                        "email" to auth.currentUser?.email,
+                        "photoUrl" to auth.currentUser?.photoUrl?.toString(),
+                        "role" to "patient", // default role
+                        "profileComplete" to false, // NEW FLAG
+                        "createdAt" to System.currentTimeMillis(),
+                        "appointments" to emptyList<String>(),
+                        "history" to emptyList<String>()
+                    )
+                    db.collection("users").document(uid).set(newUser)
+                        .addOnSuccessListener {
+                            initZego(uid, userName)
+                            // Redirect to Profile Setup first
+                            startActivity(Intent(this, DashboardActivity::class.java))
+                            finish()
+                        }
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error checking user role", Toast.LENGTH_SHORT).show()
+            }
+    }
 
-            return // prevent buttons from showing while waiting
+    private fun initZego(uid: String, userName: String) {
+        val config = ZegoUIKitPrebuiltCallInvitationConfig().apply {
+            translationText = ZegoTranslationText()
         }
+        ZegoUIKitPrebuiltCallService.init(
+            application,
+            AppConstant.appId,
+            AppConstant.appSign,
+            uid,
+            userName,
+            config
+        )
+    }
 
-        // Not logged in → Show sign-in/signup buttons
-        findViewById<Button>(R.id.btn_sign_in_intro).setOnClickListener {
-            startActivity(Intent(this, SignInActivity::class.java))
-        }
-
-        findViewById<Button>(R.id.btn_sign_up_intro).setOnClickListener {
-            startActivity(Intent(this, SignUpActivity::class.java))
+    private fun redirectBasedOnRole(role: String?) {
+        when (role) {
+            "doctor" -> {
+                startActivity(Intent(this, DoctorDashboardActivity::class.java))
+                finish()
+            }
+            "patient" -> {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+            else -> {
+                Toast.makeText(this, "Unknown role", Toast.LENGTH_SHORT).show()
+                FirebaseAuth.getInstance().signOut()
+            }
         }
     }
 }
