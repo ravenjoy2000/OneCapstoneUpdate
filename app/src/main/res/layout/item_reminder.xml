@@ -13,38 +13,49 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
-        <!-- Medication Name -->
+        <!-- Medicine details -->
         <TextView
-            android:id="@+id/tvDrugName"
+            android:id="@+id/tvMedDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Paracetamol"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:text="Paracetamol - 500mg - 2x/day"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
-        <!-- Dosage + Frequency -->
+        <!-- Reminder times -->
         <TextView
-            android:id="@+id/tvDosage"
+            android:id="@+id/tvMedTimes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="500mg - Twice a day"
+            android:text="8:00 AM, 8:00 PM"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"
-            android:textColor="#555555" />
+            android:paddingTop="4dp"/>
 
-        <!-- Next Reminder Time -->
-        <TextView
-            android:id="@+id/tvNextReminder"
-            android:layout_width="wrap_content"
+        <!-- Buttons row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Next: Today at 8:00 PM"
-            android:textSize="14sp"
-            android:layout_marginTop="6dp"
-            android:textColor="#00897B"
-            android:textStyle="italic" />
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="6dp">
 
+            <Button
+                android:id="@+id/btnCancelReminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel ❌"
+                android:padding="6dp"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnMarkTaken"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark as Taken ✅"
+                android:padding="6dp"/>
+        </LinearLayout>
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

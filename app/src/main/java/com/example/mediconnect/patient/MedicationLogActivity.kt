@@ -41,7 +41,6 @@ class MedicationLogActivity : AppCompatActivity() {
         btnAddDrug = findViewById(R.id.btnAddDrug)
         btnSaveMedication = findViewById(R.id.btnSaveMedication)
 
-        // ProgressDialog replacement
         val progressView = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(40, 20, 40, 20)
@@ -61,18 +60,40 @@ class MedicationLogActivity : AppCompatActivity() {
         btnAddDrug.setOnClickListener { addMedicationEntry() }
         btnSaveMedication.setOnClickListener { saveAllMedications() }
 
-        // Add first entry by default
         addMedicationEntry()
 
         val rvReminders = findViewById<RecyclerView>(R.id.recyclerSavedMedications)
 
-        // Setup RecyclerView
-        reminderAdapter = ReminderAdapter(reminderList)
+        reminderAdapter = ReminderAdapter(
+            reminderList,
+            onMarkTaken = { reminder -> confirmMedicationTaken(reminder) },
+            onCancelReminder = { reminder -> cancelMedicationReminder(reminder) }
+        )
+
         rvReminders.layoutManager = LinearLayoutManager(this)
         rvReminders.adapter = reminderAdapter
 
-        // 🔹 Load saved medications from Firestore
         loadMedications()
+    }
+
+    private fun cancelMedicationReminder(reminder: Reminder) {
+        val patientId = auth.currentUser?.uid ?: return
+
+        AlertDialog.Builder(this)
+            .setTitle("Cancel Reminder")
+            .setMessage("Do you want to cancel the reminder for ${reminder.name}?")
+            .setPositiveButton("Yes") { _, _ ->
+                db.collection("patients").document(patientId)
+                    .collection("medications")
+                    .document(reminder.id)
+                    .delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "${reminder.name} reminder canceled ❌", Toast.LENGTH_SHORT).show()
+                        loadMedications()
+                    }
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 
     private fun addMedicationEntry() {
@@ -126,6 +147,11 @@ class MedicationLogActivity : AppCompatActivity() {
     private fun saveAllMedications() {
         val patientId = auth.currentUser?.uid ?: return
 
+        if (medicationContainer.childCount == 0) {
+            Toast.makeText(this, "Please add at least one medication entry", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         progressDialog.show()
         val entries = mutableListOf<Map<String, Any>>()
 
@@ -143,7 +169,7 @@ class MedicationLogActivity : AppCompatActivity() {
             }
 
             val medId = db.collection("patients").document(patientId).collection("medications").document().id
-            val date = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+            val timestamp = System.currentTimeMillis()
 
             val medMap = mapOf(
                 "id" to medId,
@@ -151,8 +177,8 @@ class MedicationLogActivity : AppCompatActivity() {
                 "dosage" to medDosage,
                 "frequency" to medFrequency,
                 "times" to selectedTimes,
-                "date" to date,
-                "timestamp" to System.currentTimeMillis()
+                "timestamp" to timestamp,
+                "status" to "pending"
             )
             entries.add(medMap)
 
@@ -187,12 +213,15 @@ class MedicationLogActivity : AppCompatActivity() {
             .addOnSuccessListener { result ->
                 reminderList.clear()
                 for (doc in result) {
+                    val id = doc.getString("id") ?: ""
                     val name = doc.getString("name") ?: ""
                     val dosage = doc.getString("dosage") ?: ""
                     val frequency = doc.getString("frequency") ?: ""
                     val times = (doc.get("times") as? List<String>)?.joinToString(", ") ?: "N/A"
+                    val status = doc.getString("status") ?: "pending"
+                    val createdAt = doc.getLong("timestamp") ?: System.currentTimeMillis()
 
-                    reminderList.add(Reminder(name, dosage, frequency, times))
+                    reminderList.add(Reminder(id, name, dosage, frequency, times, status, createdAt))
                 }
                 reminderAdapter.notifyDataSetChanged()
             }
@@ -217,10 +246,13 @@ class MedicationLogActivity : AppCompatActivity() {
 
             reminderList.add(
                 Reminder(
-                    med["name"].toString(),
-                    med["dosage"].toString(),
-                    med["frequency"].toString(),
-                    times.joinToString(", ")
+                    id = med["id"].toString(),
+                    name = med["name"].toString(),
+                    dosage = med["dosage"].toString(),
+                    frequency = med["frequency"].toString(),
+                    times = times.joinToString(", "),
+                    status = "pending",
+                    createdAt = med["timestamp"] as Long
                 )
             )
         }
@@ -229,10 +261,33 @@ class MedicationLogActivity : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle("Saved Medications ✅")
-            .setMessage("Your medications have been saved and reminders scheduled.")
+            .setMessage("Your medications have been saved and reminders scheduled.\n\nTap a medication below when you have taken it.")
             .setPositiveButton("OK", null)
             .show()
     }
+
+    private fun confirmMedicationTaken(reminder: Reminder) {
+        val patientId = auth.currentUser?.uid ?: return
+
+        AlertDialog.Builder(this)
+            .setTitle("Confirm Medication")
+            .setMessage("Did you take ${reminder.name}?")
+            .setPositiveButton("Yes") { _, _ ->
+                db.collection("patients").document(patientId)
+                    .collection("medications")
+                    .document(reminder.id)
+                    .update("status", "taken")
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "${reminder.name} marked as taken ✅", Toast.LENGTH_SHORT).show()
+                        loadMedications()
+                    }
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()  // 👈 Do nothing, just close the dialog
+            }
+            .show()
+    }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
