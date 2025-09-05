@@ -17,159 +17,162 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <!-- Main Content -->
-    <ScrollView
+    <!-- ✅ SwipeRefreshLayout wrapper -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:padding="16dp">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <!-- Main Content -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:padding="16dp">
 
-            <!-- Doctor Info -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Appointment"
-                android:layout_marginBottom="16dp"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:paddingTop="8dp"
-                android:textColor="#222" />
-
-
-            <Spinner
-                android:id="@+id/spinner_doctor"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:textSize="16sp"
-                android:textColor="#333"
-                android:background="@drawable/spinner_background"
-                android:gravity="center_vertical" />
-            <TextView
-                android:id="@+id/tv_doctor_phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phone: "
-                android:textSize="16sp"
-                android:layout_marginTop="8dp" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_doctor_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Address: "
-                android:textSize="16sp"
-                android:layout_marginTop="4dp" />
-
-
-
-
-
-            <!-- Map Preview -->
-            <ImageView
-                android:id="@+id/img_map"
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/penediamap"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/map_border" />
-
-            <!-- Select Date -->
-            <Button
-                android:id="@+id/btn_select_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#FDD335"
-                android:text="Select Appointment Date" />
-
-            <TextView
-                android:id="@+id/tv_selected_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Selected Date: None"
-                android:paddingTop="8dp"
-                android:textStyle="bold" />
-
-            <!-- Appointment Mode -->
-            <RadioGroup
-                android:id="@+id/rg_appointment_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="12dp">
-
-                <RadioButton
-                    android:id="@+id/rb_in_person"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                <!-- Doctor Info -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="In-person" />
+                    android:text="Appointment"
+                    android:layout_marginBottom="16dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:paddingTop="8dp"
+                    android:textColor="#222" />
 
-                <RadioButton
-                    android:id="@+id/rb_teleconsult"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                <Spinner
+                    android:id="@+id/spinner_doctor"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Teleconsultation" />
-            </RadioGroup>
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#333"
+                    android:background="@drawable/spinner_background"
+                    android:gravity="center_vertical" />
 
-            <!-- Note -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Note:"
-                android:paddingTop="16dp"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tv_doctor_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone: "
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp" />
 
-            <TextView
-                android:id="@+id/tv_note"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Please bring your PhilHealth ID and previous records." />
+                <TextView
+                    android:id="@+id/tv_doctor_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Address: "
+                    android:textSize="16sp"
+                    android:layout_marginTop="4dp" />
 
-            <!-- Time Slot List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_time_slots"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" />
+                <!-- Map Preview -->
+                <ImageView
+                    android:id="@+id/img_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/penediamap"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/map_border" />
 
-            <!-- Reason -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Reason for Appointment:"
-                android:paddingTop="16dp"
-                android:textStyle="bold" />
+                <!-- Select Date -->
+                <Button
+                    android:id="@+id/btn_select_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FDD335"
+                    android:text="Select Appointment Date" />
 
-            <EditText
-                android:id="@+id/et_reason"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="E.g. General Checkup, Flu symptoms..."
-                android:minLines="3"
-                android:maxLines="5"
-                android:inputType="textMultiLine"
-                android:background="@android:drawable/edit_text"
-                android:padding="12dp"
-                android:layout_marginBottom="16dp" />
+                <TextView
+                    android:id="@+id/tv_selected_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Selected Date: None"
+                    android:paddingTop="8dp"
+                    android:textStyle="bold" />
 
-            <!-- Book Button -->
-            <Button
-                android:id="@+id/btn_book_now"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Book Appointment"
-                android:backgroundTint="#2196F3"
-                android:textColor="#FFFFFF"
-                android:layout_marginTop="16dp" />
+                <!-- Appointment Mode -->
+                <RadioGroup
+                    android:id="@+id/rg_appointment_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="12dp">
 
-        </LinearLayout>
-    </ScrollView>
+                    <RadioButton
+                        android:id="@+id/rb_in_person"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="In-person" />
+
+                    <RadioButton
+                        android:id="@+id/rb_teleconsult"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Teleconsultation" />
+                </RadioGroup>
+
+                <!-- Note -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Note:"
+                    android:paddingTop="16dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Please bring your PhilHealth ID and previous records." />
+
+                <!-- Time Slot List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_time_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
+
+                <!-- Reason -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reason for Appointment:"
+                    android:paddingTop="16dp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/et_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="E.g. General Checkup, Flu symptoms..."
+                    android:minLines="3"
+                    android:maxLines="5"
+                    android:inputType="textMultiLine"
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Book Button -->
+                <Button
+                    android:id="@+id/btn_book_now"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Book Appointment"
+                    android:backgroundTint="#2196F3"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="16dp" />
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

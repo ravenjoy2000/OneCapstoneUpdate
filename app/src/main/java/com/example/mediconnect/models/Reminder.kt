@@ -10,7 +10,8 @@ data class Reminder(
     val frequency: String = "",
     val times: String = "",
     val status: String = STATUS_PENDING,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val date: String = ""
 ) : Parcelable {
 
     // ✅ Helpers for cleaner UI code
@@ -25,7 +26,8 @@ data class Reminder(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: STATUS_PENDING,
-        parcel.readLong()
+        parcel.readLong(),
+        parcel.readString() ?: ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -36,6 +38,7 @@ data class Reminder(
         parcel.writeString(times)
         parcel.writeString(status)
         parcel.writeLong(createdAt)
+        parcel.writeString(date)
     }
 
     override fun describeContents(): Int = 0

@@ -3,7 +3,6 @@ package com.example.mediconnect.patient
 import com.example.mediconnect.patient_adapter.DayOfWeekValidator
 import android.Manifest
 import android.app.AlarmManager
-import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -22,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.mediconnect.R
 import com.example.mediconnect.activities.BaseActivity
 import com.example.mediconnect.models.Booking
@@ -38,6 +38,7 @@ import java.util.*
 
 class appointment : BaseActivity() {
 
+    private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnSelectDate: Button
     private lateinit var btnBookNow: Button
@@ -98,9 +99,13 @@ class appointment : BaseActivity() {
         }
 
         fetchDoctors()
+
+        // ✅ Swipe-to-refresh
+        swipeRefresh.setOnRefreshListener { refreshData() }
     }
 
     private fun initViews() {
+        swipeRefresh = findViewById(R.id.swipe_refresh)
         tvSelectedDate = findViewById(R.id.tv_selected_date)
         btnSelectDate = findViewById(R.id.btn_select_date)
         btnBookNow = findViewById(R.id.btn_book_now)
@@ -115,6 +120,17 @@ class appointment : BaseActivity() {
         rvTimeSlots.layoutManager = LinearLayoutManager(this)
     }
 
+    // 🔄 Refresh user state & doctors
+    private fun refreshData() {
+        val userId = auth.currentUser?.uid.orEmpty()
+        checkIfUserHasActiveAppointment(userId) { hasActive ->
+            if (hasActive) disableBookingUI()
+            else setupBookingUI(userId)
+        }
+        fetchDoctors()
+        swipeRefresh.isRefreshing = false
+    }
+
     private fun fetchDoctors() {
         val doctorNames = mutableListOf<String>()
 
@@ -122,6 +138,9 @@ class appointment : BaseActivity() {
             .whereEqualTo("role", "doctor")
             .get()
             .addOnSuccessListener { result ->
+                doctorMap.clear()
+                doctorNames.clear()
+
                 for (doc in result) {
                     val name = doc.getString("name") ?: continue
                     val id = doc.id
@@ -163,14 +182,9 @@ class appointment : BaseActivity() {
     }
 
     private fun setupBookingUI(userId: String) {
-
         btnSelectDate.setOnClickListener {
             val calendar = Calendar.getInstance()
-
-            // ✅ Set start = today
             val start = calendar.timeInMillis
-
-            // ✅ Set end = 6 months from now
             calendar.add(Calendar.MONTH, 6)
             val end = calendar.timeInMillis
 
@@ -180,10 +194,8 @@ class appointment : BaseActivity() {
                 .setValidator(
                     CompositeDateValidator.allOf(
                         listOf(
-                            FutureDateValidator(), // Only future dates
-                            DayOfWeekValidator(    // Only Mon, Wed, Sat
-                                setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.SATURDAY)
-                            )
+                            FutureDateValidator(),
+                            DayOfWeekValidator(setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.SATURDAY))
                         )
                     )
                 )
@@ -208,17 +220,12 @@ class appointment : BaseActivity() {
                         bookedSlots,
                         false,
                         selectedDate!!
-                    ) { slot ->
-                        selectedTimeSlot = slot
-                    }
+                    ) { slot -> selectedTimeSlot = slot }
                 }
             }
 
             datePicker.show(supportFragmentManager, "DATE_PICKER")
         }
-
-
-
 
         btnBookNow.setOnClickListener {
             val reason = etReason.text.toString().trim()
@@ -242,7 +249,7 @@ class appointment : BaseActivity() {
                         return@addOnSuccessListener
                     }
 
-                    // 🔑 Check daily patient limit per doctor
+                    // ✅ Check doctor daily patient limit
                     db.collection("appointments")
                         .whereEqualTo("doctorId", doctorInfo.id)
                         .whereEqualTo("date", selectedDate)
@@ -277,25 +284,24 @@ class appointment : BaseActivity() {
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
 
-                                    // Schedule reminders
+                                    // ⏰ Reminders
                                     scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30)
                                     scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)
 
-                                    // ✅ Open Gmail composer with patient’s email pre-filled
+                                    // 📧 Email confirmation
                                     val patientEmail = auth.currentUser?.email ?: ""
                                     val subject = "Appointment Confirmation"
                                     val body = """
-                                      Hi $userName,
+                                        Hi $userName,
+                                        
+                                        Your appointment with Dr. $selectedDoctorName has been booked.
+                                        Date: $selectedDate
+                                        Time: $selectedTimeSlot
+                                        Mode: $selectedMode
+                                        
+                                        Thank you for using MediConnect!
+                                    """.trimIndent()
 
-                                      Your appointment with Dr. $selectedDoctorName has been booked.
-                                      Date: $selectedDate
-                                      Time: $selectedTimeSlot
-                                      Mode: $selectedMode
-
-                                      Thank you for using MediConnect!
-                                      """.trimIndent()
-
-                                    // Build proper mailto URI with recipient
                                     val uri = Uri.parse("mailto:$patientEmail")
                                     val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
                                         putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -309,22 +315,16 @@ class appointment : BaseActivity() {
                                         Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
                                     }
 
-
                                     startActivity(Intent(this, MyAppointment::class.java))
                                     finish()
                                 }
                                 .addOnFailureListener {
                                     Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
                                 }
-
-
-
                         }
                 }
         }
     }
-
-
 
     private fun filterPastSlots(date: String, slots: List<String>): List<String> {
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())

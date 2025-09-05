@@ -117,7 +117,8 @@ class IntroActivity : BaseActivity() {
                             if (profileComplete) {
                                 startActivity(Intent(this, MainActivity::class.java))
                             } else {
-                                startActivity(Intent(this, MainActivity::class.java))
+                                // ✅ redirect to Profile Setup
+                                startActivity(Intent(this, DashboardActivity::class.java))
                             }
                             finish()
                         }

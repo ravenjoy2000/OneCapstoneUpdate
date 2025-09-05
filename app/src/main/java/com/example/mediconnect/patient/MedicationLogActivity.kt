@@ -170,6 +170,9 @@ class MedicationLogActivity : AppCompatActivity() {
 
             val medId = db.collection("patients").document(patientId).collection("medications").document().id
             val timestamp = System.currentTimeMillis()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val currentDate = dateFormat.format(Date())
+
 
             val medMap = mapOf(
                 "id" to medId,
@@ -178,7 +181,8 @@ class MedicationLogActivity : AppCompatActivity() {
                 "frequency" to medFrequency,
                 "times" to selectedTimes,
                 "timestamp" to timestamp,
-                "status" to "pending"
+                "status" to "pending",
+                "date" to currentDate   // 👈 store date
             )
             entries.add(medMap)
 
@@ -220,6 +224,7 @@ class MedicationLogActivity : AppCompatActivity() {
                     val times = (doc.get("times") as? List<String>)?.joinToString(", ") ?: "N/A"
                     val status = doc.getString("status") ?: "pending"
                     val createdAt = doc.getLong("timestamp") ?: System.currentTimeMillis()
+                    val date = doc.getString("date") ?: "N/A"
 
                     reminderList.add(Reminder(id, name, dosage, frequency, times, status, createdAt))
                 }

@@ -65,30 +65,57 @@ class DoctorMedicalLog : AppCompatActivity() {
 
     private fun fetchMedicalLogs() {
         db.collection("medical_logs")
-            .whereEqualTo("status", "Complete")   // ✅ Only fetch logs with status Complete
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
                 medicalLogs.clear()
                 for (doc in documents) {
+
+                    // ✅ Safe handling of appointmentDate
+                    val dateField = doc.get("appointmentDate")
+                    val appointmentDate: com.google.firebase.Timestamp? = when (dateField) {
+                        is com.google.firebase.Timestamp -> dateField
+                        is String -> try {
+                            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                            val parsed = sdf.parse(dateField)
+                            parsed?.let { com.google.firebase.Timestamp(it) }
+                        } catch (e: Exception) {
+                            null
+                        }
+                        is Long -> com.google.firebase.Timestamp(dateField, 0)
+                        else -> null
+                    }
+
                     val log = MedicalLog(
                         medicalLogId = doc.getString("medicalLogId") ?: "",
                         patientName = doc.getString("patientName") ?: "",
-                        appointmentDate = doc.getTimestamp("appointmentDate"),
+                        appointmentDate = appointmentDate, // ✅ fixed
+
                         diagnosis = doc.getString("diagnosis") ?: "",
-                        doctorNotes = doc.getString("doctorNotes") ?: "",
+                        doctorNotes = doc.getString("doctorNotes") ?: "No Notes Provided",
                         status = doc.getString("status") ?: "",
-                        date = doc.getTimestamp("timestamp")?.toDate().toString(),
+                        date = doc.getTimestamp("timestamp")
+                            ?.toDate()
+                            ?.let { dateObj ->
+                                java.text.SimpleDateFormat(
+                                    "MMMM d, yyyy 'at' hh:mm:ss a z",
+                                    java.util.Locale.getDefault()
+                                ).format(dateObj)
+                            }
+                            ?: "No Date",
+
                         doctorName = doc.getString("doctorName") ?: "",
                         doctorId = doc.getString("doctorId") ?: "",
                         patientId = doc.getString("patientId") ?: "",
                         appointmentId = doc.getString("appointmentId") ?: "",
                         appointmentTime = doc.getString("appointmentTime") ?: "",
+
                         appointmentDay = null,
                         appointmentMonth = null,
                         appointmentYear = null,
                         appointmentHour = null,
                         appointmentMinute = null
+
                     )
                     medicalLogs.add(log)
                 }
@@ -101,9 +128,12 @@ class DoctorMedicalLog : AppCompatActivity() {
         val filtered = medicalLogs.filter {
             it.patientName?.contains(query, ignoreCase = true) == true ||
                     it.diagnosis?.contains(query, ignoreCase = true) == true ||
-                    it.appointmentDate?.toDate()?.toString()?.contains(query, ignoreCase = true) == true
+                    it.doctorNotes?.contains(query, ignoreCase = true) == true ||
+                    it.date?.contains(query, ignoreCase = true) == true // ✅ safe call
         }
         adapter.updateList(filtered)
     }
+
+
 
 }

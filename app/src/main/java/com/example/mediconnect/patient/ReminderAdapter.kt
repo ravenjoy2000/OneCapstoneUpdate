@@ -1,6 +1,5 @@
 package com.example.mediconnect.patient
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,24 +39,24 @@ class ReminderAdapter(
         // Reminder times
         holder.tvMedTimes.text = "⏰ ${reminder.times}"
 
-        // Button logic
+        // Reset button state
+        holder.btnMarkTaken.isEnabled = true
+
         when {
             reminder.isTaken() -> {
                 holder.btnMarkTaken.text = "✅ Taken"
                 holder.btnMarkTaken.isEnabled = false
-                holder.btnMarkTaken.setBackgroundColor(Color.GRAY)
+                holder.btnMarkTaken.setBackgroundResource(R.color.gray)
             }
             reminder.isMissed() -> {
                 holder.btnMarkTaken.text = "❌ Missed"
                 holder.btnMarkTaken.isEnabled = false
-                holder.btnMarkTaken.setBackgroundColor(Color.RED)
+                holder.btnMarkTaken.setBackgroundResource(R.color.red)
             }
             reminder.isPending() -> {
                 holder.btnMarkTaken.text = "Mark as Taken"
                 holder.btnMarkTaken.isEnabled = true
-                holder.btnMarkTaken.setBackgroundColor(
-                    ContextCompat.getColor(holder.itemView.context, R.color.teal_700)
-                )
+                holder.btnMarkTaken.setBackgroundResource(R.color.teal_700)
                 holder.btnMarkTaken.setOnClickListener {
                     onMarkTaken(reminder)
                 }

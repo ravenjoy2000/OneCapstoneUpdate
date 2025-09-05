@@ -12,6 +12,7 @@ import com.example.mediconnect.models.User
 import com.example.mediconnect.patient.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 
 class DashboardActivity : AppCompatActivity() {
@@ -26,6 +27,10 @@ class DashboardActivity : AppCompatActivity() {
     private val storage = FirebaseStorage.getInstance()
     private val currentUser = FirebaseAuth.getInstance().currentUser
     private val currentUserId = currentUser?.uid
+
+    // Store old values for when images are not changed
+    private var oldProfileUrl: String = ""
+    private var oldGovIdUrl: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,25 +47,15 @@ class DashboardActivity : AppCompatActivity() {
         // Display email from FirebaseAuth
         tvEmail.text = currentUser?.email ?: "No user logged in"
 
-        btnUploadProfile.setOnClickListener {
-            pickImage(101)
-        }
-
-        btnUploadGovId.setOnClickListener {
-            pickImage(102)
-        }
-
-        btnSave.setOnClickListener {
-            saveProfile()
-        }
+        btnUploadProfile.setOnClickListener { pickImage(101) }
+        btnUploadGovId.setOnClickListener { pickImage(102) }
+        btnSave.setOnClickListener { saveProfile() }
 
         loadUserProfile()
     }
 
     private fun pickImage(requestCode: Int) {
-        val intent = Intent(Intent.ACTION_PICK).apply {
-            type = "image/*"
-        }
+        val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
         startActivityForResult(intent, requestCode)
     }
 
@@ -91,9 +86,11 @@ class DashboardActivity : AppCompatActivity() {
                             findViewById<EditText>(R.id.et_phone).setText(it.phone)
 
                             if (it.image.isNotEmpty()) {
+                                oldProfileUrl = it.image
                                 Glide.with(this).load(it.image).into(ivProfile)
                             }
                             if (it.goverment_or_phealtID.isNotEmpty()) {
+                                oldGovIdUrl = it.goverment_or_phealtID
                                 Glide.with(this).load(it.goverment_or_phealtID).into(ivGovId)
                             }
                         }
@@ -119,11 +116,12 @@ class DashboardActivity : AppCompatActivity() {
                     "name" to name,
                     "phone" to phone,
                     "email" to email,
-                    "image" to profileUrl,
-                    "goverment_or_phealtID" to govIdUrl
+                    "image" to (profileUrl.ifEmpty { oldProfileUrl }),
+                    "goverment_or_phealtID" to (govIdUrl.ifEmpty { oldGovIdUrl })
                 )
 
-                db.collection("users").document(uid).update(userMap)
+                db.collection("users").document(uid)
+                    .set(userMap, SetOptions.merge()) // ✅ merge instead of update
                     .addOnSuccessListener {
                         Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
@@ -143,26 +141,37 @@ class DashboardActivity : AppCompatActivity() {
         var profileUrl = ""
         var govIdUrl = ""
 
-        val uploadProfile = selectedProfileUri?.let {
-            profileRef.putFile(it).continueWithTask { task ->
+        // Upload profile image if selected
+        if (selectedProfileUri != null) {
+            profileRef.putFile(selectedProfileUri!!).continueWithTask { task ->
                 if (!task.isSuccessful) throw task.exception!!
                 profileRef.downloadUrl
+            }.addOnSuccessListener { uri ->
+                profileUrl = uri.toString()
+                if (selectedGovIdUri == null) {
+                    onComplete(profileUrl, "")
+                }
             }
-        } ?: return onComplete("", "")
+        }
 
-        val uploadGovId = selectedGovIdUri?.let {
-            govIdRef.putFile(it).continueWithTask { task ->
+        // Upload gov ID if selected
+        if (selectedGovIdUri != null) {
+            govIdRef.putFile(selectedGovIdUri!!).continueWithTask { task ->
                 if (!task.isSuccessful) throw task.exception!!
                 govIdRef.downloadUrl
+            }.addOnSuccessListener { uri ->
+                govIdUrl = uri.toString()
+                if (selectedProfileUri == null) {
+                    onComplete("", govIdUrl)
+                } else {
+                    onComplete(profileUrl, govIdUrl)
+                }
             }
-        } ?: return onComplete("", "")
+        }
 
-        uploadProfile.addOnSuccessListener { uri1 ->
-            profileUrl = uri1.toString()
-            uploadGovId.addOnSuccessListener { uri2 ->
-                govIdUrl = uri2.toString()
-                onComplete(profileUrl, govIdUrl)
-            }
+        // If no new uploads, just complete with empty values
+        if (selectedProfileUri == null && selectedGovIdUri == null) {
+            onComplete("", "")
         }
     }
 }
