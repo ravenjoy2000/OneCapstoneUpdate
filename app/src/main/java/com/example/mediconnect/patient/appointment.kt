@@ -48,6 +48,7 @@ class appointment : BaseActivity() {
     private lateinit var etReason: EditText
     private lateinit var tvDoctorPhone: TextView
     private lateinit var tvDoctorAddress: TextView
+    private lateinit var tvDoctorEmail: TextView
     private lateinit var spinnerDoctor: Spinner
 
     private val db = FirebaseFirestore.getInstance()
@@ -58,7 +59,8 @@ class appointment : BaseActivity() {
     private var selectedMode: String = ""
     private var selectedDoctorName: String? = null
     private var selectedDoctorId: String? = null
-    private var selectedDoctorLimit: Int = 15 // default
+    private var selectedDoctorLimit: Int = 15
+    private var selectedDoctorEmail: String? = null
 
     private val doctorMap = mutableMapOf<String, DoctorInfo>()
 
@@ -67,7 +69,13 @@ class appointment : BaseActivity() {
         "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM"
     )
 
-    data class DoctorInfo(val id: String, val phone: String, val address: String, val maxPatientsPerDay: Int)
+    data class DoctorInfo(
+        val id: String,
+        val phone: String,
+        val address: String,
+        val maxPatientsPerDay: Int,
+        val email: String
+    )
 
     companion object {
         private const val TAG = "AppointmentActivity"
@@ -90,7 +98,6 @@ class appointment : BaseActivity() {
 
         setupActionBar()
         initViews()
-        requestNotificationPermission()
 
         val userId = auth.currentUser?.uid.orEmpty()
         checkIfUserHasActiveAppointment(userId) { hasActive ->
@@ -99,8 +106,6 @@ class appointment : BaseActivity() {
         }
 
         fetchDoctors()
-
-        // ✅ Swipe-to-refresh
         swipeRefresh.setOnRefreshListener { refreshData() }
     }
 
@@ -115,12 +120,12 @@ class appointment : BaseActivity() {
         etReason = findViewById(R.id.et_reason)
         tvDoctorPhone = findViewById(R.id.tv_doctor_phone)
         tvDoctorAddress = findViewById(R.id.tv_doctor_address)
+        tvDoctorEmail = findViewById(R.id.tv_doctor_email)
         spinnerDoctor = findViewById(R.id.spinner_doctor)
 
         rvTimeSlots.layoutManager = LinearLayoutManager(this)
     }
 
-    // 🔄 Refresh user state & doctors
     private fun refreshData() {
         val userId = auth.currentUser?.uid.orEmpty()
         checkIfUserHasActiveAppointment(userId) { hasActive ->
@@ -133,22 +138,21 @@ class appointment : BaseActivity() {
 
     private fun fetchDoctors() {
         val doctorNames = mutableListOf<String>()
-
         db.collection("users")
             .whereEqualTo("role", "doctor")
             .get()
             .addOnSuccessListener { result ->
                 doctorMap.clear()
                 doctorNames.clear()
-
                 for (doc in result) {
                     val name = doc.getString("name") ?: continue
                     val id = doc.id
                     val phone = doc.getString("phone") ?: "Not provided"
                     val address = doc.getString("clinicAddress") ?: "Not provided"
                     val maxPatients = doc.getLong("maxPatientsPerDay")?.toInt() ?: 15
+                    val email = doc.getString("email") ?: "Not provided"
 
-                    doctorMap[name] = DoctorInfo(id, phone, address, maxPatients)
+                    doctorMap[name] = DoctorInfo(id, phone, address, maxPatients, email)
                     doctorNames.add(name)
                 }
 
@@ -161,18 +165,32 @@ class appointment : BaseActivity() {
 
                 spinnerDoctor.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                        selectedDoctorName = doctorNames[position]
-                        doctorMap[selectedDoctorName]?.let {
-                            selectedDoctorId = it.id
-                            selectedDoctorLimit = it.maxPatientsPerDay
-                            tvDoctorPhone.text = "Phone: ${it.phone}"
-                            tvDoctorAddress.text = "Address: ${it.address}"
+                        selectedDoctorName = doctorNames.getOrNull(position)
+                        val doctorInfo = selectedDoctorName?.let { doctorMap[it] }
+
+                        if (doctorInfo != null) {
+                            selectedDoctorId = doctorInfo.id
+                            selectedDoctorLimit = doctorInfo.maxPatientsPerDay
+                            selectedDoctorEmail = doctorInfo.email
+                            tvDoctorPhone.text = "Phone: ${doctorInfo.phone}"
+                            tvDoctorAddress.text = "Address: ${doctorInfo.address}"
+                            tvDoctorEmail.text = "Email: ${doctorInfo.email}"
+                        } else {
+                            selectedDoctorId = null
+                            selectedDoctorEmail = null
+                            tvDoctorPhone.text = "Phone: N/A"
+                            tvDoctorAddress.text = "Address: N/A"
+                            tvDoctorEmail.text = "Email: N/A"
                         }
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>) {
                         selectedDoctorName = null
                         selectedDoctorId = null
+                        selectedDoctorEmail = null
+                        tvDoctorPhone.text = "Phone: N/A"
+                        tvDoctorAddress.text = "Address: N/A"
+                        tvDoctorEmail.text = "Email: N/A"
                     }
                 }
             }
@@ -228,102 +246,130 @@ class appointment : BaseActivity() {
         }
 
         btnBookNow.setOnClickListener {
-            val reason = etReason.text.toString().trim()
-
-            if (reason.isEmpty() || selectedDate == null || selectedTimeSlot.isEmpty() ||
-                (!rbInPerson.isChecked && !rbTeleconsult.isChecked)
-            ) {
-                Toast.makeText(this, "Please complete all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            selectedMode = if (rbInPerson.isChecked) "in_person" else "teleconsult"
-
-            db.collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    val userName = document.getString("name") ?: "Anonymous"
-                    val doctorInfo = doctorMap[selectedDoctorName]
-
-                    if (doctorInfo == null) {
-                        Toast.makeText(this, "Invalid doctor selected", Toast.LENGTH_SHORT).show()
-                        return@addOnSuccessListener
-                    }
-
-                    // ✅ Check doctor daily patient limit
-                    db.collection("appointments")
-                        .whereEqualTo("doctorId", doctorInfo.id)
-                        .whereEqualTo("date", selectedDate)
-                        .whereIn("status", listOf("booked", "rescheduled_once"))
-                        .get()
-                        .addOnSuccessListener { appointments ->
-                            if (appointments.size() >= doctorInfo.maxPatientsPerDay) {
-                                Toast.makeText(this, "Daily limit reached for this doctor.", Toast.LENGTH_LONG).show()
-                                return@addOnSuccessListener
-                            }
-
-                            val appointmentRef = db.collection("appointments").document()
-                            val appointmentId = appointmentRef.id
-
-                            val booking = Booking(
-                                appointmentId = appointmentId,
-                                patientId = userId,
-                                patientName = userName,
-                                doctorId = doctorInfo.id,
-                                doctorName = selectedDoctorName ?: "Unassigned",
-                                date = selectedDate!!,
-                                timeSlot = selectedTimeSlot,
-                                mode = selectedMode,
-                                status = "booked",
-                                timestamp = System.currentTimeMillis(),
-                                reason = reason,
-                                doctorPhone = doctorInfo.phone,
-                                doctorAddress = doctorInfo.address
-                            )
-
-                            appointmentRef.set(booking)
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
-
-                                    // ⏰ Reminders
-                                    scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30)
-                                    scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)
-
-                                    // 📧 Email confirmation
-                                    val patientEmail = auth.currentUser?.email ?: ""
-                                    val subject = "Appointment Confirmation"
-                                    val body = """
-                                        Hi $userName,
-                                        
-                                        Your appointment with Dr. $selectedDoctorName has been booked.
-                                        Date: $selectedDate
-                                        Time: $selectedTimeSlot
-                                        Mode: $selectedMode
-                                        
-                                        Thank you for using MediConnect!
-                                    """.trimIndent()
-
-                                    val uri = Uri.parse("mailto:$patientEmail")
-                                    val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
-                                        putExtra(Intent.EXTRA_SUBJECT, subject)
-                                        putExtra(Intent.EXTRA_TEXT, body)
-                                    }
-
-                                    try {
-                                        startActivity(Intent.createChooser(intent, "Send email via"))
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                        Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
-                                    }
-
-                                    startActivity(Intent(this, MyAppointment::class.java))
-                                    finish()
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                }
+            checkAndRequestPermissions { proceedWithBooking(userId) }
         }
+    }
+
+    // ✅ New: Check & request notification/alarm permissions
+    private fun checkAndRequestPermissions(onGranted: () -> Unit) {
+        val permissionsNeeded = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+            Toast.makeText(this, "Please enable exact alarms for reminders", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        if (permissionsNeeded.isEmpty()) {
+            onGranted()
+        } else {
+            ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_NOTIFICATION_PERMISSION)
+        }
+    }
+
+    private fun proceedWithBooking(userId: String) {
+        val reason = etReason.text.toString().trim()
+
+        if (reason.isEmpty() || selectedDate == null || selectedTimeSlot.isEmpty() ||
+            (!rbInPerson.isChecked && !rbTeleconsult.isChecked)
+        ) {
+            Toast.makeText(this, "Please complete all fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        selectedMode = if (rbInPerson.isChecked) "in_person" else "teleconsult"
+
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val userName = document.getString("name") ?: "Anonymous"
+                val patientEmail = document.getString("email") ?: (auth.currentUser?.email ?: "")
+                val doctorInfo = doctorMap[selectedDoctorName]
+
+                if (doctorInfo == null) {
+                    Toast.makeText(this, "Invalid doctor selected", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                db.collection("appointments")
+                    .whereEqualTo("doctorId", doctorInfo.id)
+                    .whereEqualTo("date", selectedDate)
+                    .whereIn("status", listOf("booked", "rescheduled_once"))
+                    .get()
+                    .addOnSuccessListener { appointments ->
+                        if (appointments.size() >= doctorInfo.maxPatientsPerDay) {
+                            Toast.makeText(this, "Daily limit reached for this doctor.", Toast.LENGTH_LONG).show()
+                            return@addOnSuccessListener
+                        }
+
+                        val appointmentRef = db.collection("appointments").document()
+                        val appointmentId = appointmentRef.id
+
+                        val booking = Booking(
+                            appointmentId = appointmentId,
+                            patientId = userId,
+                            patientName = userName,
+                            patientEmail = patientEmail,
+                            doctorId = doctorInfo.id,
+                            doctorName = selectedDoctorName ?: "Unassigned",
+                            doctorEmail = doctorInfo.email,
+                            date = selectedDate!!,
+                            timeSlot = selectedTimeSlot,
+                            mode = selectedMode,
+                            status = "booked",
+                            timestamp = System.currentTimeMillis(),
+                            reason = reason,
+                            doctorPhone = doctorInfo.phone,
+                            doctorAddress = doctorInfo.address
+                        )
+
+                        appointmentRef.set(booking)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
+                                scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30)
+                                scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)
+
+                                val subject = "Appointment Confirmation"
+                                val body = """
+                                    Hi $userName,
+                                    
+                                    Your appointment with Dr. $selectedDoctorName has been booked.
+                                    Date: $selectedDate
+                                    Time: $selectedTimeSlot
+                                    Mode: $selectedMode
+                                    
+                                    Doctor Email: ${doctorInfo.email}
+                                    
+                                    Thank you for using MediConnect!
+                                """.trimIndent()
+
+                                val uri = Uri.parse("mailto:$patientEmail")
+                                val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
+                                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                                    putExtra(Intent.EXTRA_TEXT, body)
+                                }
+
+                                try {
+                                    startActivity(Intent.createChooser(intent, "Send email via"))
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
+                                }
+
+                                startActivity(Intent(this, MyAppointment::class.java))
+                                finish()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Failed to book appointment", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+            }
     }
 
     private fun filterPastSlots(date: String, slots: List<String>): List<String> {
@@ -361,13 +407,6 @@ class appointment : BaseActivity() {
         )
 
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
-            startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
-            Toast.makeText(this, "Enable exact alarms for reminders", Toast.LENGTH_LONG).show()
-            return
-        }
-
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
         Log.d(TAG, "Alarm set for ${Date(triggerTime)}")
     }
@@ -405,18 +444,6 @@ class appointment : BaseActivity() {
         supportActionBar?.setHomeAsUpIndicator(R.drawable.outline_arrow_back_ios_new_24)
         supportActionBar?.title = getString(R.string.my_appointment_title)
         toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-    }
-
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                REQUEST_NOTIFICATION_PERMISSION
-            )
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

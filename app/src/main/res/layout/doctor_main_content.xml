@@ -1,8 +1,6 @@
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -10,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp"
         android:gravity="center_horizontal">
@@ -27,36 +25,259 @@
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
-        <!-- Section Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upcoming Appointments"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="12dp" />
-
-        <!-- No Appointments Placeholder -->
-        <TextView
-            android:id="@+id/tvNoAppointments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="You have no upcoming appointments."
-            android:textColor="@color/dark_gray"
-            android:textSize="14sp"
-            android:visibility="gone"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Appointment List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_current_appointments"
+        <!-- Dashboard Cards -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:padding="16dp"
-            tools:listitem="@layout/doctor_item_appointment" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
 
+            <!-- Card: Appointments -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_calendar"
+                            android:tint="@color/colorPrimary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Appointments"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tvAppointmentCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Today: 3"
+                                android:textSize="14sp"
+                                android:textColor="@color/dark_gray" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Percentage -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                        <ProgressBar
+                            android:id="@+id/progressAppointments"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="10dp"
+                            android:layout_weight="1"
+                            android:progress="60"
+                            android:max="100"
+                            android:progressTint="@color/colorPrimary"
+                            android:backgroundTint="@color/light_gray" />
+
+                        <TextView
+                            android:id="@+id/tvAppointmentPercent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="60%"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorPrimary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card: Patients -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_users"
+                            android:tint="@color/colorPrimary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Patients"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tvPatientCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Active: 25"
+                                android:textSize="14sp"
+                                android:textColor="@color/dark_gray" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Percentage -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                        <ProgressBar
+                            android:id="@+id/progressPatients"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="10dp"
+                            android:layout_weight="1"
+                            android:progress="80"
+                            android:max="100"
+                            android:progressTint="@color/colorPrimary"
+                            android:backgroundTint="@color/light_gray" />
+
+                        <TextView
+                            android:id="@+id/tvPatientPercent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="80%"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorPrimary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card: Feedback -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_feedback"
+                            android:tint="@color/colorPrimary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Feedback"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tvFeedbackCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="New: 5"
+                                android:textSize="14sp"
+                                android:textColor="@color/dark_gray" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Percentage -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                        <ProgressBar
+                            android:id="@+id/progressFeedback"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="10dp"
+                            android:layout_weight="1"
+                            android:progress="45"
+                            android:max="100"
+                            android:progressTint="@color/colorPrimary"
+                            android:backgroundTint="@color/light_gray" />
+
+                        <TextView
+                            android:id="@+id/tvFeedbackPercent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="45%"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorPrimary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
     </LinearLayout>
-
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</ScrollView>
