@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,6 +13,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp"
+        android:background="@color/background_light"
         tools:context=".patient.MedicationLogActivity">
 
         <!-- Title -->
@@ -20,10 +22,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Log Your Medications"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="24dp"
+            android:textColor="#212121" />
 
         <!-- Container for multiple drug entries -->
         <LinearLayout
@@ -34,32 +37,40 @@
             android:layout_marginTop="16dp" />
 
         <!-- Add New Drug Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddDrug"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="➕ Add New Drug"
-            android:backgroundTint="@color/teal_700"
+            android:textSize="18sp"
             android:textColor="@android:color/white"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="24dp"
+            app:backgroundTint="@color/teal_700"
+            app:cornerRadius="12dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
 
         <!-- Save All Medications Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveMedication"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="💾 Save All Medications"
-            android:backgroundTint="@color/purple_500"
-            android:textColor="@android:color/white" />
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/purple_500"
+            app:cornerRadius="12dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
 
         <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp" />
 
         <!-- Saved Medications Title -->
         <TextView
@@ -68,15 +79,17 @@
             android:layout_height="wrap_content"
             android:text="Saved Medications"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="10dp" />
+            android:textSize="20sp"
+            android:textColor="#212121"
+            android:layout_marginBottom="12dp" />
 
         <!-- RecyclerView to display saved meds -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerSavedMedications"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp" />
+            android:clipToPadding="false"
+            android:paddingBottom="16dp" />
 
     </LinearLayout>
 </ScrollView>

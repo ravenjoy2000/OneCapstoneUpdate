@@ -2,9 +2,9 @@
 <resources>
 
     <!-- ===== Primary Theme Colors ===== -->
-    <color name="colorPrimary">#0C90F1</color>       <!-- Main blue -->
-    <color name="colorPrimaryDark">#0B7CD4</color>   <!-- Slightly darker blue -->
-    <color name="colorAccent">#0C90F1</color>        <!-- Accent blue -->
+    <color name="colorPrimary">#673AB7</color>       <!-- Main blue -->
+    <color name="colorPrimaryDark">#673AB7</color>   <!-- Slightly darker blue -->
+    <color name="colorAccent">#673AB7</color>        <!-- Accent blue -->
 
     <!-- ===== Background Colors ===== -->
     <color name="background_light">#FFFFFF</color>   <!-- App background -->
@@ -37,9 +37,9 @@
     <color name="dark_gray">#808080</color>
 
     <!-- Blues -->
-    <color name="blue_700">#1976D2</color>
-    <color name="primary">#0C90F1</color> <!-- for layouts referencing primary -->
-    <color name="link_color">#0C90F1</color>
+    <color name="blue_700">#673AB7</color>
+    <color name="primary">#673AB7</color> <!-- for layouts referencing primary -->
+    <color name="link_color">#673AB7</color>
 
     <!-- Status Colors (adjusted to blues instead of red/green) -->
     <color name="green">#4CAF50</color> <!-- changed to blue tone -->
@@ -62,6 +62,13 @@
     <!-- Text -->
     <color name="colorOnBackground">#000000</color>
     <color name="colorOnSurface">#000000</color>
+
+    <color name="gray_600">#757575</color>
+    <color name="gray_300">#E0E0E0</color>
+
+    <color name="primaryColor">#3F51B5</color> <!-- Example: Indigo -->
+    <color name="google_blue">#4285F4</color>
+
 
 
 

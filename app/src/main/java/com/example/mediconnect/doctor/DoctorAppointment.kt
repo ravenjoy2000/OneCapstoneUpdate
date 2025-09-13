@@ -18,9 +18,7 @@ import com.example.mediconnect.R
 import com.example.mediconnect.doctor_adapter.DoctorAppointmentAdapter
 import com.example.mediconnect.models.Appointment
 import com.example.mediconnect.models.AppointmentListItem
-import com.example.mediconnect.patient.RescheduleActivity
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.messaging.FirebaseMessaging
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,7 +26,6 @@ class DoctorAppointment : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnCancel: Button
-    private lateinit var btnReschedule: Button
     private lateinit var appointmentAdapter: DoctorAppointmentAdapter
     private lateinit var swipeRefresh: SwipeRefreshLayout
 
@@ -101,7 +98,6 @@ class DoctorAppointment : AppCompatActivity() {
 
     private fun setupButtons() {
         btnCancel = findViewById(R.id.btn_cancel)
-        btnReschedule = findViewById(R.id.btn_reschedule)
 
         btnCancel.setOnClickListener {
             val selected = appointmentAdapter.getSelectedAppointments()
@@ -116,8 +112,8 @@ class DoctorAppointment : AppCompatActivity() {
             builder.setPositiveButton("Yes") { dialog, _ ->
                 dialog.dismiss()
                 var completed = 0
-                val patientEmails = mutableListOf<String>()        // Collect emails
-                val patientNotifications = mutableListOf<Pair<String,String>>() // token + message
+                val patientEmails = mutableListOf<String>()
+                val patientNotifications = mutableListOf<Pair<String, String>>()
 
                 for (appointmentId in selected) {
                     db.collection("appointments").document(appointmentId).get()
@@ -127,18 +123,15 @@ class DoctorAppointment : AppCompatActivity() {
                             val appointmentDate = doc.getString("date") ?: ""
                             val appointmentTime = doc.getString("timeSlot") ?: ""
 
-                            // Collect email
                             if (patientEmail.isNotEmpty()) {
                                 patientEmails.add(patientEmail)
                             }
-
-                            // Collect push notification info
                             if (patientToken.isNotEmpty()) {
-                                val message = "Your appointment on $appointmentDate at $appointmentTime has been cancelled. Please reschedule."
+                                val message =
+                                    "Your appointment on $appointmentDate at $appointmentTime has been cancelled. Please reschedule."
                                 patientNotifications.add(patientToken to message)
                             }
 
-                            // Cancel appointment in Firestore
                             cancelAppointment(appointmentId) {
                                 completed++
                                 if (completed == selected.size) {
@@ -148,12 +141,9 @@ class DoctorAppointment : AppCompatActivity() {
                                         Toast.LENGTH_SHORT
                                     ).show()
 
-                                    // Send single email to all selected patients
                                     if (patientEmails.isNotEmpty()) {
                                         sendEmailToPatients(patientEmails)
                                     }
-
-                                    // Send notifications
                                     for ((token, msg) in patientNotifications) {
                                         sendPushNotification(token, msg)
                                     }
@@ -163,31 +153,19 @@ class DoctorAppointment : AppCompatActivity() {
                             }
                         }
                         .addOnFailureListener {
-                            Toast.makeText(this, "Failed to fetch appointment data", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this,
+                                "Failed to fetch appointment data",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 }
             }
             builder.setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
             builder.show()
         }
-
-
-        btnReschedule.setOnClickListener {
-            val selected = appointmentAdapter.getSelectedAppointments()
-            when {
-                selected.isEmpty() -> Toast.makeText(this, "Select an appointment first", Toast.LENGTH_SHORT).show()
-                selected.size > 1 -> Toast.makeText(this, "Please select only one appointment to reschedule", Toast.LENGTH_SHORT).show()
-                else -> {
-                    val selectedId = selected.first()
-                    val intent = Intent(this, RescheduleActivity::class.java)
-                    intent.putExtra("appointmentId", selectedId)
-                    startActivity(intent)
-                }
-            }
-        }
     }
 
-    // Send email to multiple patients at once
     private fun sendEmailToPatients(emails: List<String>) {
         val subject = "Appointment Cancellation Notice"
         val message = """
@@ -203,7 +181,7 @@ class DoctorAppointment : AppCompatActivity() {
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "message/rfc822"
-            putExtra(Intent.EXTRA_EMAIL, emails.toTypedArray()) // multiple recipients
+            putExtra(Intent.EXTRA_EMAIL, emails.toTypedArray())
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, message)
         }
@@ -215,22 +193,12 @@ class DoctorAppointment : AppCompatActivity() {
         }
     }
 
-    // Send FCM push notification
     private fun sendPushNotification(patientToken: String, message: String) {
-        // Note: Sending directly from device requires server or Firebase Cloud Function
-        // Here we just demonstrate with a Toast
-        Toast.makeText(this, "Notification would be sent to token: $patientToken\n$message", Toast.LENGTH_SHORT).show()
-    }
-
-
-    private fun sendPushNotification(patientToken: String, appointmentDate: String, appointmentTime: String) {
-        val title = "Appointment Cancelled"
-        val body = "Your appointment on $appointmentDate at $appointmentTime has been cancelled. Please reschedule."
-
-        // Using FCM SDK to send notification from device is not supported directly
-        // You will need a backend or Firebase Cloud Function to send notifications using the token
-        // Here, we just log it for demonstration
-        Toast.makeText(this, "Notification would be sent to token: $patientToken", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            this,
+            "Notification would be sent to token: $patientToken\n$message",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun setupSwipeRefresh() {

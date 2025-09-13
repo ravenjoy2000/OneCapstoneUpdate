@@ -95,6 +95,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         // Kunin ang impormasyon ng doktor mula sa Firestore
         fetchDoctorInformation()
+
+        // Sa loob ng onCreate, pagkatapos ma-bind yung doctorAddress:
+        doctorAddress = findViewById(R.id.tv_doctor_address)
+
+// Gumawa ng click listener para sa address
+        doctorAddress.setOnClickListener {
+            val mapsUrl = "https://www.google.com/maps/dir/?api=1&destination=15.16356,120.58336"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl))
+            startActivity(intent)
+        }
+
     }
 
     // Kunin ang impormasyon ng doktor mula sa Firestore database
@@ -102,34 +113,41 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val db = FirebaseFirestore.getInstance()
 
         db.collection("users")
-            .whereEqualTo("role", "doctor")                    // Filter para sa mga user na may role na doktor
-            .limit(1)                                           // Kuhanin lang ang isang doktor (first)
+            .whereEqualTo("role", "doctor")
+            .limit(1)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val doc = documents.documents[0]
-                    // I-update ang mga TextView gamit ang data ng doktor
-                    doctorName.text = doc.getString("name") ?: "N/A"
-                    doctorEmail.text = doc.getString("email") ?: "N/A"
-                    doctorPhone.text = doc.getString("phone") ?: "N/A"
-                    doctorAddress.text = doc.getString("address") ?: "N/A"
-                    doctorSpecialty.text = doc.getString("specialty") ?: "N/A"
+
+                    doctorName.text = "👨‍⚕️ Name: ${doc.getString("name") ?: "N/A"}"
+                    doctorSpecialty.text = "🏥 Specialty: ${doc.getString("specialty") ?: "N/A"}"
+                    doctorEmail.text = "✉️ Email: ${doc.getString("email") ?: "N/A"}"
+                    doctorPhone.text = "📞 Phone: ${doc.getString("phone") ?: "N/A"}"
+
+                    // ✅ Address with fallback
+                    val fetchedAddress = doc.getString("address")
+                    doctorAddress.text = if (!fetchedAddress.isNullOrEmpty()) {
+                        "📍 Address: $fetchedAddress"
+                    } else {
+                        "📍 Address:\n206 Paulette St., Josefa Subv.\nMalabanias, Angeles City, Pampanga 2009"
+                    }
 
                     val imageUrl = doc.getString("image") ?: ""
-                    // I-load gamit ang Glide ang larawan ng doktor
                     Glide.with(this)
                         .load(imageUrl)
                         .centerCrop()
                         .placeholder(R.drawable.ic_user_place_holder)
                         .into(profileImageView)
                 } else {
-                    Log.d("Firestore", "No doctor found.")      // Walang doktor na nahanap
+                    Log.d("Firestore", "No doctor found.")
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Error fetching doctor", e)    // Kapag may error sa pagkuha ng data
+                Log.e("Firestore", "Error fetching doctor", e)
             }
     }
+
 
     // I-setup ang action bar sa taas ng screen
     private fun setupActionBar() {

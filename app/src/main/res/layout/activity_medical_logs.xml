@@ -38,10 +38,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="🩺 Medical Logs"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp" />
+            android:textColor="#212121" />
+
+        <!-- Month Filter Spinner -->
+        <Spinner
+            android:id="@+id/spinnerMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/titleText"
+            android:layout_marginTop="12dp"
+            android:spinnerMode="dropdown"
+            android:entries="@array/months_array"
+            android:padding="8dp"
+            android:background="@drawable/spinner_background" />
 
         <!-- Progress Bar -->
         <ProgressBar
@@ -68,7 +79,7 @@
             android:id="@+id/logsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/titleText"
+            android:layout_below="@id/spinnerMonth"
             android:layout_marginTop="16dp"
             android:clipToPadding="false"
             android:paddingBottom="8dp"

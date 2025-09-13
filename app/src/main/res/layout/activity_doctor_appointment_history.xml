@@ -25,7 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:hint="Search appointments"
+        android:hint="       Search Patient"
         app:startIconDrawable="@android:drawable/ic_menu_search"
         app:layout_constraintTop_toBottomOf="@id/toolbar_doctor_Appointemnt_history"
         app:layout_constraintStart_toStartOf="parent"

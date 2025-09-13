@@ -23,35 +23,58 @@
             android:gravity="center_vertical"
             android:paddingStart="16dp"
             android:text="@string/sign_up"
-            android:textColor="@color/primary_text_color"
+            android:textColor="@color/background_light"
             android:textSize="@dimen/toolbar_title_text_size"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Action Buttons -->
+    <!-- Action Buttons + Filters (Vertical) -->
     <LinearLayout
         android:id="@+id/action_buttons"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:gravity="end"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/toolbar_sign_up_activity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
+        <!-- Row for Select All and Month Picker -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <CheckBox
+                android:id="@+id/checkbox_select_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select All"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_month_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick Month"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        </LinearLayout>
+
+        <!-- Cancel Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cancel" />
-
-        <Button
-            android:id="@+id/btn_reschedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Reschedule" />
+            android:text="Cancel Appointment"
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@android:color/holo_red_dark"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
     <!-- Pull to Refresh wrapper -->
@@ -69,7 +92,7 @@
             android:id="@+id/rv_appointments"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"/>
+            android:padding="8dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

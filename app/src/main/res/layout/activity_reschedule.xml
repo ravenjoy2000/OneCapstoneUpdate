@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FAFAFA"
     tools:context=".patient.RescheduleActivity">
 
     <!-- Toolbar -->
@@ -13,54 +15,99 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
+        android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:title="Reschedule Appointment"
-        app:titleTextColor="@android:color/white"
-        android:elevation="4dp" />
+        app:titleTextColor="@android:color/white" />
 
-    <!-- Main Content -->
-    <LinearLayout
-        android:id="@+id/main"
+    <!-- SwipeRefreshLayout wrapper -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent">
 
-        <TextView
+        <!-- Scrollable content -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select New Date:" />
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tvNewDate"
-            android:text="Choose Date"
-            android:padding="10dp"
-            android:background="#E0E0E0"
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select New Time:"
-            android:layout_marginTop="20dp" />
+                <!-- Select Date -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select New Date:"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:textColor="#222"
+                    android:layout_marginBottom="10dp" />
 
-        <TextView
-            android:id="@+id/tvNewTime"
-            android:text="Choose Time"
-            android:padding="10dp"
-            android:background="#E0E0E0"
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/btn_select_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FDD335"
+                    android:text="Choose Date"
+                    android:textSize="18sp"
+                    android:padding="14dp" />
 
-        <Button
-            android:id="@+id/btnConfirmReschedule"
-            android:text="Confirm Reschedule"
-            android:layout_marginTop="30dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_selected_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Selected Date: None"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:paddingTop="10dp" />
 
-    </LinearLayout>
+                <!-- Select Time -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select New Time:"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:textColor="#222"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp" />
+
+                <Button
+                    android:id="@+id/btn_select_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FF9800"
+                    android:text="Choose Time"
+                    android:textSize="18sp"
+                    android:padding="14dp" />
+
+                <TextView
+                    android:id="@+id/tv_selected_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Selected Time: None"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:paddingTop="10dp" />
+
+                <!-- Confirm Button -->
+                <Button
+                    android:id="@+id/btn_confirm_reschedule"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Confirm Reschedule"
+                    android:backgroundTint="#673AB7"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:padding="16dp"
+                    android:layout_marginTop="30dp" />
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

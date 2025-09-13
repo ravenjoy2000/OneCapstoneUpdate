@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -29,7 +30,7 @@
                 android:gravity="center_vertical"
                 android:text="@string/sign_in"
                 android:textColor="@color/primary_text_color"
-                android:textSize="@dimen/toolbar_title_text_size"
+                android:textSize="24sp"
                 android:textStyle="bold" />
         </androidx.appcompat.widget.Toolbar>
 
@@ -41,7 +42,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/sign_in_description_text"
             android:textColor="@color/secondary_text_color"
-            android:textSize="@dimen/authentication_description_text_size" />
+            android:textSize="18sp" />
 
         <!-- Card with Inputs -->
         <androidx.cardview.widget.CardView
@@ -51,16 +52,13 @@
             android:elevation="4dp"
             app:cardCornerRadius="12dp">
 
-
-
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
 
-
+                <!-- Role Selection -->
                 <RadioGroup
                     android:id="@+id/radio_group_role"
                     android:layout_width="match_parent"
@@ -73,27 +71,29 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Patient"
+                        android:textSize="18sp"
                         android:checked="true" />
 
                     <RadioButton
                         android:id="@+id/radio_doctor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Doctor" />
+                        android:text="Doctor"
+                        android:textSize="18sp" />
                 </RadioGroup>
-
-
 
                 <!-- Phone Number -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_phone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Phone Number (e.g. 9123456789)"
+                        android:textSize="18sp"
                         android:inputType="phone" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -103,7 +103,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Send OTP" />
+                    android:text="Send OTP"
+                    android:textSize="18sp" />
 
                 <!-- OTP -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -116,6 +117,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Enter OTP"
+                        android:textSize="18sp"
                         android:inputType="number"
                         android:visibility="gone" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -127,20 +129,22 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="Verify OTP"
+                    android:textSize="18sp"
                     android:visibility="gone" />
 
                 <!-- Google Sign-In -->
-
-
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_google_sign_in"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
                     android:text="Sign in with Google"
-                    android:background="@color/green"
+                    android:textSize="20sp"
                     android:textColor="@android:color/white"
-                    android:layout_marginTop="24dp" />
+                    app:backgroundTint="@color/green"
+                    app:icon="@drawable/ic_google_logo"
+                    app:iconPadding="10dp"
+                    app:iconGravity="textStart" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>

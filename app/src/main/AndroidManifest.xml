@@ -56,10 +56,10 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/logo"
+        android:icon="@drawable/newlogo"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/logo"
+        android:roundIcon="@drawable/newlogo"
         android:supportsRtl="true"
         android:name=".App"
         android:theme="@style/AppTheme.NoActionBar">

@@ -8,48 +8,77 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
+    android:background="#F8F9FA"
     tools:context=".patient.ConsultationStart">
 
     <!-- Loading spinner -->
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:indeterminate="true"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="24dp" />
 
     <!-- Waiting text -->
     <TextView
         android:id="@+id/waitingMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⏳ Please wait... Your doctor will call you shortly."
-        android:textSize="18sp"
+        android:text="⏳ Please wait...\nYour doctor will call you shortly."
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="#212121"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="24dp" />
 
-    <!-- Payment notice -->
-    <TextView
-        android:id="@+id/paymentNotice"
+    <!-- Payment notice card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/paymentNoticeCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⚠ Payment Reminder:\n\nThis app does not support online payments. You must pay for your consultation at the clinic's front desk.\n\nFailure to pay means you will NOT receive your medical log, medical certificate PDF, or other related records."
-        android:textSize="16sp"
-        android:textColor="@android:color/holo_red_dark"
-        android:gravity="center"
-        android:padding="12dp"
-        android:background="#FFF3CD"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFF3CD">
+
+        <TextView
+            android:id="@+id/paymentNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚠ Payment Reminder:\n\nThis app does not support online payments. You must pay for your consultation at the clinic's front desk.\n\nFailure to pay means you will NOT receive your medical log, medical certificate PDF, or other related records."
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_red_dark"
+            android:gravity="center"
+            android:padding="16dp" />
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Medical Log Button (Initially hidden) -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnMedicalLog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="View Medical Log"
-        android:backgroundTint="@color/teal_700"
+        android:textAllCaps="false"
+        app:cornerRadius="20dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        app:backgroundTint="@color/teal_700"
         android:textColor="@android:color/white"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Done Consultation Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDoneConsultation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Done Consultation"
+        android:textAllCaps="false"
+        app:cornerRadius="20dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        app:backgroundTint="@color/green"
+        android:textColor="@android:color/white"
+        android:visibility="visible" />
+
 </LinearLayout>

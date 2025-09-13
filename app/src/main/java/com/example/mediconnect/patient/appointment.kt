@@ -45,11 +45,12 @@ class appointment : BaseActivity() {
     private lateinit var rbInPerson: RadioButton
     private lateinit var rbTeleconsult: RadioButton
     private lateinit var rvTimeSlots: RecyclerView
-    private lateinit var etReason: EditText
     private lateinit var tvDoctorPhone: TextView
     private lateinit var tvDoctorAddress: TextView
     private lateinit var tvDoctorEmail: TextView
     private lateinit var spinnerDoctor: Spinner
+    private lateinit var spinnerServices: Spinner
+    private lateinit var tvServicePrice: TextView
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -61,6 +62,9 @@ class appointment : BaseActivity() {
     private var selectedDoctorId: String? = null
     private var selectedDoctorLimit: Int = 15
     private var selectedDoctorEmail: String? = null
+
+    private var selectedService: String? = null
+    private var selectedPrice: Int = 0
 
     private val doctorMap = mutableMapOf<String, DoctorInfo>()
 
@@ -117,13 +121,46 @@ class appointment : BaseActivity() {
         rbInPerson = findViewById(R.id.rb_in_person)
         rbTeleconsult = findViewById(R.id.rb_teleconsult)
         rvTimeSlots = findViewById(R.id.rv_time_slots)
-        etReason = findViewById(R.id.et_reason)
         tvDoctorPhone = findViewById(R.id.tv_doctor_phone)
         tvDoctorAddress = findViewById(R.id.tv_doctor_address)
         tvDoctorEmail = findViewById(R.id.tv_doctor_email)
         spinnerDoctor = findViewById(R.id.spinner_doctor)
+        spinnerServices = findViewById(R.id.spinner_services)
+        tvServicePrice = findViewById(R.id.tv_service_price)
 
         rvTimeSlots.layoutManager = LinearLayoutManager(this)
+
+        // 🔹 Setup services spinner
+        val services = listOf(
+            "Medical Consultation" to 200,
+            "Teleconsultation" to 200,
+            "Home/Room Service Consultation" to 200,
+            "Diagnostic Interpretation" to 200,
+            "Pre-employment Certificate" to 200,
+            "Medical Certificate" to 200,
+            "Flu & Pneumonia Vaccine" to 200
+        )
+
+        val serviceNames = services.map { it.first }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, serviceNames).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spinnerServices.adapter = adapter
+
+        spinnerServices.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val (service, price) = services[position]
+                selectedService = service
+                selectedPrice = price
+                tvServicePrice.text = "Price: ₱$price"
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                selectedService = null
+                selectedPrice = 0
+                tvServicePrice.text = "Price: ₱0"
+            }
+        }
     }
 
     private fun refreshData() {
@@ -250,7 +287,6 @@ class appointment : BaseActivity() {
         }
     }
 
-    // ✅ New: Check & request notification/alarm permissions
     private fun checkAndRequestPermissions(onGranted: () -> Unit) {
         val permissionsNeeded = mutableListOf<String>()
 
@@ -275,9 +311,7 @@ class appointment : BaseActivity() {
     }
 
     private fun proceedWithBooking(userId: String) {
-        val reason = etReason.text.toString().trim()
-
-        if (reason.isEmpty() || selectedDate == null || selectedTimeSlot.isEmpty() ||
+        if (selectedService.isNullOrEmpty() || selectedDate == null || selectedTimeSlot.isEmpty() ||
             (!rbInPerson.isChecked && !rbTeleconsult.isChecked)
         ) {
             Toast.makeText(this, "Please complete all fields", Toast.LENGTH_SHORT).show()
@@ -324,9 +358,10 @@ class appointment : BaseActivity() {
                             mode = selectedMode,
                             status = "booked",
                             timestamp = System.currentTimeMillis(),
-                            reason = reason,
+                            reason = selectedService ?: "",
                             doctorPhone = doctorInfo.phone,
-                            doctorAddress = doctorInfo.address
+                            doctorAddress = doctorInfo.address,
+                            servicePrice = selectedPrice // 🔹 new field in Booking model
                         )
 
                         appointmentRef.set(booking)
@@ -343,6 +378,8 @@ class appointment : BaseActivity() {
                                     Date: $selectedDate
                                     Time: $selectedTimeSlot
                                     Mode: $selectedMode
+                                    Service: $selectedService
+                                    Price: ₱$selectedPrice
                                     
                                     Doctor Email: ${doctorInfo.email}
                                     
