@@ -5,30 +5,40 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/homepage"
+    android:background="@drawable/bg2"
     android:orientation="vertical"
     tools:context=".activities.SignUpActivity">
 
     <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_sign_up_activity"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:background="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/sign_up"
-            android:textColor="@color/primary_text_color"
-            android:textSize="@dimen/toolbar_title_text_size"
-            android:textStyle="bold" />
-    </androidx.appcompat.widget.Toolbar>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-    <!-- Content Layout -->
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/sign_up"
+                android:textColor="@android:color/white"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                />
+
+        </LinearLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -43,7 +53,7 @@
             android:layout_marginEnd="@dimen/authentication_screen_marginStartEnd"
             android:gravity="center"
             android:text="@string/sign_up_description_text"
-            android:textColor="@color/background_light"
+            android:textColor="@color/black"
             android:textSize="@dimen/authentication_description_text_size"
             android:textStyle="bold"
             />
@@ -61,7 +71,11 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fillViewport="true">
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/holo_blue_dark"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -69,73 +83,107 @@
                     android:orientation="vertical"
                     android:padding="@dimen/card_view_layout_content_padding">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:drawablePadding="8dp"
+                        android:drawableTint="@color/black"
+                        android:text="Personal Information"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
                     <!-- Name -->
                     <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                        android:layout_marginBottom="16dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/gray"
+                        app:hintTextColor="@color/gray"
+                        app:startIconTint="@color/gray">
 
-                        <androidx.appcompat.widget.AppCompatEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/name"
+                            android:hint="Full Name"
                             android:inputType="textPersonName"
-                            android:minHeight="48dp"
-                            android:textSize="@dimen/et_text_size" />
+                            android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email -->
                     <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                        android:layout_marginBottom="16dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/gray"
+                        app:hintTextColor="@color/gray"
+                        app:startIconTint="@color/gray">
 
-                        <androidx.appcompat.widget.AppCompatEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/email"
+                            android:hint="Email Address"
                             android:inputType="textEmailAddress"
-                            android:minHeight="48dp"
-                            android:textSize="@dimen/et_text_size" />
+                            android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Password -->
                     <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                        android:layout_marginBottom="24dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/gray"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="@color/gray"
+                        app:hintTextColor="@color/gray"
+                        app:startIconTint="@color/gray">
 
-                        <androidx.appcompat.widget.AppCompatEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_password"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/password"
+                            android:hint="Password"
                             android:inputType="textPassword"
-                            android:minHeight="48dp"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                        android:layout_marginBottom="24dp"
+                        app:boxStrokeColor="@color/gray"
+                        app:hintTextColor="@color/gray"
+                        app:startIconTint="@color/gray"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                        <androidx.appcompat.widget.AppCompatEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_phone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/phoneNumber"
+                            android:hint="Phone Number"
                             android:inputType="phone"
-                            android:minHeight="48dp"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -143,47 +191,98 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload PhilHealth ID or Government ID"
-                        android:textSize="16sp"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd" />
+                        android:text="Identity Verification"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="8dp"
+                        android:drawableTint="@color/black" />
 
-                    <Button
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Upload your PhilHealth ID or any Government-issued ID for verification"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:textColor="@color/secondary_text_color"
+                        android:layout_marginBottom="16dp"
+                        android:lineSpacingExtra="2dp" />
+
+                    <!-- Upload Button -->
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_upload_philhealth_id"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:text="Choose ID Image"
-                        android:layout_marginStart="@dimen/btn_marginStartEnd"
-                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                        android:layout_marginTop="8dp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cornerRadius="16dp"
+                        app:strokeWidth="0dp"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.Button" />
 
-                    <ImageView
-                        android:id="@+id/img_philhealth_id_preview"
+                    <!-- Image Preview -->
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:scaleType="centerCrop"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd"
-                        android:background="@color/light_gray"
-                        android:contentDescription="PhilHealth ID Preview" />
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="4dp"
+                        android:layout_marginBottom="24dp">
+
+                        <ImageView
+                            android:id="@+id/img_philhealth_id_preview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="@color/light_gray"
+                            android:contentDescription="ID Preview" />
+
+                        <!-- Placeholder for empty state -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="@color/gray">
+
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ID Image Preview"
+                                android:textColor="@color/secondary_text_color"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
                     <!-- Sign Up Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_sign_up"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/btn_marginStartEnd"
-                        android:layout_marginTop="@dimen/sign_up_screen_btn_marginTop"
-                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                        android:background="@drawable/shape_button_rounded"
-                        android:foreground="?attr/selectableItemBackground"
-                        android:gravity="center"
-                        android:paddingTop="@dimen/btn_paddingTopBottom"
-                        android:paddingBottom="@dimen/btn_paddingTopBottom"
-                        android:text="@string/sign_up"
+                        android:layout_height="56dp"
+                        android:text="SIGN UP"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/btn_text_size" />
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cornerRadius="16dp"
+                        app:strokeWidth="0dp"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.Button" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="By creating an account, you agree to our Terms of Service and Privacy Policy"
+                        android:textSize="12sp"
+                        android:textColor="@color/secondary_text_color"
+                        android:textAlignment="center"
+                        android:lineSpacingExtra="2dp" />
 
                 </LinearLayout>
             </ScrollView>

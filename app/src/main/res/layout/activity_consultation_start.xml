@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
-    android:background="#F8F9FA"
+    android:background="@drawable/bg2"
     tools:context=".patient.ConsultationStart">
 
     <!-- Loading spinner -->
@@ -24,7 +24,7 @@
         android:id="@+id/waitingMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⏳ Please wait...\nYour doctor will call you shortly."
+        android:text="⏳ In Progress....."
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#212121"

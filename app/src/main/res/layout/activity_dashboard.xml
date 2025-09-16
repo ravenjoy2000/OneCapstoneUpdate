@@ -5,27 +5,32 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splashone"
+    android:background="@drawable/bg2"
     android:orientation="vertical"
     tools:context=".activities.DashboardActivity">
 
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_sign_up_activity"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:background="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/before_we_begin"
-            android:textColor="@color/background_light"
-            android:textSize="@dimen/toolbar_title_text_size"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Before We Begin"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Content Layout -->
@@ -44,7 +49,7 @@
             android:layout_marginEnd="@dimen/authentication_screen_marginStartEnd"
             android:gravity="center"
             android:text="@string/lets_set_up_your_profile"
-            android:textColor="@color/secondary_text_color"
+            android:textColor="@color/black"
             android:textSize="@dimen/authentication_description_text_size" />
 
         <!-- Profile Setup Card -->
@@ -69,24 +74,42 @@
                     android:padding="@dimen/card_view_layout_content_padding">
 
                     <!-- Profile Image -->
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/iv_profile_user_image"
-                        android:layout_width="@dimen/my_profile_user_image_size"
-                        android:layout_height="@dimen/my_profile_user_image_size"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_user_place_holder"
-                        android:contentDescription="@string/image_contentDescription" />
-
-                    <Button
-                        android:id="@+id/btnUploadProfileImage"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginStart="@dimen/btn_marginStartEnd"
-                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                        android:background="@drawable/shape_button_rounded"
-                        android:text="Upload Profile Picture"
-                        android:textColor="@android:color/white" />
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <!-- Profile Image -->
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/iv_profile_user_image"
+                            android:layout_width="@dimen/my_profile_user_image_size"
+                            android:layout_height="@dimen/my_profile_user_image_size"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="10dp"
+                            app:civ_border_color="@color/gray"
+                            app:civ_border_width="2dp"
+                            android:src="@drawable/ic_user_place_holder"
+                            android:contentDescription="@string/image_contentDescription"
+                            />
+
+                        <!-- Upload Profile Picture Button -->
+                        <Button
+                            android:id="@+id/btnUploadProfileImage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
+                            android:text="Upload Profile Picture"
+                            android:textStyle="bold"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cornerRadius="24dp"
+                            app:strokeWidth="0dp"
+                            android:paddingHorizontal="24dp"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                    </LinearLayout>
 
                     <!-- Name -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -94,17 +117,26 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
                         android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop">
+                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
+                        app:boxStrokeColor="@color/colorPrimary"
+                        app:hintTextColor="@color/colorPrimary"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <androidx.appcompat.widget.AppCompatEditText
                             android:id="@+id/et_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/name"
-                            android:inputType="textPersonName"
+                            android:inputType="textPersonName|textCapWords"
                             android:minHeight="48dp"
-                            android:textSize="@dimen/et_text_size" />
+                            android:textSize="@dimen/et_text_size"
+                            android:drawablePadding="8dp" />
                     </com.google.android.material.textfield.TextInputLayout>
+
 
                     <!-- Phone -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -112,7 +144,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
                         android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop">
+                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
+                        app:boxStrokeColor="@color/colorPrimary"
+                        app:hintTextColor="@color/colorPrimary"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <androidx.appcompat.widget.AppCompatEditText
                             android:id="@+id/et_phone"
@@ -121,7 +160,8 @@
                             android:hint="@string/phoneNumber"
                             android:inputType="phone"
                             android:minHeight="48dp"
-                            android:textSize="@dimen/et_text_size" />
+                            android:textSize="@dimen/et_text_size"
+                            android:drawablePadding="8dp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email -->
@@ -130,7 +170,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
                         android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop">
+                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
+                        app:boxStrokeColor="@color/colorPrimary"
+                        app:hintTextColor="@color/colorPrimary"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <androidx.appcompat.widget.AppCompatEditText
                             android:id="@+id/et_email"
@@ -140,54 +187,100 @@
                             android:inputType="textEmailAddress"
                             android:enabled="false"
                             android:minHeight="48dp"
-                            android:textSize="@dimen/et_text_size" />
+                            android:textSize="@dimen/et_text_size"
+                            android:drawablePadding="8dp"
+                            android:alpha="0.7" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- PhilHealth ID -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload PhilHealth ID or Government ID"
-                        android:textSize="16sp"
-                        android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd" />
+                        android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="ID Verification"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="@color/black" />
 
-                    <Button
-                        android:id="@+id/btn_upload_philhealth_id"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginStart="@dimen/btn_marginStartEnd"
-                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                        android:background="@drawable/shape_button_rounded"
-                        android:text="Choose ID Image"
-                        android:textColor="@android:color/white" />
-
-                    <ImageView
-                        android:id="@+id/img_philhealth_id_preview"
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:layout_marginTop="8dp"
                         android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
                         android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd"
-                        android:scaleType="centerCrop"
-                        android:background="@color/light_gray"
-                        android:contentDescription="PhilHealth ID Preview" />
+                        android:text="Upload PhilHealth ID or Government ID"
+                        android:textSize="16sp"
+                        android:textColor="@color/gray"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Upload ID Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_upload_philhealth_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center"
+                        android:text="Choose ID Image"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cornerRadius="16dp"
+                        app:strokeWidth="0dp"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.Button" />
+
+                    <!-- ID Preview Container -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="4dp"
+                        android:layout_marginBottom="24dp">
+
+                        <ImageView
+                            android:id="@+id/img_philhealth_id_preview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="@color/light_gray"
+                            android:contentDescription="ID Preview" />
+
+                        <!-- Placeholder for empty state -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="@color/gray">
+
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ID Image Preview"
+                                android:textColor="@color/secondary_text_color"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
                     <!-- Final Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_lets_go"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/sign_up_screen_btn_marginTop"
-                        android:layout_marginStart="@dimen/btn_marginStartEnd"
-                        android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                        android:background="@drawable/shape_button_rounded"
-                        android:paddingTop="@dimen/btn_paddingTopBottom"
-                        android:paddingBottom="@dimen/btn_paddingTopBottom"
-                        android:text="@string/lets_get_started"
+                        android:layout_height="56dp"
+                        android:text="Let's Get Started"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/btn_text_size" />
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cornerRadius="16dp"
+                        app:strokeWidth="0dp"
+                        android:layout_marginTop="8dp"
+                        app:iconGravity="end"
+                        style="@style/Widget.MaterialComponents.Button"/>
 
                 </LinearLayout>
             </ScrollView>

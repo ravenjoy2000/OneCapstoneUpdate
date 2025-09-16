@@ -4,9 +4,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
+    android:background="@drawable/bg2"
     android:fitsSystemWindows="true"
     android:paddingTop="72dp"
+    android:scrollbars="none"
+    android:overScrollMode="never"
     tools:context=".patient.MainActivity">
 
     <LinearLayout
@@ -16,137 +18,295 @@
         android:padding="16dp"
         android:gravity="center_horizontal">
 
-        <!-- Doctor Card -->
-        <LinearLayout
+        <!-- Doctor Profile Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:elevation="4dp"
             android:layout_margin="12dp"
-            android:gravity="center_horizontal"
-            android:background="@drawable/bg_card_rounded">
+            android:elevation="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardElevation="8dp">
 
-            <!-- Doctor Icon -->
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/iv_doctor_icon"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/penidadoctor"
-                android:layout_marginBottom="16dp"
-                android:contentDescription="Doctor Photo" />
-
-            <!-- Doctor Info -->
-            <TextView
-                android:id="@+id/tv_doctor_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="👨‍⚕️ Name: Dr. Maria Pineda"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#212121"
-                android:layout_marginBottom="6dp" />
-
-            <TextView
-                android:id="@+id/tv_doctor_specialty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🏥 Specialty: General Physician"
-                android:textSize="14sp"
-                android:textColor="#555555"
-                android:layout_marginBottom="6dp" />
-
-            <TextView
-                android:id="@+id/tv_clinic_schedule"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🕑 Schedule: Mon, Wed, Fri\n2:00 PM – 6:00 PM"
-                android:textSize="14sp"
-                android:textColor="#388E3C"
-                android:layout_marginBottom="10dp" />
-
-            <!-- Contact -->
-            <TextView
-                android:id="@+id/tv_doctor_phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📞 Phone: +63 912 345 6789"
-                android:textSize="14sp"
-                android:textColor="#444444"
-                android:layout_marginBottom="4dp" />
-
-            <TextView
-                android:id="@+id/tv_email_doctor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✉️ Email: rpinedaclinic@gmail.com"
-                android:textSize="14sp"
-                android:textColor="#444444"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Facebook Button -->
-            <Button
-                android:id="@+id/btnVisitFacebook"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:padding="12dp"
-                android:text="Visit Facebook Page"
-                android:textAllCaps="false"
-                android:backgroundTint="@color/blue_700"
-                android:textColor="@android:color/white"
-                android:onClick="openClinicWebsite" />
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center_horizontal">
 
-            <!-- Address (Clickable) -->
-            <TextView
-                android:id="@+id/tv_doctor_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="📍 Address:\n206 Paulette St., Josefa Subv.\nMalabanias, Angeles City, Pampanga 2009"
-                android:textSize="14sp"
-                android:textColor="#1E88E5"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp" />
+                <!-- Doctor Profile Section -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp">
 
-        </LinearLayout>
+                    <!-- Doctor Profile Image -->
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/iv_doctor_icon"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/penidadoctor"
+                        android:contentDescription="Doctor Photo"
+                        app:civ_border_width="4dp"
+                        app:civ_border_color="#1E88E5" />
+
+                    <!-- Online Status Indicator -->
+                    <View
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignEnd="@id/iv_doctor_icon"
+                        android:layout_alignBottom="@id/iv_doctor_icon"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"/>
+
+                </RelativeLayout>
+
+                <!-- Doctor Basic Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center_horizontal">
+
+                    <!-- Doctor Name -->
+                    <TextView
+                        android:id="@+id/tv_doctor_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👨‍⚕️ Name: Dr. Francis Ivan Pineda, MD"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#212121"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="2dp" />
+
+                    <!-- Specialty -->
+                    <TextView
+                        android:id="@+id/tv_doctor_specialty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏥 Specialty: Diplomat in Internal Medicine"
+                        android:textSize="15sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="2dp" />
+
+                    <!-- Schedule -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardBackgroundColor="#E8F5E8"
+                        app:cardElevation="2dp">
+
+                        <TextView
+                            android:id="@+id/tv_clinic_schedule"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="🕑 Schedule: Mon, Wed, Fri, Sat\n8:00 AM – 12:00 PM\n5:00 PM - 8:00 PM"
+                            android:textSize="15sp"
+                            android:textColor="#388E3C"
+                            android:textStyle="bold"
+                            android:padding="12dp"
+                            android:gravity="center"
+                            android:lineSpacingExtra="4dp" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+                <!-- Contact Information Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- Contact Header -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Contact Information"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#1E88E5"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center"
+                        android:drawablePadding="8dp" />
+
+                    <!-- Phone -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_doctor_phone"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📞 Phone: +63 912 345 6789"
+                            android:textSize="14sp"
+                            android:textColor="#444444"
+                            android:lineSpacingExtra="2dp" />
+
+                    </LinearLayout>
+
+                    <!-- Email -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_email_doctor"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="✉️ Email: rpinedaclinic@gmail.com"
+                            android:textSize="14sp"
+                            android:textColor="#444444"
+                            android:lineSpacingExtra="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Facebook Page Button -->
+                <Button
+                    android:id="@+id/btnVisitFacebook"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="Visit Facebook Page"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/blue_700"
+                    android:textColor="@android:color/white"
+                    android:onClick="openClinicWebsite"
+                    android:drawablePadding="8dp"
+                    android:elevation="2dp" />
+
+                <!-- Address Section -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardBackgroundColor="#E3F2FD"
+                    app:cardElevation="2dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+
+                        <!-- Address Text -->
+                        <TextView
+                            android:id="@+id/tv_doctor_address"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📍 Address:\n206 Paulette St., Josefa Subv.\nMalabanias, Angeles City, Pampanga 2009"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="#1E88E5"
+                            android:textStyle="bold"
+                            android:lineSpacingExtra="4dp" />
+
+                        <!-- Direction Icon -->
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
         <!-- Appointment Section -->
-        <TextView
-            android:id="@+id/tv_appointment_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📅 Schedule Your Appointment"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#1E88E5"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="6dp" />
-
-        <TextView
-            android:id="@+id/tv_appointment_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Choose your preferred date and time below."
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="20dp" />
-
-        <!-- Book Button -->
-        <Button
-            android:id="@+id/btn_book_now"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Book Appointment"
-            android:backgroundTint="#673AB7"
-            android:textColor="#FFFFFF"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginBottom="32dp"
-            android:paddingVertical="12dp" />
+            android:layout_margin="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center_horizontal">
+
+                <!-- Appointment Icon -->
+
+                <!-- Appointment Title -->
+                <TextView
+                    android:id="@+id/tv_appointment_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 Schedule Your Appointment"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1E88E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2dp" />
+
+                <!-- Appointment Subtitle -->
+                <TextView
+                    android:id="@+id/tv_appointment_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose your preferred date and time below."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2dp" />
+
+                <!-- Book Appointment Button -->
+                <Button
+                    android:id="@+id/btn_book_now"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Book Appointment"
+                    android:backgroundTint="#673AB7"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:elevation="4dp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Bottom Spacing -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
 
     </LinearLayout>
+
 </ScrollView>

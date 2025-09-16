@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F7FA">
+    android:background="@drawable/bg2">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -46,39 +46,58 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <TextView
-                        android:id="@+id/tv_doctor_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Dr. Maria Pineda"
-                        android:textStyle="bold"
-                        android:textSize="26sp"
-                        android:textColor="#222222" />
-
-                    <TextView
-                        android:id="@+id/tv_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Status: Confirmed"
-                        android:textSize="20sp"
-                        android:textColor="#4CAF50"
-                        android:layout_marginTop="8dp"
-                        android:textStyle="bold" />
-
-                    <View
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
-                        android:background="#E0E0E0" />
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="20dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_doctor_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Dr. Francis Ivan Pineda"
+                                android:textStyle="bold"
+                                android:textSize="24sp"
+                                android:textColor="#1A1A1A" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Medical Specialist"
+                                android:textSize="14sp"
+                                android:textColor="#666666"
+                                android:layout_marginTop="4dp" />
+
+                            <TextView
+                                android:id="@+id/tv_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Status: Confirmed"
+                                android:textSize="20sp"
+                                android:textColor="#4CAF50"
+                                android:layout_marginTop="2dp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Date: Sept 25, 2025"
+                        android:text="     Date: "
                         android:textSize="20sp"
                         android:textColor="#333333"
-                        android:layout_marginTop="14dp" />
+                        android:layout_marginTop="3dp" />
 
                     <TextView
                         android:id="@+id/tv_previous_date"
@@ -87,14 +106,14 @@
                         android:text="Rescheduled from: Sept 20, 2025"
                         android:textColor="@android:color/darker_gray"
                         android:textSize="18sp"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="2dp"
                         android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_time"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Time: 3:00 PM"
+                        android:text="     Time: "
                         android:textSize="20sp"
                         android:textColor="#333333"
                         android:layout_marginTop="8dp" />
@@ -103,7 +122,7 @@
                         android:id="@+id/tv_mode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Mode: Teleconsult"
+                        android:text="     Mode: "
                         android:textSize="20sp"
                         android:textColor="#333333"
                         android:layout_marginTop="8dp" />
@@ -112,7 +131,7 @@
                         android:id="@+id/tv_location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Location: Pineda Medical Clinic"
+                        android:text="     Location: Pineda Medical Clinic"
                         android:textSize="20sp"
                         android:textColor="#333333"
                         android:layout_marginTop="8dp" />
@@ -122,7 +141,7 @@
                         android:id="@+id/tv_service"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Service: General Consultation"
+                        android:text="     Service: "
                         android:textSize="20sp"
                         android:textColor="#333333"
                         android:layout_marginTop="8dp" />
@@ -132,20 +151,36 @@
                         android:id="@+id/tv_price"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Price: ₱500"
+                        android:text="     Price: "
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:textColor="#2E7D32"
                         android:layout_marginTop="6dp" />
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E8F4FD"
+                        android:layout_marginVertical="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📋 NOTES"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
+
                     <TextView
                         android:id="@+id/tv_notes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Note: Please bring your PhilHealth ID"
-                        android:textSize="20sp"
+                        android:layout_marginTop="4dp"
+                        android:padding="12dp"
+                        android:text="Please bring your PhilHealth ID"
                         android:textColor="#555555"
-                        android:layout_marginTop="8dp" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/tv_appointment_reason"
@@ -164,60 +199,83 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginTop="32dp">
+                android:gravity="center">
 
-                <!-- Start Consultation Button -->
+                <!-- Start Consultation Button (Primary Action) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_start_consultation"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:text="Start Consultation"
                     android:textAllCaps="false"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     android:textColor="@android:color/white"
-                    app:cornerRadius="18dp"
+                    app:cornerRadius="28dp"
                     app:icon="@android:drawable/ic_menu_today"
-                    app:iconGravity="start"
+                    app:iconGravity="textStart"
                     app:iconPadding="12dp"
-                    android:layout_marginBottom="16dp"
-                    app:backgroundTint="@android:color/holo_blue_dark" />
+                    app:iconSize="24dp"
+                    android:layout_marginBottom="12dp"
+                    app:backgroundTint="#1976D2"
+                    android:elevation="6dp"
+                    app:rippleColor="#BBDEFB" />
 
-                <!-- Cancel Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_cancel"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                <!-- Secondary Actions Row -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Cancel"
-                    android:textAllCaps="false"
-                    android:textSize="20sp"
-                    android:textColor="@android:color/white"
-                    app:cornerRadius="18dp"
-                    app:icon="@android:drawable/ic_menu_close_clear_cancel"
-                    app:iconGravity="start"
-                    app:iconPadding="12dp"
-                    android:layout_marginBottom="16dp"
-                    app:backgroundTint="@android:color/holo_red_dark" />
+                    android:orientation="horizontal"
+                    android:weightSum="2">
 
-                <!-- Reschedule Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_reschedule"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Reschedule"
-                    android:textAllCaps="false"
-                    android:textSize="20sp"
-                    android:textColor="@android:color/white"
-                    app:cornerRadius="18dp"
-                    app:icon="@android:drawable/ic_menu_edit"
-                    app:iconGravity="start"
-                    app:iconPadding="12dp"
-                    android:layout_marginBottom="16dp"
-                    app:backgroundTint="@android:color/holo_orange_dark" />
+                    <!-- Reschedule Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_reschedule"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="48dp"
+                        android:text="Reschedule"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        android:textColor="#FF9800"
+                        app:cornerRadius="24dp"
+                        app:strokeColor="@color/blue_700"
+                        app:strokeWidth="2dp"
+                        app:icon="@android:drawable/ic_menu_edit"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp"
+                        app:iconSize="20dp"
+                        app:iconTint="#FF9800"
+                        android:layout_marginEnd="6dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Cancel Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_cancel"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="48dp"
+                        android:text="Cancel"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        android:textColor="#D32F2F"
+                        app:cornerRadius="24dp"
+                        app:strokeColor="@color/blue_700"
+                        app:strokeWidth="2dp"
+                        app:icon="@drawable/ic_cancel"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp"
+                        app:iconSize="20dp"
+                        app:iconTint="#D32F2F"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginBottom="12dp" />
+
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

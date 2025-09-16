@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#004CFF">
+
+    <!-- Status Bar Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:background="#003ACC" />
+
+    <!-- Header Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="#004CFF">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="GCash Payment"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:layout_marginEnd="24dp" />
+
+    </LinearLayout>
+
+    <!-- Main Content Container -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/white"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- GCash Logo and Title -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="32dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GCash"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#004CFF"
+                    android:layout_marginEnd="16dp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#E0E0E0" />
+
+            </LinearLayout>
+
+            <!-- QR Code Container -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center"
+                    android:background="@android:color/white">
+
+                    <!-- QR Code -->
+                    <ImageView
+                        android:id="@+id/img_gcash_qr"
+                        android:layout_width="300dp"
+                        android:layout_height="300dp"
+                        android:src="@drawable/gcash"
+                        android:scaleType="centerCrop"
+                        android:padding="16dp"
+                        android:layout_marginBottom="24dp" />
+
+                    <!-- Account Information -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="#F8F9FA"
+                        android:padding="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FR****S IV*N P."
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mobile No.: 090• ••••275"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="User ID: •••••••••WE8SUM"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Payment Details -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Summary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Consultation Fee:"
+                            android:textSize="14sp"
+                            android:textColor="@color/black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₱500.00"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="GCash Fee:"
+                            android:textSize="14sp"
+                            android:textColor="@color/black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₱15.00"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginVertical="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Amount:"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₱515.00"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#004CFF" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Instructions -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#E3F2FD"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="How to pay:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#004CFF"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. Open your GCash app\n2. Tap 'Scan QR'\n3. Scan the QR code above\n4. Enter amount: ₱515.00\n5. Confirm payment"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:lineSpacingExtra="2dp" />
+
+            </LinearLayout>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save_qr"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="Save QR"
+                    android:textSize="14sp"
+                    android:textColor="#004CFF"
+                    android:backgroundTint="@android:color/transparent"
+                    app:strokeColor="#004CFF"
+                    app:strokeWidth="2dp"
+                    app:cornerRadius="12dp"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_share_qr"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="Share QR"
+                    android:textSize="14sp"
+                    android:textColor="#004CFF"
+                    android:backgroundTint="@android:color/transparent"
+                    app:strokeColor="#004CFF"
+                    app:strokeWidth="2dp"
+                    app:cornerRadius="12dp"
+                    android:layout_marginStart="8dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+            </LinearLayout>
+
+            <!-- Payment Confirmation -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_payment_completed"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="I have completed the payment"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#4CAF50"
+                app:cornerRadius="20dp"
+                app:strokeWidth="0dp"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <!-- Cancel Payment -->
+            <TextView
+                android:id="@+id/txt_cancel_payment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel Payment"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

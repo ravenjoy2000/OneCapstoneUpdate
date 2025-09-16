@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/splashone"
+    android:background="@drawable/bg2"
     tools:context=".activities.DoctorIntro">
 
     <!-- Toolbar -->
@@ -14,29 +14,56 @@
         android:id="@+id/toolbar_sign_up_activity"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:background="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/before_we_begin"
-            android:textColor="@color/background_light"
-            android:textSize="@dimen/toolbar_title_text_size"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Before We Begin"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/authentication_screen_marginStartEnd"
-        android:layout_marginEnd="@dimen/authentication_screen_marginStartEnd"
-        android:gravity="center"
-        android:text="@string/lets_set_up_your_profile"
-        android:textColor="@color/secondary_text_color"
-        android:textSize="@dimen/authentication_description_text_size" />
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/lets_set_up_your_professional_profile"
+            android:textColor="@android:color/black"
+            android:textSize="25sp"
+            android:textAlignment="center"
+            android:alpha="0.9"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Help patients get to know you better"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textAlignment="center"
+            android:alpha="0.7"
+            android:layout_marginHorizontal="16dp" />
+
+    </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -58,170 +85,300 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="@dimen/card_view_layout_content_padding">
+                android:paddingBottom="32dp">
 
-                <!-- Profile Image -->
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/iv_doctor_profile"
-                    android:layout_width="@dimen/my_profile_user_image_size"
-                    android:layout_height="@dimen/my_profile_user_image_size"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/image_contentDescription"
-                    android:src="@drawable/ic_user_place_holder" />
-
-                <!-- Upload Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnUploadDoctorProfile"
+                <!-- Profile Image Card -->
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginStart="@dimen/btn_marginStartEnd"
-                    android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                    android:minHeight="48dp"
-                    android:text="Upload Profile Picture"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="@color/green" />
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="16dp"
+                    app:cardBackgroundColor="@android:color/white">
 
-                <!-- Name -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
-
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_name"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/name"
-                        android:inputType="textPersonName"
-                        android:minHeight="48dp"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:orientation="vertical"
+                        android:padding="32dp"
+                        android:gravity="center">
 
-                <!-- Specialty -->
-                <com.google.android.material.textfield.TextInputLayout
+                        <!-- Profile Image Section -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Profile Photo"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:layout_marginBottom="16dp"
+                            android:drawablePadding="8dp"
+                            />
+
+                        <!-- Profile Image Container -->
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="140dp"
+                            android:layout_height="140dp"
+                            app:cardCornerRadius="70dp"
+                            app:cardElevation="8dp"
+                            android:layout_marginBottom="20dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/iv_doctor_profile"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/image_contentDescription"
+                                android:src="@drawable/ic_user_place_holder"
+                                android:scaleType="centerCrop" />
+
+                            <!-- Upload overlay -->
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:alpha="0.1" />
+
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- Upload Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnUploadDoctorProfile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:text="Upload Profile Picture"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cornerRadius="24dp"
+                            app:strokeWidth="0dp"
+                            android:paddingHorizontal="24dp"
+                            style="@style/Widget.MaterialComponents.Button" />
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="16dp"
+                    app:cardBackgroundColor="@android:color/white">
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_specialty"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/speciality"
-                        android:inputType="text"
-                        android:minHeight="48dp"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:orientation="vertical"
+                        android:padding="24dp">
 
-                <!-- Phone -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Personal Information"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:layout_marginBottom="20dp"
+                            android:drawablePadding="8dp"
+                            android:drawableTint="@color/black" />
+                        <!-- Name -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_phone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/phoneNumber"
-                        android:inputType="phone"
-                        android:minHeight="48dp"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Full Name"
+                                android:inputType="textPersonName"
+                                android:textSize="16sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <!-- Specialty -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:startIconTint="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                <!-- Email (non-editable) -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_specialty"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Medical Specialty"
+                                android:inputType="text"
+                                android:textSize="16sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/email"
-                        android:inputType="textEmailAddress"
-                        android:minHeight="48dp"
-                        android:enabled="false"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        <!-- Phone -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:startIconTint="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                <!-- Address -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_phone"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Phone Number"
+                                android:inputType="phone"
+                                android:textSize="16sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/address"
-                        android:inputType="textPostalAddress"
-                        android:minHeight="48dp"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        <!-- Email (non-editable) -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:startIconTint="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:helperText="Email cannot be changed">
 
-                <!-- Website -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_email"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Email Address"
+                                android:inputType="textEmailAddress"
+                                android:enabled="false"
+                                android:textSize="16sp"
+                                android:alpha="0.7" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_website"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/website"
-                        android:inputType="textUri"
-                        android:minHeight="48dp"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        <!-- Address -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Professional Details"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:layout_marginBottom="20dp"
+                            android:drawablePadding="8dp" />
 
-                <!-- Bio -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/authentication_screen_til_marginStartEnd"
-                    android:layout_marginTop="@dimen/authentication_screen_til_marginTop"
-                    android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
+                        <!-- Address Field -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:startIconTint="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_doctor_bio"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/bio"
-                        android:inputType="textMultiLine"
-                        android:minHeight="48dp"
-                        android:textSize="@dimen/et_text_size" />
-                </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_address"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Clinic/Hospital Address"
+                                android:inputType="textPostalAddress"
+                                android:textSize="16sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:startIconTint="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_website"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Professional Website (Optional)"
+                                android:inputType="textUri"
+                                android:textSize="16sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Bio Field -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:boxStrokeColor="@color/black"
+                            app:hintTextColor="@color/black"
+                            app:startIconTint="@color/black"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:counterEnabled="true"
+                            app:counterMaxLength="200"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_doctor_bio"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Professional Bio"
+                                android:inputType="textMultiLine"
+                                android:minLines="3"
+                                android:maxLines="5"
+                                android:maxLength="200"
+                                android:gravity="top"
+                                android:textSize="16sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
                 <!-- Get Started Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_lets_go"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/btn_marginStartEnd"
-                    android:layout_marginTop="@dimen/sign_up_screen_btn_marginTop"
-                    android:layout_marginEnd="@dimen/btn_marginStartEnd"
-                    android:gravity="center"
-                    android:text="@string/lets_get_started"
+                    android:layout_height="56dp"
+                    android:text="Let's Get Started"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/btn_text_size"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/primaryColor" />
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cornerRadius="16dp"
+                    app:strokeWidth="0dp"
+                    android:layout_marginTop="8dp"
+                    app:iconGravity="end"
+                    style="@style/Widget.MaterialComponents.Button" />
 
             </LinearLayout>
         </ScrollView>

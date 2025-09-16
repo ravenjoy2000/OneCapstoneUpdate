@@ -4,14 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg2"
     tools:context=".doctor.DoctorAppointment">
 
-    <!-- Toolbar -->
+    <!-- Toolbar  -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_sign_up_activity"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
+        android:elevation="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -22,77 +24,105 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="@string/sign_up"
+            android:text="@string/doctor_schedule"
             android:textColor="@color/background_light"
             android:textSize="@dimen/toolbar_title_text_size"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:letterSpacing="0.02" />
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Action Buttons + Filters (Vertical) -->
-    <LinearLayout
-        android:id="@+id/action_buttons"
-        android:layout_width="match_parent"
+    <!--Action Panel  -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/action_card"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/toolbar_sign_up_activity"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Row for Select All and Month Picker -->
         <LinearLayout
+            android:id="@+id/action_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <CheckBox
-                android:id="@+id/checkbox_select_all"
-                android:layout_width="wrap_content"
+            <!-- Controls Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select All"
-                android:layout_weight="1" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp">
 
+                <CheckBox
+                    android:id="@+id/checkbox_select_all"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select All"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:buttonTint="?attr/colorPrimary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_month_picker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="Pick Month"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:letterSpacing="0.02"
+                    app:cornerRadius="24dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="2dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            </LinearLayout>
+
+            <!--  Cancel Button  -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_month_picker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pick Month"
+                android:id="@+id/btn_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Cancel Appointment"
                 android:textAllCaps="false"
-                app:cornerRadius="12dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02"
+                app:cornerRadius="28dp"
+                app:backgroundTint="@android:color/holo_red_dark"
+                android:textColor="@android:color/white"
+                android:elevation="2dp" />
         </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-        <!-- Cancel Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cancel Appointment"
-            android:textAllCaps="false"
-            app:cornerRadius="12dp"
-            app:backgroundTint="@android:color/holo_red_dark"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
-
-    <!-- Pull to Refresh wrapper -->
+    <!-- Pull to Refresh  -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/action_buttons"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/action_card"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Appointments List -->
+        <!-- RecyclerView  -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_appointments"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp" />
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

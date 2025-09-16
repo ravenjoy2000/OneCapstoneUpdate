@@ -7,12 +7,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
+    android:fitsSystemWindows="true"
     tools:context=".patient.PatientMedicalLogs">
 
-    <!-- Top App Bar -->
+    <!-- Enhanced Top App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="8dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -22,69 +24,131 @@
             android:background="?attr/colorPrimary"
             app:title="Medical Logs"
             app:titleTextColor="@android:color/white"
+            app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineSmall"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Page Content -->
+    <!-- Enhanced Page Content -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:padding="20dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Title -->
+        <!-- Enhanced Title -->
         <TextView
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="🩺 Medical Logs"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#212121" />
+            android:textColor="#212121"
+            android:letterSpacing="0.02"
+            android:layout_marginBottom="4dp" />
 
-        <!-- Month Filter Spinner -->
-        <Spinner
-            android:id="@+id/spinnerMonth"
+        <!-- Enhanced Month Filter Spinner -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/spinnerCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/titleText"
-            android:layout_marginTop="12dp"
-            android:spinnerMode="dropdown"
-            android:entries="@array/months_array"
-            android:padding="8dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <!-- Progress Bar -->
-        <ProgressBar
-            android:id="@+id/progressBar"
+            <Spinner
+                android:id="@+id/spinnerMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="160dp"
+                android:minHeight="48dp"
+                android:spinnerMode="dropdown"
+                android:entries="@array/months_array"
+                android:padding="12dp"
+                android:background="@drawable/spinner_background" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Enhanced Progress Bar -->
+        <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:visibility="gone" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <!-- Empty View -->
-        <TextView
-            android:id="@+id/emptyLogsText"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="24dp">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:visibility="gone"
+                    android:indeterminateTint="?attr/colorPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Loading medical logs..."
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Enhanced Empty View -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No completed logs yet."
-            android:textSize="16sp"
-            android:textColor="#757575"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
             android:gravity="center"
-            android:visibility="gone"
-            android:layout_centerInParent="true" />
+            android:visibility="gone">
 
-        <!-- RecyclerView -->
+            <TextView
+                android:id="@+id/emptyLogsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No completed logs yet."
+                android:textSize="18sp"
+                android:textColor="#757575"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your medical logs will appear here once completed"
+                android:textSize="14sp"
+                android:textColor="#9E9E9E"
+                android:gravity="center"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- Enhanced RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/logsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/spinnerMonth"
-            android:layout_marginTop="16dp"
+            android:layout_below="@id/spinnerCard"
+            android:layout_marginTop="20dp"
             android:clipToPadding="false"
-            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
             android:scrollbars="vertical"
-            android:visibility="gone" />
+            android:fadeScrollbars="true"
+            android:scrollbarStyle="outsideOverlay"
+            android:overScrollMode="ifContentScrolls"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </RelativeLayout>
 

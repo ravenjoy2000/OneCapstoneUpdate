@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,27 +7,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:colorBackground"
+    android:background="@drawable/bg2"
     tools:context=".doctor.AppointmentDetailsActivity">
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_patient_feedback"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="6dp"
         app:title="Teleconsultation Details"
         app:titleTextColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- ScrollView -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollMedicalLog"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:padding="16dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/toolbar_patient_feedback"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,111 +42,241 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Patient Profile -->
+            <!-- Patient Profile Card -->
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="60dp"
-                app:cardElevation="6dp">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="12dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:strokeColor="#E8F4FD"
+                app:strokeWidth="1dp">
 
-                <ImageView
-                    android:id="@+id/iv_patient_profile"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_user_place_holder"
-                    android:contentDescription="Patient Profile Picture" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center_horizontal">
+
+                    <!-- Patient Profile Image Container -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            app:cardCornerRadius="60dp"
+                            app:cardElevation="8dp">
+
+                            <ImageView
+                                android:id="@+id/iv_patient_profile"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_user_place_holder"
+                                android:contentDescription="Patient Profile Picture" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </FrameLayout>
+
+                    <!-- Patient Name -->
+                    <TextView
+                        android:id="@+id/tv_patient_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:text="Patient Name"
+                        android:textColor="#4CAF50"
+                        android:textSize="26sp"
+                        android:textStyle="bold" />
+
+                    <!-- Status Chip -->
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_appointment_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓ Confirmed"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        app:chipBackgroundColor="#4CAF50"
+                        app:chipCornerRadius="20dp"
+                        app:chipStartPadding="16dp"
+                        app:chipEndPadding="16dp"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Enhanced Info Grid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <!-- Date and Time Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="📅 DATE"
+                                    android:textSize="12sp"
+                                    android:textColor="#666666"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.1" />
+
+                                <TextView
+                                    android:id="@+id/tv_appointment_date"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textSize="18sp"
+                                    android:textColor="#1A1A1A"
+                                    android:textStyle="bold"
+                                    android:layout_marginTop="4dp" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="🕒 TIME"
+                                    android:textSize="12sp"
+                                    android:textColor="#666666"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.1" />
+
+                                <TextView
+                                    android:id="@+id/tv_appointment_time"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textSize="18sp"
+                                    android:textColor="#1A1A1A"
+                                    android:textStyle="bold"
+                                    android:layout_marginTop="4dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Consultation Mode -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="💻 CONSULTATION MODE"
+                                android:textSize="12sp"
+                                android:textColor="#666666"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.1" />
+
+                            <TextView
+                                android:id="@+id/tv_consultation_type"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Teleconsultation"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#2196F3"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Patient Name -->
-            <TextView
-                android:id="@+id/tv_patient_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Juan Dela Cruz"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/green"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Appointment Status -->
-            <TextView
-                android:id="@+id/tv_appointment_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Status: Confirmed"
-                android:textSize="20sp"
-                android:textColor="@android:color/holo_green_dark"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Date and Time -->
-            <TextView
-                android:id="@+id/tv_appointment_date_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Date: August 10, 2025\nTime: 3:00 PM"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Consultation Type -->
-            <TextView
-                android:id="@+id/tv_consultation_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Consultation Mode: Teleconsultation"
-                android:textSize="20sp"
-                android:textStyle="italic"
-                android:textColor="@android:color/holo_blue_dark"
-                android:layout_marginBottom="12dp" />
-
-            <!-- PhilHealth Label -->
-            <TextView
-                android:id="@+id/tv_patient_gov_id_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="PhilHealth / Government ID"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- PhilHealth Image -->
+            <!-- PhilHealth ID Card -->
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="200dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center_horizontal"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="16dp">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@android:color/white">
 
-                <ImageView
-                    android:id="@+id/iv_patient_gov_id"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/cuteperson"
-                    android:contentDescription="Government/PhilHealth ID" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:gravity="center_horizontal">
+
+                    <!-- Section Header -->
+                    <TextView
+                        android:id="@+id/tv_patient_gov_id_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🆔 PhilHealth / Government ID"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- ID Image -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="220dp"
+                        android:layout_height="140dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="6dp"
+                        app:strokeColor="#E0E0E0"
+                        app:strokeWidth="1dp">
+
+                        <ImageView
+                            android:id="@+id/iv_patient_gov_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="#F5F5F5"
+                            android:contentDescription="Government/PhilHealth ID" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Start Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_start_consultation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="Start Teleconsultation"
                 android:textSize="18sp"
+                android:textStyle="bold"
                 android:textColor="@android:color/white"
                 app:backgroundTint="?attr/colorPrimary"
-                android:layout_marginBottom="28dp" />
+                app:cornerRadius="28dp"
+                android:elevation="6dp"
+                app:rippleColor="#BBDEFB"
+                android:layout_marginBottom="24dp" />
 
             <!-- Follow-up Note -->
             <TextView
@@ -150,144 +285,174 @@
                 android:layout_height="wrap_content"
                 android:text="Write a medical log in here."
                 android:textSize="18sp"
-                android:textColor="@color/green"
+                android:textColor="#4CAF50"
                 android:gravity="center"
                 android:layout_marginBottom="28dp" />
 
-            <!-- Medical Log -->
+            <!-- Medical Log Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="6dp"
-                app:cardCornerRadius="12dp"
-                android:padding="16dp"
+                app:cardElevation="12dp"
+                app:cardCornerRadius="20dp"
                 android:layout_marginBottom="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <!-- Diagnosis -->
+                    <!-- Consultation Field -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Consultation"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:hintTextColor="?attr/colorPrimary"
                         android:layout_marginBottom="16dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etDiagnosis"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:inputType="textMultiLine"
                             android:minLines="2"
-                            android:maxLines="4" />
+                            android:maxLines="4"
+                            android:gravity="top|start" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Doctor Notes -->
+                    <!-- Doctor Notes Field -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Doctor Notes"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:hintTextColor="?attr/colorPrimary"
                         android:layout_marginBottom="28dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etDoctorNotes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:inputType="textMultiLine"
                             android:minLines="4"
-                            android:maxLines="6" />
+                            android:maxLines="6"
+                            android:gravity="top|start" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Upload File -->
+                    <!-- Upload File Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnUploadFile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Upload PDF or Image"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textAllCaps="false"
-                        app:backgroundTint="@color/purple_5001"
+                        app:backgroundTint="#9C27B0"
+                        app:cornerRadius="24dp"
                         android:textColor="@android:color/white"
                         android:padding="14dp"
                         android:elevation="4dp"
                         android:layout_marginBottom="12dp" />
 
-                    <!-- Selected File -->
+                    <!-- Selected File Display -->
                     <TextView
                         android:id="@+id/tvSelectedFile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="No file selected"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="16sp"
-                        android:padding="10dp"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:padding="12dp"
                         android:background="@drawable/bg_card_rounded"
                         android:layout_marginBottom="28dp"
                         android:ellipsize="end"
                         android:maxLines="1" />
 
-                    <!-- Save Medical Log -->
+                    <!-- Save Medical Log Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSave"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Save Medical Log"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textAllCaps="false"
-                        app:backgroundTint="@color/purple_700"
+                        app:cornerRadius="24dp"
+                        app:backgroundTint="#673AB7"
                         android:textColor="@android:color/white"
                         android:padding="14dp"
                         android:elevation="4dp"
                         android:layout_marginBottom="28dp" />
 
-                    <!-- Appointment Outcome -->
+                    <!-- Appointment Outcome Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardElevation="4dp"
-                        app:cardCornerRadius="12dp"
-                        android:layout_marginBottom="20dp"
-                        android:padding="16dp">
+                        app:cardElevation="6dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardBackgroundColor="#F8FFF8"
+                        app:strokeColor="#4CAF50"
+                        app:strokeWidth="2dp"
+                        android:layout_marginBottom="20dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="20dp">
 
-                            <TextView
-                                android:id="@+id/tv_appointment_outcome_label"
-                                android:layout_width="wrap_content"
+                            <!-- Outcome Header -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Mark Appointment Outcome"
-                                android:textStyle="bold"
-                                android:textSize="20sp"
-                                android:textColor="@color/green"
-                                android:layout_marginBottom="12dp" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="16dp">
 
+                                <TextView
+                                    android:id="@+id/tv_appointment_outcome_label"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Mark Appointment Outcome"
+                                    android:textStyle="bold"
+                                    android:textSize="18sp"
+                                    android:textColor="@android:color/black" />
+
+                            </LinearLayout>
+
+                            <!-- Radio Group for Outcome -->
                             <RadioGroup
                                 android:id="@+id/rgAppointmentOutcome"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
 
-                                <RadioButton
+                                <com.google.android.material.radiobutton.MaterialRadioButton
                                     android:id="@+id/rbComplete"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Complete"
-                                    android:textSize="18sp" />
+                                    android:textSize="16sp"
+                                    android:textColor="#1A1A1A"
+                                    android:padding="8dp"
+                                    android:layout_marginBottom="8dp"
+                                    app:buttonTint="#4CAF50" />
 
-                                <RadioButton
+                                <com.google.android.material.radiobutton.MaterialRadioButton
                                     android:id="@+id/rbNoShow"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="No Show"
-                                    android:textSize="18sp" />
+                                    android:textSize="16sp"
+                                    android:textColor="#1A1A1A"
+                                    android:padding="8dp"
+                                    app:buttonTint="#4CAF50" />
+
                             </RadioGroup>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -299,12 +464,13 @@
                         android:layout_height="wrap_content"
                         android:text="Done"
                         android:textSize="18sp"
-                        android:textColor="@color/background_light"
-                        app:backgroundTint="@color/green"
+                        app:cornerRadius="20dp"
+                        android:textColor="@android:color/white"
+                        app:backgroundTint="#4CAF50"
                         android:layout_marginBottom="16dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

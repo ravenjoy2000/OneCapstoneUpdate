@@ -7,62 +7,183 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
+    android:padding="24dp"
+    android:background="@drawable/bg2"
     tools:context=".doctor.VideoCallActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:id="@+id/current_user_name_textview"
-        android:text="Hello"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:text="Let's have a call"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Target username_input"
-        android:id="@+id/target_usernae_input"/>
-
-
-
+    <!-- Greeting Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="32dp">
 
-        <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
-            android:id="@+id/voice_call_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="32dp" />
+        <TextView
+            android:id="@+id/current_user_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/blue_700"
+            android:text="Hello"
+            android:layout_marginBottom="8dp" />
 
-        <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
-            android:id="@+id/video_call_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="32dp" />
-
-
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/secondary_text_color"
+            android:text="Let's have a call"
+            android:gravity="center" />
 
     </LinearLayout>
 
-
-
-    <Button
-        android:id="@+id/btn_are_done_with_call"
+    <!-- Input Section -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter Username"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/blue_700"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxStrokeColor="@color/colorPrimary"
+                app:hintTextColor="@color/colorPrimary"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/target_usernae_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="name"
+                    android:inputType="text"
+                    android:textSize="16sp"
+                    android:minHeight="56dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Call Buttons Section -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Call"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+                        android:id="@+id/voice_call_btn"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Voice Call"
+                        android:textSize="14sp"
+                        android:textColor="@color/secondary_text_color"
+                        android:gravity="center" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+                        android:id="@+id/video_call_btn"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Video Call"
+                        android:textSize="14sp"
+                        android:textColor="@color/secondary_text_color"
+                        android:gravity="center" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Done Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_are_done_with_call"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
         android:text="Are you done with the call?"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
         android:visibility="gone"
-        android:layout_marginTop="20dp" />
-
-
+        app:cornerRadius="12dp"
+        app:strokeWidth="0dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </LinearLayout>

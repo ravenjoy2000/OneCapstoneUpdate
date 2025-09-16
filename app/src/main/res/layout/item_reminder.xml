@@ -3,68 +3,125 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
     app:strokeColor="@color/teal_700"
-    app:strokeWidth="1dp">
+    app:strokeWidth="2dp"
+    app:cardBackgroundColor="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="20dp">
 
-        <!-- Medicine details -->
-        <TextView
-            android:id="@+id/tvMedDetails"
-            android:layout_width="wrap_content"
+        <!--  Medicine details -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Paracetamol - 500mg - 2x/day"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
-        <!-- Reminder times -->
-        <TextView
-            android:id="@+id/tvMedTimes"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvMedDetails"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Paracetamol - 500mg - 2x/day"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
+
+        </LinearLayout>
+
+        <!--  Reminder times -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="8:00 AM, 8:00 PM"
-            android:textSize="14sp"
-            android:paddingTop="4dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🕐 "
+                android:textSize="16sp"
+                android:layout_marginEnd="4dp" />
 
-        <TextView
-            android:id="@+id/tvDate"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvMedTimes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8:00 AM, 8:00 PM"
+                android:textSize="16sp"
+                android:textColor="@color/secondary_text_color" />
+
+        </LinearLayout>
+
+        <!--  Date -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📅 Date"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅 "
+                android:textSize="16sp"
+                android:layout_marginEnd="4dp" />
 
-        <!-- Buttons row -->
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+        <!--  Buttons row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="6dp">
+            android:weightSum="2">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelReminder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel ❌"
-                android:padding="6dp"
-                android:layout_marginEnd="8dp"/>
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Cancel"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/teal_700"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMarkTaken"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mark as Taken ✅"
-                android:padding="6dp"/>
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Mark as Taken"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                app:cornerRadius="12dp"
+                app:strokeWidth="0dp"
+                app:backgroundTint="@color/teal_700"
+                style="@style/Widget.MaterialComponents.Button" />
+
         </LinearLayout>
     </LinearLayout>
 

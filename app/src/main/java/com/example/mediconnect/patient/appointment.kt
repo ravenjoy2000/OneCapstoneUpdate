@@ -50,7 +50,6 @@ class appointment : BaseActivity() {
     private lateinit var tvDoctorEmail: TextView
     private lateinit var spinnerDoctor: Spinner
     private lateinit var spinnerServices: Spinner
-    private lateinit var tvServicePrice: TextView
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -85,6 +84,9 @@ class appointment : BaseActivity() {
         private const val TAG = "AppointmentActivity"
         private const val REQUEST_NOTIFICATION_PERMISSION = 1001
     }
+
+    // hold user id when requesting permission so we can continue booking after grant
+    private var pendingBookingUserId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,11 +128,12 @@ class appointment : BaseActivity() {
         tvDoctorEmail = findViewById(R.id.tv_doctor_email)
         spinnerDoctor = findViewById(R.id.spinner_doctor)
         spinnerServices = findViewById(R.id.spinner_services)
-        tvServicePrice = findViewById(R.id.tv_service_price)
 
         rvTimeSlots.layoutManager = LinearLayoutManager(this)
+        // set an empty adapter initially to avoid NPEs
+        rvTimeSlots.adapter = TimeSlotAdapter(emptyList(), emptyList(), false, "") { slot -> selectedTimeSlot = slot }
 
-        // 🔹 Setup services spinner
+        // Services list
         val services = listOf(
             "Medical Consultation" to 200,
             "Teleconsultation" to 200,
@@ -152,13 +155,14 @@ class appointment : BaseActivity() {
                 val (service, price) = services[position]
                 selectedService = service
                 selectedPrice = price
-                tvServicePrice.text = "Price: ₱$price"
+                // safe update - the layout may not contain a tv_service_price; update if present
+                findViewById<TextView?>(R.id.tv_service_price)?.text = "Price: ₱$price"
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
                 selectedService = null
                 selectedPrice = 0
-                tvServicePrice.text = "Price: ₱0"
+                findViewById<TextView?>(R.id.tv_service_price)?.text = "Price: ₱0"
             }
         }
     }
@@ -283,6 +287,8 @@ class appointment : BaseActivity() {
         }
 
         btnBookNow.setOnClickListener {
+            // store user id in case we need to request permission
+            pendingBookingUserId = userId
             checkAndRequestPermissions { proceedWithBooking(userId) }
         }
     }
@@ -307,6 +313,20 @@ class appointment : BaseActivity() {
             onGranted()
         } else {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_NOTIFICATION_PERMISSION)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            val granted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (granted) {
+                // continue booking if we had a pending request
+                pendingBookingUserId?.let { proceedWithBooking(it) }
+            } else {
+                Toast.makeText(this, "Notification permission denied. Reminders will not be scheduled.", Toast.LENGTH_LONG).show()
+            }
+            pendingBookingUserId = null
         }
     }
 
@@ -361,28 +381,30 @@ class appointment : BaseActivity() {
                             reason = selectedService ?: "",
                             doctorPhone = doctorInfo.phone,
                             doctorAddress = doctorInfo.address,
-                            servicePrice = selectedPrice // 🔹 new field in Booking model
+                            servicePrice = selectedPrice
                         )
 
                         appointmentRef.set(booking)
                             .addOnSuccessListener {
                                 Toast.makeText(this, "Appointment booked!", Toast.LENGTH_SHORT).show()
-                                scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 30)
-                                scheduleAlarm(selectedDate!!, selectedTimeSlot, selectedMode, 0)
+
+                                // schedule reminders using appointmentId to create unique request codes
+                                scheduleAlarm(appointmentId, selectedDate!!, selectedTimeSlot, selectedMode, 30)
+                                scheduleAlarm(appointmentId, selectedDate!!, selectedTimeSlot, selectedMode, 0)
 
                                 val subject = "Appointment Confirmation"
                                 val body = """
                                     Hi $userName,
-                                    
+
                                     Your appointment with Dr. $selectedDoctorName has been booked.
                                     Date: $selectedDate
                                     Time: $selectedTimeSlot
                                     Mode: $selectedMode
                                     Service: $selectedService
                                     Price: ₱$selectedPrice
-                                    
+
                                     Doctor Email: ${doctorInfo.email}
-                                    
+
                                     Thank you for using MediConnect!
                                 """.trimIndent()
 
@@ -422,7 +444,7 @@ class appointment : BaseActivity() {
         }
     }
 
-    private fun scheduleAlarm(date: String, time: String, mode: String, minutesBefore: Int) {
+    private fun scheduleAlarm(appointmentId: String, date: String, time: String, mode: String, minutesBefore: Int) {
         val sdf = SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.getDefault())
         val dateTime = sdf.parse("$date $time") ?: return
         val triggerTime = dateTime.time - (minutesBefore * 60 * 1000)
@@ -435,17 +457,22 @@ class appointment : BaseActivity() {
 
         val intent = Intent(this, ReminderReceiver::class.java).apply {
             putExtra("notification_message", message)
+            putExtra("appointment_id", appointmentId)
         }
+
+        // create unique request code using appointmentId + minutesBefore
+        val requestCode = appointmentId.hashCode() + minutesBefore
+
         val pendingIntent = PendingIntent.getBroadcast(
             this,
-            minutesBefore,
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-        Log.d(TAG, "Alarm set for ${Date(triggerTime)}")
+        Log.d(TAG, "Alarm set for ${Date(triggerTime)} (minutesBefore=$minutesBefore)")
     }
 
     private fun checkIfUserHasActiveAppointment(userId: String, onResult: (Boolean) -> Unit) {
