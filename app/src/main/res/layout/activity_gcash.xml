@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#E8F5E8">
+    android:background="#004CFF"
+    tools:context=".patient.Gcash">
 
     <!-- Status Bar Overlay -->
     <View
         android:layout_width="match_parent"
         android:layout_height="24dp"
-        android:background="#D4F1D4" />
+        android:background="#003ACC" />
 
     <!-- Header Section -->
     <LinearLayout
@@ -19,7 +22,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="16dp"
-        android:background="@android:color/white">
+        android:background="#004CFF">
 
         <ImageView
             android:id="@+id/btn_back"
@@ -33,10 +36,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Maya Payment"
+            android:text="GCash Payment"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:gravity="center"
             android:layout_marginEnd="24dp" />
 
@@ -56,67 +59,31 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Maya Header -->
+            <!-- GCash Logo and Title -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="32dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="maya"
+                    android:text="GCash"
                     android:textSize="32sp"
                     android:textStyle="bold"
-                    android:textColor="#00D632"
-                    android:layout_marginBottom="8dp" />
+                    android:gravity="center"
+                    android:textColor="#004CFF"
+                    android:layout_marginEnd="16dp" />
 
                 <View
-                    android:layout_width="80dp"
-                    android:layout_height="3dp"
-                    android:background="#00D632" />
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#E0E0E0" />
 
             </LinearLayout>
-
-            <!-- Account Information Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp"
-                    android:background="@android:color/white">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="FRANCIS IVAN PINEDA"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/black"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+63 *** *** 6275"
-                        android:textSize="16sp"
-                        android:textColor="@color/black"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="16dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
 
             <!-- QR Code Container -->
             <androidx.cardview.widget.CardView
@@ -136,21 +103,51 @@
 
                     <!-- QR Code -->
                     <ImageView
-                        android:id="@+id/img_maya_qr"
+                        android:id="@+id/img_gcash_qr"
                         android:layout_width="300dp"
                         android:layout_height="300dp"
-                        android:src="@drawable/maya"
+                        android:src="@drawable/gcash"
                         android:scaleType="centerCrop"
                         android:padding="16dp"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="24dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Account Information -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Transfer fees may apply"
-                        android:textSize="12sp"
-                        android:textColor="@color/black"
-                        android:layout_gravity="center" />
+                        android:orientation="vertical"
+                        android:background="#F8F9FA"
+                        android:padding="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FR****S IV*N P."
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mobile No.: 090• ••••275"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="User ID: •••••••••WE8SUM"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -213,14 +210,14 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Maya Fee:"
+                            android:text="GCash Fee:"
                             android:textSize="14sp"
                             android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₱10.00"
+                            android:text="₱15.00"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/black" />
@@ -250,10 +247,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₱510.00"
+                            android:text="₱515.00"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#00D632" />
+                            android:textColor="#004CFF" />
 
                     </LinearLayout>
 
@@ -266,23 +263,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#E8F5E8"
+                android:background="#E3F2FD"
                 android:padding="16dp"
                 android:layout_marginBottom="24dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="How to pay with Maya:"
+                    android:text="How to pay:"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#00D632"
+                    android:textColor="#004CFF"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="1. Open your Maya app\n2. Tap 'Scan to Pay'\n3. Scan the QR code above\n4. Enter amount: ₱510.00\n5. Confirm payment"
+                    android:text="1. Open your GCash app\n2. Tap 'Scan QR'\n3. Scan the QR code above\n4. Enter amount: ₱515.00\n5. Confirm payment"
                     android:textSize="14sp"
                     android:textColor="@color/black"
                     android:lineSpacingExtra="2dp" />
@@ -303,9 +300,9 @@
                     android:layout_weight="1"
                     android:text="Save QR"
                     android:textSize="14sp"
-                    android:textColor="#00D632"
+                    android:textColor="#004CFF"
                     android:backgroundTint="@android:color/transparent"
-                    app:strokeColor="#00D632"
+                    app:strokeColor="#004CFF"
                     app:strokeWidth="2dp"
                     app:cornerRadius="12dp"
                     android:layout_marginEnd="8dp"
@@ -318,9 +315,9 @@
                     android:layout_weight="1"
                     android:text="Share QR"
                     android:textSize="14sp"
-                    android:textColor="#00D632"
+                    android:textColor="#004CFF"
                     android:backgroundTint="@android:color/transparent"
-                    app:strokeColor="#00D632"
+                    app:strokeColor="#004CFF"
                     app:strokeWidth="2dp"
                     app:cornerRadius="12dp"
                     android:layout_marginStart="8dp"
@@ -337,7 +334,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:backgroundTint="#00D632"
+                android:backgroundTint="#4CAF50"
                 app:cornerRadius="20dp"
                 app:strokeWidth="0dp"
                 android:layout_marginBottom="16dp"

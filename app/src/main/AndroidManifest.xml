@@ -49,6 +49,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
         <activity
+            android:name=".patient.Maya"
+            android:exported="false" />
+        <activity
+            android:name=".patient.Gcash"
+            android:exported="false" />
+        <activity
             android:name=".patient.Done_Teleconsultaion"
             android:exported="false" />
         <activity
