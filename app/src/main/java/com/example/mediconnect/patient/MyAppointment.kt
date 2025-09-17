@@ -161,10 +161,13 @@ class MyAppointment : AppCompatActivity() {
                 loadDoctorInfo(doc.getString("doctorId"))
 
                 // Location & Contact
+                // Location & Contact
                 val location = doc.getString("doctorAddress") ?: DEFAULT_ADDRESS
                 val contact = doc.getString("doctorPhone") ?: DEFAULT_PHONE
                 tvLocation.text = "Location: $location"
-                tvNotes.text = "Contact: $contact"
+                // append PhilHealth reminder sa notes
+                tvNotes.text = "Contact: $contact\nBring your PhilHealth ID"
+
 
                 // Appointment details
                 tvAppointmentReason.text = "Reason: ${doc.getString("reason") ?: "--"}"
@@ -174,7 +177,8 @@ class MyAppointment : AppCompatActivity() {
 
                 // Service & Price
                 tvService.text = "Service: ${doc.getString("service") ?: "General Check-up"}"
-                tvPrice.text = "Price: ₱${doc.getString("price") ?: "0.00"}"
+                val priceValue = doc.getDouble("servicePrice") ?: 0.0
+                tvPrice.text = "Price: ₱${String.format("%.2f", priceValue)}"
 
                 // Previous date
                 doc.getString("previousDate")?.let {
@@ -206,10 +210,12 @@ class MyAppointment : AppCompatActivity() {
                 val phone = it.getString("phone") ?: DEFAULT_PHONE
                 val address = it.getString("clinicAddress") ?: DEFAULT_ADDRESS
                 tvDoctorName.text = name
-                tvNotes.text = "Contact: $phone"
+                // append PhilHealth reminder
+                tvNotes.text = "Contact: $phone\nBring your PhilHealth ID"
                 tvLocation.text = "Location: $address"
             }
             .addOnFailureListener { tvDoctorName.text = "Doctor" }
+
     }
 
     private fun updateAppointmentUI(statusRaw: String?, cancelReason: String?) {

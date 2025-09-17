@@ -231,7 +231,6 @@
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.Button" />
 
-                    <!-- ID Preview Container -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
@@ -239,32 +238,24 @@
                         app:cardElevation="4dp"
                         android:layout_marginBottom="24dp">
 
-                        <ImageView
-                            android:id="@+id/img_philhealth_id_preview"
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:background="@color/light_gray"
-                            android:contentDescription="ID Preview" />
+                            android:layout_height="match_parent">
 
-                        <!-- Placeholder for empty state -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:background="@color/gray">
+                            <!-- Image Preview -->
+                            <ImageView
+                                android:id="@+id/img_philhealth_id_preview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:background="@color/light_gray"
+                                android:contentDescription="ID Preview" />
 
+                            <!-- Placeholder -->
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="ID Image Preview"
-                                android:textColor="@color/secondary_text_color"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
+                        </FrameLayout>
                     </androidx.cardview.widget.CardView>
+
 
                     <!-- Final Button -->
                     <com.google.android.material.button.MaterialButton
@@ -286,5 +277,14 @@
             </ScrollView>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyleLarge" />
+
 
 </LinearLayout>

@@ -31,6 +31,17 @@
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
+    <TextView
+        android:id="@+id/status_of_consultation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="In Person"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#212121"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
     <!-- Payment notice card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/paymentNoticeCard"

@@ -4,12 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.mediconnect.R
 import com.example.mediconnect.models.User
-import com.example.mediconnect.patient.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -20,6 +20,8 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var ivProfile: ImageView
     private lateinit var ivGovId: ImageView
     private lateinit var tvEmail: TextView
+    private lateinit var progressBar: ProgressBar
+
     private var selectedProfileUri: Uri? = null
     private var selectedGovIdUri: Uri? = null
 
@@ -28,7 +30,7 @@ class DashboardActivity : AppCompatActivity() {
     private val currentUser = FirebaseAuth.getInstance().currentUser
     private val currentUserId = currentUser?.uid
 
-    // Store old values for when images are not changed
+    // Store old values para hindi mawala kung walang bagong upload
     private var oldProfileUrl: String = ""
     private var oldGovIdUrl: String = ""
 
@@ -39,6 +41,7 @@ class DashboardActivity : AppCompatActivity() {
         ivProfile = findViewById(R.id.iv_profile_user_image)
         ivGovId = findViewById(R.id.img_philhealth_id_preview)
         tvEmail = findViewById(R.id.et_email)
+        progressBar = findViewById(R.id.progressBar)
 
         val btnUploadProfile = findViewById<Button>(R.id.btnUploadProfileImage)
         val btnUploadGovId = findViewById<Button>(R.id.btn_upload_philhealth_id)
@@ -109,6 +112,8 @@ class DashboardActivity : AppCompatActivity() {
             return
         }
 
+        progressBar.visibility = View.VISIBLE
+
         currentUserId?.let { uid ->
             uploadImages(uid) { profileUrl, govIdUrl ->
                 val userMap = mapOf(
@@ -116,18 +121,31 @@ class DashboardActivity : AppCompatActivity() {
                     "name" to name,
                     "phone" to phone,
                     "email" to email,
-                    "image" to (profileUrl.ifEmpty { oldProfileUrl }),
-                    "goverment_or_phealtID" to (govIdUrl.ifEmpty { oldGovIdUrl })
+                    "image" to (if (profileUrl.isNotEmpty()) profileUrl else oldProfileUrl),
+                    "goverment_or_phealtID" to (if (govIdUrl.isNotEmpty()) govIdUrl else oldGovIdUrl)
                 )
 
                 db.collection("users").document(uid)
-                    .set(userMap, SetOptions.merge()) // ✅ merge instead of update
+                    .set(userMap, SetOptions.merge())
                     .addOnSuccessListener {
+                        progressBar.visibility = View.GONE
                         Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, MainActivity::class.java))
+
+                        // Refresh images immediately
+                        Glide.with(this).load(userMap["image"]).into(ivProfile)
+                        Glide.with(this).load(userMap["goverment_or_phealtID"]).into(ivGovId)
+
+                        // 🔥 Clear prefs para siguradong lalabas ang Terms page
+                        val prefs = getSharedPreferences("MediConnectPrefs", MODE_PRIVATE)
+                        prefs.edit().clear().apply()
+
+                        // Redirect after successful save
+                        val intent = Intent(this, police_and_terms::class.java)
+                        startActivity(intent)
                         finish()
                     }
                     .addOnFailureListener {
+                        progressBar.visibility = View.GONE
                         Toast.makeText(this, "Failed to save profile", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -138,40 +156,41 @@ class DashboardActivity : AppCompatActivity() {
         val profileRef = storage.reference.child("users/$uid/profile.jpg")
         val govIdRef = storage.reference.child("users/$uid/gov_id.jpg")
 
-        var profileUrl = ""
-        var govIdUrl = ""
+        var profileUrl: String? = null
+        var govIdUrl: String? = null
+        var tasksCompleted = 0
+        val totalTasks = listOfNotNull(selectedProfileUri, selectedGovIdUri).size
 
-        // Upload profile image if selected
+        fun checkDone() {
+            tasksCompleted++
+            if (tasksCompleted == totalTasks) {
+                onComplete(profileUrl ?: "", govIdUrl ?: "")
+            }
+            if (totalTasks == 0) {
+                onComplete("", "")
+            }
+        }
+
         if (selectedProfileUri != null) {
             profileRef.putFile(selectedProfileUri!!).continueWithTask { task ->
                 if (!task.isSuccessful) throw task.exception!!
                 profileRef.downloadUrl
             }.addOnSuccessListener { uri ->
                 profileUrl = uri.toString()
-                if (selectedGovIdUri == null) {
-                    onComplete(profileUrl, "")
-                }
-            }
+                checkDone()
+            }.addOnFailureListener { checkDone() }
         }
 
-        // Upload gov ID if selected
         if (selectedGovIdUri != null) {
             govIdRef.putFile(selectedGovIdUri!!).continueWithTask { task ->
                 if (!task.isSuccessful) throw task.exception!!
                 govIdRef.downloadUrl
             }.addOnSuccessListener { uri ->
                 govIdUrl = uri.toString()
-                if (selectedProfileUri == null) {
-                    onComplete("", govIdUrl)
-                } else {
-                    onComplete(profileUrl, govIdUrl)
-                }
-            }
+                checkDone()
+            }.addOnFailureListener { checkDone() }
         }
 
-        // If no new uploads, just complete with empty values
-        if (selectedProfileUri == null && selectedGovIdUri == null) {
-            onComplete("", "")
-        }
+        if (totalTasks == 0) checkDone()
     }
 }

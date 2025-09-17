@@ -106,7 +106,6 @@ class IntroActivity : BaseActivity() {
                     initZego(uid, userName)
 
                     val role = document.getString("role")
-                    val profileComplete = document.getBoolean("profileComplete") ?: false
 
                     when (role) {
                         "doctor" -> {
@@ -114,12 +113,7 @@ class IntroActivity : BaseActivity() {
                             finish()
                         }
                         "patient" -> {
-                            if (profileComplete) {
-                                startActivity(Intent(this, MainActivity::class.java))
-                            } else {
-                                // ✅ redirect to Profile Setup
-                                startActivity(Intent(this, DashboardActivity::class.java))
-                            }
+                            startActivity(Intent(this, MainActivity::class.java))
                             finish()
                         }
                         else -> {

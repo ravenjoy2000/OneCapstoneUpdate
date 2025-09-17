@@ -6,45 +6,30 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
-    <!-- Location Permissions -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- Location Permissions -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
-    <!-- Phone Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- Phone Permissions -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
-
-    <!-- Sensors -->
-    <uses-permission android:name="android.permission.BODY_SENSORS" />
-
-    <!-- Alarm -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-
-    <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" /> <!-- Sensors -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" /> <!-- Alarm -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- Storage Permissions -->
     <!-- Legacy storage for Android 10 and below -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- Scoped storage for Android 11+ -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+        android:maxSdkVersion="28" /> <!-- Scoped storage for Android 11+ -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-
-    <!-- Notifications -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> <!-- Notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-
-
     <uses-permission
         android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" /> <!-- API Key -->
@@ -53,6 +38,7 @@
         android:value="YOUR_API_KEY_HERE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -61,8 +47,16 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/newlogo"
         android:supportsRtl="true"
-        android:name=".App"
         android:theme="@style/AppTheme.NoActionBar">
+        <activity
+            android:name=".patient.Done_Teleconsultaion"
+            android:exported="false" />
+        <activity
+            android:name=".patient.Service"
+            android:exported="false" />
+        <activity
+            android:name=".activities.police_and_terms"
+            android:exported="false" />
         <activity
             android:name=".patient.MedicationLogActivity"
             android:exported="false" />
@@ -194,7 +188,6 @@
             android:exported="false" /> <!-- Receiver -->
         <receiver android:name=".patient_adapter.ReminderReceiver" />
         <receiver android:name=".patient.MedicationAlarmReceiver" />
-
     </application>
 
 </manifest>

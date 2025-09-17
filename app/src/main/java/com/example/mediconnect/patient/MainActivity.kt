@@ -224,6 +224,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 // Buksan ang patient feedback screen
                 startActivity(Intent(this, PatentFeedback::class.java))
             }
+
+            R.id.nav_services -> {
+                // Buksan ang services screen
+                startActivity(Intent(this, Service::class.java))
+            }
+
             R.id.nav_sign_out -> {
                 // Mag-sign out mula sa Firebase Auth
                 FirebaseAuth.getInstance().signOut()

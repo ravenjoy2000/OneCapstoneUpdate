@@ -135,13 +135,14 @@ class appointment : BaseActivity() {
 
         // Services list
         val services = listOf(
-            "Medical Consultation" to 200,
-            "Teleconsultation" to 200,
+            "Medical Consultation" to 600,
+            "Teleconsultation" to 500,
             "Home/Room Service Consultation" to 200,
-            "Diagnostic Interpretation" to 200,
-            "Pre-employment Certificate" to 200,
+            "Diagnostic Interpretation" to 600,
+            "Pre-employment Certificate" to 600,
             "Medical Certificate" to 200,
-            "Flu & Pneumonia Vaccine" to 200
+            "Peri-operative Clearance" to 5000,
+            "Flu & Pneumonia Vaccine" to 2000
         )
 
         val serviceNames = services.map { it.first }
