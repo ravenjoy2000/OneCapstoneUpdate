@@ -40,7 +40,7 @@ class PatientMedicalLogs : AppCompatActivity() {
 
     private fun loadLogs() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-        if (currentUserId == null || currentUserId.isEmpty()) {
+        if (currentUserId.isNullOrEmpty()) {
             Log.e("MedicalLogs", "No logged in user")
             showEmptyState()
             return
@@ -68,21 +68,19 @@ class PatientMedicalLogs : AppCompatActivity() {
                 }
 
                 logsList.clear()
-                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                val sdf = SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm:ss a z", Locale.getDefault())
 
                 snapshots.forEach { doc ->
-                    val appointmentDateValue = doc.getString("appointmentDate")
-                    val timestamp: Timestamp? = try {
-                        sdf.parse(appointmentDateValue ?: "")?.let { Timestamp(it) }
-                    } catch (ex: Exception) {
-                        Log.e("MedicalLogs", "Date parse error: $appointmentDateValue", ex)
-                        null
-                    }
+                    val timestamp: Timestamp? = doc.getTimestamp("timestamp")
 
                     if (timestamp == null) {
-                        Log.w("MedicalLogs", "Skipping log with invalid date: $appointmentDateValue")
+                        Log.w("MedicalLogs", "Skipping log with no timestamp")
                         return@forEach
                     }
+
+                    // Format the timestamp exactly as Firestore shows
+                    val dateString = sdf.format(timestamp.toDate())
 
                     logsList.add(
                         MedicalLog(
@@ -92,7 +90,7 @@ class PatientMedicalLogs : AppCompatActivity() {
                             diagnosis = doc.getString("diagnosis") ?: "",
                             doctorNotes = doc.getString("doctorNotes") ?: "",
                             status = doc.getString("status") ?: "",
-                            date = doc.getTimestamp("timestamp")?.toDate().toString(),
+                            date = dateString,  // Display formatted timestamp
                             doctorName = doc.getString("doctorName") ?: "",
                             doctorId = doc.getString("doctorId") ?: "",
                             patientId = doc.getString("patientId") ?: "",
@@ -107,7 +105,9 @@ class PatientMedicalLogs : AppCompatActivity() {
                     )
                 }
 
+                // Sort descending by timestamp
                 logsList.sortByDescending { it.appointmentDate?.toDate() }
+
                 Log.d("MedicalLogs", "Loaded ${logsList.size} logs")
                 if (logsList.isEmpty()) showEmptyState() else showList()
                 adapter.notifyDataSetChanged()

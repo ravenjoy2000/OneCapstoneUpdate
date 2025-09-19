@@ -10,7 +10,7 @@
     android:fitsSystemWindows="true"
     tools:context=".patient.PatientMedicalLogs">
 
-    <!-- Enhanced Top App Bar -->
+    <!-- Top App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,14 +28,14 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Enhanced Page Content -->
+    <!-- Page Content -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="20dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Enhanced Title -->
+        <!-- Page Title -->
         <TextView
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
@@ -47,10 +47,10 @@
             android:letterSpacing="0.02"
             android:layout_marginBottom="4dp" />
 
-        <!-- Enhanced Month Filter Spinner -->
+        <!-- Month Filter Spinner -->
         <androidx.cardview.widget.CardView
             android:id="@+id/spinnerCard"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/titleText"
             android:layout_marginTop="16dp"
@@ -60,23 +60,21 @@
 
             <Spinner
                 android:id="@+id/spinnerMonth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="160dp"
-                android:minHeight="48dp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:spinnerMode="dropdown"
                 android:entries="@array/months_array"
                 android:padding="12dp"
                 android:background="@drawable/spinner_background" />
         </androidx.cardview.widget.CardView>
 
-
-
-        <!-- Enhanced Empty View -->
+        <!-- Empty Logs View -->
         <LinearLayout
+            android:id="@+id/emptyLogsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_below="@id/spinnerCard"
+            android:layout_marginTop="40dp"
             android:orientation="vertical"
             android:gravity="center"
             android:visibility="gone">
@@ -101,7 +99,7 @@
                 android:layout_marginTop="8dp" />
         </LinearLayout>
 
-        <!-- Enhanced RecyclerView -->
+        <!-- RecyclerView for Logs -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/logsRecyclerView"
             android:layout_width="match_parent"
@@ -118,6 +116,14 @@
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-    </RelativeLayout>
+        <!-- Loading ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
 
+    </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
