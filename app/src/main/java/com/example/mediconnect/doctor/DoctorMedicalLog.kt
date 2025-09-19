@@ -16,6 +16,8 @@ import com.example.mediconnect.models.MedicalLog
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class DoctorMedicalLog : AppCompatActivity() {
 
@@ -26,11 +28,15 @@ class DoctorMedicalLog : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val medicalLogs = mutableListOf<MedicalLog>()
 
+    // debounce handler for search
+    private var searchRunnable: Runnable? = null
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_doctor_medical_log)
 
-        // Fullscreen
+        // ✅ Fullscreen mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
@@ -54,68 +60,63 @@ class DoctorMedicalLog : AppCompatActivity() {
 
         fetchMedicalLogs()
 
+        // ✅ Debounced search
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filterLogs(s.toString())
+                searchRunnable?.let { handler.removeCallbacks(it) }
+                searchRunnable = Runnable { filterLogs(s.toString()) }
+                handler.postDelayed(searchRunnable!!, 300)
             }
         })
     }
 
     private fun fetchMedicalLogs() {
         db.collection("medical_logs")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                medicalLogs.clear()
-                for (doc in documents) {
+            .orderBy("appointmentDate", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null || snapshot == null) return@addSnapshotListener
 
-                    // ✅ Safe handling of appointmentDate
-                    val dateField = doc.get("appointmentDate")
-                    val appointmentDate: com.google.firebase.Timestamp? = when (dateField) {
+                medicalLogs.clear()
+                for (doc in snapshot.documents) {
+
+                    // ✅ Safe parsing of appointmentDate
+                    val appointmentDate = when (val dateField = doc.get("appointmentDate")) {
                         is com.google.firebase.Timestamp -> dateField
-                        is String -> try {
-                            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                            val parsed = sdf.parse(dateField)
-                            parsed?.let { com.google.firebase.Timestamp(it) }
-                        } catch (e: Exception) {
-                            null
-                        }
                         is Long -> com.google.firebase.Timestamp(dateField, 0)
+                        is String -> runCatching {
+                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateField)
+                        }.getOrNull()?.let { com.google.firebase.Timestamp(it) }
                         else -> null
                     }
 
+                    // ✅ Format into readable string
+                    val formattedDate = appointmentDate?.toDate()?.let { dateObj ->
+                        SimpleDateFormat(
+                            "MMMM d, yyyy 'at' hh:mm a",
+                            Locale.getDefault()
+                        ).format(dateObj)
+                    } ?: "No Date"
+
                     val log = MedicalLog(
-                        medicalLogId = doc.getString("medicalLogId") ?: "",
-                        patientName = doc.getString("patientName") ?: "",
-                        appointmentDate = appointmentDate, // ✅ fixed
-
-                        diagnosis = doc.getString("diagnosis") ?: "",
+                        medicalLogId = doc.getString("medicalLogId"),
+                        patientName = doc.getString("patientName"),
+                        appointmentDate = appointmentDate,
+                        diagnosis = doc.getString("diagnosis"),
                         doctorNotes = doc.getString("doctorNotes") ?: "No Notes Provided",
-                        status = doc.getString("status") ?: "",
-                        date = doc.getTimestamp("timestamp")
-                            ?.toDate()
-                            ?.let { dateObj ->
-                                java.text.SimpleDateFormat(
-                                    "MMMM d, yyyy 'at' hh:mm:ss a z",
-                                    java.util.Locale.getDefault()
-                                ).format(dateObj)
-                            }
-                            ?: "No Date",
-
-                        doctorName = doc.getString("doctorName") ?: "",
-                        doctorId = doc.getString("doctorId") ?: "",
-                        patientId = doc.getString("patientId") ?: "",
-                        appointmentId = doc.getString("appointmentId") ?: "",
-                        appointmentTime = doc.getString("appointmentTime") ?: "",
-
-                        appointmentDay = null,
-                        appointmentMonth = null,
-                        appointmentYear = null,
-                        appointmentHour = null,
-                        appointmentMinute = null
-
+                        status = doc.getString("status"),
+                        date = formattedDate,
+                        doctorName = doc.getString("doctorName"),
+                        doctorId = doc.getString("doctorId"),
+                        patientId = doc.getString("patientId"),
+                        appointmentId = doc.getString("appointmentId"),
+                        appointmentTime = doc.getString("appointmentTime"),
+                        appointmentDay = doc.getString("appointmentDay"),
+                        appointmentMonth = doc.getString("appointmentMonth"),
+                        appointmentYear = doc.getString("appointmentYear"),
+                        appointmentHour = doc.getString("appointmentHour"),
+                        appointmentMinute = doc.getString("appointmentMinute")
                     )
                     medicalLogs.add(log)
                 }
@@ -123,17 +124,13 @@ class DoctorMedicalLog : AppCompatActivity() {
             }
     }
 
-
     private fun filterLogs(query: String) {
         val filtered = medicalLogs.filter {
             it.patientName?.contains(query, ignoreCase = true) == true ||
                     it.diagnosis?.contains(query, ignoreCase = true) == true ||
                     it.doctorNotes?.contains(query, ignoreCase = true) == true ||
-                    it.date?.contains(query, ignoreCase = true) == true // ✅ safe call
+                    it.date?.contains(query, ignoreCase = true) == true
         }
         adapter.updateList(filtered)
     }
-
-
-
 }
