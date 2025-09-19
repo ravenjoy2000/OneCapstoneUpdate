@@ -46,6 +46,9 @@ class ConsultationStart : AppCompatActivity() {
         btnDoneConsultation.setOnClickListener {
             markConsultationAsDone()
         }
+
+
+
     }
 
     private fun listenForConsultationStatus() {

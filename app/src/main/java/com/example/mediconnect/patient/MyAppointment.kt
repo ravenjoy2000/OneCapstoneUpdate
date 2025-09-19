@@ -280,6 +280,7 @@ class MyAppointment : AppCompatActivity() {
                 val intent = Intent(this, ConsultationStart()::class.java)
                 intent.putExtra("appointmentId", appointmentId)
                 intent.putExtra("doctorId", doc.getString("doctorId") ?: "")
+
                 startActivity(intent)
             }
             .addOnFailureListener {

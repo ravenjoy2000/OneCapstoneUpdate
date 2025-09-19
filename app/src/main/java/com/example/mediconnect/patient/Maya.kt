@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mediconnect.R
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
 
 class Maya : AppCompatActivity() {
@@ -22,6 +23,15 @@ class Maya : AppCompatActivity() {
     private lateinit var btnPaymentCompleted: MaterialButton
     private lateinit var txtCancelPayment: TextView
     private lateinit var imgMayaQr: ImageView
+
+    // Payment summary fields
+    private lateinit var tvReason: TextView
+    private lateinit var tvServicePrice: TextView
+    private lateinit var tvMayaFee: TextView
+    private lateinit var tvMayaFeePrice: TextView
+    private lateinit var tvTotalAmount: TextView
+
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,25 +45,35 @@ class Maya : AppCompatActivity() {
         txtCancelPayment = findViewById(R.id.txt_cancel_payment)
         imgMayaQr = findViewById(R.id.img_maya_qr)
 
-        // Back button
-        btnBack.setOnClickListener {
-            finish()
+        // Payment summary
+        tvReason = findViewById(R.id.tv_consultation_fee)
+        tvServicePrice = findViewById(R.id.tv_consultation_fee_price)
+        tvMayaFee = findViewById(R.id.tv_maya_fee)
+        tvMayaFeePrice = findViewById(R.id.tv_maya_fee_price)
+        tvTotalAmount = findViewById(R.id.tv_total_amount)
+
+
+        // Kunin ang appointmentId mula sa Intent
+        val appointmentId = intent.getStringExtra("appointmentId")
+        if (appointmentId != null) {
+            loadAppointmentDetails(appointmentId)
+        } else {
+            Toast.makeText(this, "No appointmentId provided", Toast.LENGTH_SHORT).show()
         }
+
+        // Back button
+        btnBack.setOnClickListener { finish() }
 
         // Save QR button
-        btnSaveQr.setOnClickListener {
-            saveQrToGallery()
-        }
+        btnSaveQr.setOnClickListener { saveQrToGallery() }
 
         // Share QR button
-        btnShareQr.setOnClickListener {
-            shareQrImage()
-        }
+        btnShareQr.setOnClickListener { shareQrImage() }
 
         // Payment completed
         btnPaymentCompleted.setOnClickListener {
             Toast.makeText(this, "Payment confirmed! Thank you.", Toast.LENGTH_LONG).show()
-            // TODO: Update Firestore or navigate to appointment confirmation screen
+            // TODO: Update Firestore appointment status or navigate to confirmation screen
             finish()
         }
 
@@ -63,6 +83,58 @@ class Maya : AppCompatActivity() {
             finish()
         }
     }
+
+    private fun loadAppointmentDetails(appointmentId: String) {
+        db.collection("appointments")
+            .document(appointmentId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Get appointment fields
+                    val reason = document.getString("reason") ?: "N/A"
+                    val servicePrice = document.getLong("servicePrice")?.toInt() ?: 0
+                    val doctorName = document.getString("doctorName") ?: "N/A"
+                    val doctorPhone = document.getString("doctorPhone") ?: "N/A"
+                    val doctorAddress = document.getString("doctorAddress") ?: "N/A"
+                    val patientName = document.getString("patientName") ?: "N/A"
+                    val date = document.getString("date") ?: "N/A"
+                    val timeSlot = document.getString("timeSlot") ?: "N/A"
+                    val mode = document.getString("mode") ?: "N/A"
+                    val status = document.getString("status") ?: "N/A"
+
+
+                    // Payment summary UI
+                    tvReason.text = "Reason:"
+                    tvServicePrice.text = reason
+
+                    tvMayaFee.text = "Service Price:"
+                    tvMayaFeePrice.text = "₱$servicePrice.00"
+
+                    val mayaFee = 15
+                    val total = servicePrice + mayaFee
+                    tvTotalAmount.text = "₱$total.00"
+
+                    // OPTIONAL: kung may extra TextViews ka sa layout
+                    // pwede mong i-set ganito:
+                    //
+                    // tvPatientName.text = "Patient: $currentUserName"
+                    // tvPatientEmail.text = "Email: $currentUserEmail"
+                    // tvDoctorName.text = "Doctor: $doctorName"
+                    // tvAppointmentDate.text = "Date: $date $timeSlot"
+                    // tvMode.text = "Mode: $mode"
+                    // tvStatus.text = "Status: $status"
+                    // tvDoctorAddress.text = doctorAddress
+                    // tvDoctorPhone.text = doctorPhone
+
+                } else {
+                    Toast.makeText(this, "No appointment data found", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 
     private fun saveQrToGallery() {
         val drawable = imgMayaQr.drawable as? BitmapDrawable

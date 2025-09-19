@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +27,7 @@ class DoctorAppointment : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnCancel: Button
+    private lateinit var checkBoxSelectAll: CheckBox
     private lateinit var appointmentAdapter: DoctorAppointmentAdapter
     private lateinit var swipeRefresh: SwipeRefreshLayout
 
@@ -89,7 +91,11 @@ class DoctorAppointment : AppCompatActivity() {
                 }
             },
             onSelectionChanged = { count ->
+                // Update toast at selection
                 Toast.makeText(this, "$count selected", Toast.LENGTH_SHORT).show()
+                // Sync sa Select All checkbox
+                checkBoxSelectAll.isChecked =
+                    count == appointmentAdapter.getTotalAppointments() && count > 0
             }
         )
 
@@ -98,7 +104,18 @@ class DoctorAppointment : AppCompatActivity() {
 
     private fun setupButtons() {
         btnCancel = findViewById(R.id.btn_cancel)
+        checkBoxSelectAll = findViewById(R.id.checkbox_select_all)
 
+        // Select all checkbox
+        checkBoxSelectAll.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                appointmentAdapter.selectAll()
+            } else {
+                appointmentAdapter.clearSelection()
+            }
+        }
+
+        // Cancel button
         btnCancel.setOnClickListener {
             val selected = appointmentAdapter.getSelectedAppointments()
             if (selected.isEmpty()) {
@@ -149,6 +166,8 @@ class DoctorAppointment : AppCompatActivity() {
                                     }
 
                                     loadAppointmentsFromFirestore()
+                                    appointmentAdapter.clearSelection()
+                                    checkBoxSelectAll.isChecked = false
                                 }
                             }
                         }

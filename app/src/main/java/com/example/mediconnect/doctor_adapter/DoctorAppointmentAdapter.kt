@@ -11,7 +11,6 @@ import com.example.mediconnect.models.Appointment
 import com.example.mediconnect.models.AppointmentListItem
 import com.google.android.material.card.MaterialCardView
 import java.util.Locale
-import kotlin.text.get
 
 class DoctorAppointmentAdapter(
     private var items: List<AppointmentListItem>,
@@ -56,17 +55,15 @@ class DoctorAppointmentAdapter(
         }
     }
 
-
     fun toggleSelectionById(appointmentId: String) {
         val index = items.indexOfFirst {
             it is AppointmentListItem.AppointmentItem && it.appointment.appointmentId == appointmentId
         }
         if (index != -1) {
             val item = items[index] as AppointmentListItem.AppointmentItem
-            toggleSelection(item.appointment, index) // reuse private method
+            toggleSelection(item.appointment, index)
         }
     }
-
 
     inner class HeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvHeaderLabel: TextView = itemView.findViewById(R.id.tv_header_label)
@@ -114,7 +111,6 @@ class DoctorAppointmentAdapter(
             card.strokeWidth = if (isSelected) 6 else 0
             card.strokeColor = Color.BLUE
 
-            // Click = open details (if not in selection mode)
             itemView.setOnClickListener {
                 val pos = adapterPosition
                 if (pos != RecyclerView.NO_POSITION) {
@@ -126,7 +122,6 @@ class DoctorAppointmentAdapter(
                 }
             }
 
-            // Long press = enable selection mode
             itemView.setOnLongClickListener {
                 val pos = adapterPosition
                 if (pos != RecyclerView.NO_POSITION) {
@@ -150,6 +145,30 @@ class DoctorAppointmentAdapter(
         if (selectedAppointments.isEmpty()) selectionMode = false
         onSelectionChanged(selectedAppointments.size)
         notifyItemChanged(position)
+    }
+
+    // ✅ Public functions for DoctorAppointment.kt
+    fun selectAll() {
+        selectedAppointments.clear()
+        items.forEach { item ->
+            if (item is AppointmentListItem.AppointmentItem) {
+                selectedAppointments.add(item.appointment.appointmentId)
+            }
+        }
+        selectionMode = selectedAppointments.isNotEmpty()
+        notifyDataSetChanged()
+        onSelectionChanged(selectedAppointments.size)
+    }
+
+    fun clearSelection() {
+        selectedAppointments.clear()
+        selectionMode = false
+        notifyDataSetChanged()
+        onSelectionChanged(0)
+    }
+
+    fun getTotalAppointments(): Int {
+        return items.count { it is AppointmentListItem.AppointmentItem }
     }
 
     fun getSelectedAppointments(): List<String> = selectedAppointments.toList()

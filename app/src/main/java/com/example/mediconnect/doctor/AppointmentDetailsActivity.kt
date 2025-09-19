@@ -22,6 +22,7 @@ import com.example.mediconnect.R
 import com.example.mediconnect.models.AppConstant
 import com.example.mediconnect.models.Appointment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -34,19 +35,21 @@ import java.util.*
 
 class AppointmentDetailsActivity : AppCompatActivity() {
 
-    // UI components
+    // Patient UI
     private lateinit var ivPatientProfile: ImageView
     private lateinit var ivPatientGovId: ImageView
     private lateinit var tvPatientName: TextView
-    private lateinit var chipAppointmentStatus: com.google.android.material.chip.Chip
+    private lateinit var chipAppointmentStatus: Chip
     private lateinit var tvAppointmentDate: TextView
     private lateinit var tvAppointmentTime: TextView
     private lateinit var tvConsultationType: TextView
+
+    // Buttons
     private lateinit var btnStartConsultation: Button
     private lateinit var btnReschedule: Button
     private lateinit var btnComplete: MaterialButton
 
-    // Medical log UI components
+    // Medical Log UI
     private lateinit var etDiagnosis: TextInputEditText
     private lateinit var etDoctorNotes: TextInputEditText
     private lateinit var btnUploadFile: MaterialButton
@@ -58,25 +61,19 @@ class AppointmentDetailsActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    // File Uri & Name
+    // File
     private var selectedFileUri: Uri? = null
     private var selectedFileName: String? = null
 
-    // Appointment
+    // Appointment data
     private var appointment: Appointment? = null
 
     // File picker
     private val filePickerLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            if (uri != null) {
-                selectedFileUri = uri
-                selectedFileName = getFileNameFromUri(uri)
-                tvSelectedFile.text = selectedFileName ?: "Selected file"
-            } else {
-                tvSelectedFile.text = "No file selected"
-                selectedFileUri = null
-                selectedFileName = null
-            }
+            selectedFileUri = uri
+            selectedFileName = uri?.let { getFileNameFromUri(it) }
+            tvSelectedFile.text = selectedFileName ?: "No file selected"
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,15 +83,14 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         setFullscreenMode()
         initViews()
 
-        // Get appointment data
+        // Get appointment from intent
         appointment = intent.getParcelableExtra("appointment_data")
         if (appointment != null) {
-            Log.d(TAG, "Received appointment with ID: ${appointment?.appointmentId}")
+            Log.d(TAG, "Loaded appointment ID: ${appointment?.appointmentId}")
             displayAppointmentDetails(appointment!!)
             setupButtonListeners(appointment!!)
             loadPatientGovId(appointment!!.patientId)
         } else {
-            Log.w(TAG, "No appointment data received!")
             showNoAppointmentData()
         }
     }
@@ -107,6 +103,7 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         tvAppointmentDate = findViewById(R.id.tv_appointment_date)
         tvAppointmentTime = findViewById(R.id.tv_appointment_time)
         tvConsultationType = findViewById(R.id.tv_consultation_type)
+
         btnStartConsultation = findViewById(R.id.btn_start_consultation)
         btnReschedule = findViewById(R.id.btn_reschedule)
         btnComplete = findViewById(R.id.btn_complete)
@@ -139,15 +136,13 @@ class AppointmentDetailsActivity : AppCompatActivity() {
             ivPatientProfile.setImageResource(R.drawable.ic_user_place_holder)
         }
 
-        // Hide consultation button if in-person
         btnStartConsultation.visibility =
-            if (appointment.mode.equals("in_person", ignoreCase = true)) View.GONE else View.VISIBLE
+            if (appointment.mode.equals("in_person", true)) View.GONE else View.VISIBLE
     }
 
     private fun loadPatientGovId(patientId: String?) {
         if (patientId.isNullOrEmpty()) return
-        db.collection("users").document(patientId)
-            .get()
+        db.collection("users").document(patientId).get()
             .addOnSuccessListener { doc ->
                 val govIdUrl = doc.getString("goverment_or_phealtID")
                 if (!govIdUrl.isNullOrEmpty()) {
@@ -162,13 +157,11 @@ class AppointmentDetailsActivity : AppCompatActivity() {
     }
 
     private fun loadImage(url: String?, imageView: ImageView) {
-        if (!url.isNullOrEmpty()) {
-            Glide.with(this)
-                .load(url)
-                .placeholder(R.drawable.cuteperson)
-                .error(R.drawable.cuteperson)
-                .into(imageView)
-        }
+        Glide.with(this)
+            .load(url)
+            .placeholder(R.drawable.cuteperson)
+            .error(R.drawable.cuteperson)
+            .into(imageView)
     }
 
     private fun saveMedicalLog() {
@@ -237,7 +230,6 @@ class AppointmentDetailsActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     Toast.makeText(this, "Medical log saved", Toast.LENGTH_SHORT).show()
                     clearMedicalLogForm()
-                    resetSaveButton()
                 }
                 .addOnFailureListener { resetSaveButton() }
         }.addOnFailureListener { resetSaveButton() }
@@ -249,6 +241,7 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         selectedFileUri = null
         selectedFileName = null
         tvSelectedFile.text = "No file selected"
+        resetSaveButton()
     }
 
     private fun resetSaveButton() {
@@ -282,31 +275,39 @@ class AppointmentDetailsActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 chipAppointmentStatus.text = outcome
                 Toast.makeText(this, "Appointment marked as $outcome", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, DoctorDashboardActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
+                startActivity(Intent(this, DoctorDashboardActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
                 finish()
             }
     }
 
     private fun openRescheduleDialog(appointment: Appointment) {
         val calendar = Calendar.getInstance()
-        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
-            calendar.set(year, month, day)
-            val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
-                calendar.set(Calendar.HOUR_OF_DAY, hour)
-                calendar.set(Calendar.MINUTE, minute)
-
-                val newDate = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(calendar.time)
-                val newTime = SimpleDateFormat("h:mm a", Locale.getDefault()).format(calendar.time)
-                updateAppointmentDateTime(appointment, newDate, newTime)
-            }
-            TimePickerDialog(this, timeSetListener, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show()
-        }
-        DatePickerDialog(this, dateSetListener,
+        DatePickerDialog(
+            this,
+            { _, year, month, day ->
+                calendar.set(year, month, day)
+                TimePickerDialog(
+                    this,
+                    { _, hour, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hour)
+                        calendar.set(Calendar.MINUTE, minute)
+                        val newDate =
+                            SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(calendar.time)
+                        val newTime =
+                            SimpleDateFormat("h:mm a", Locale.getDefault()).format(calendar.time)
+                        updateAppointmentDateTime(appointment, newDate, newTime)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    false
+                ).show()
+            },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)).show()
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     private fun updateAppointmentDateTime(appointment: Appointment, newDate: String, newTime: String) {
@@ -324,8 +325,16 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         val patientId = appointment.patientId
         val patientName = appointment.patientName
         val currentUserId = auth.currentUser?.uid ?: ""
+
         val config = ZegoUIKitPrebuiltCallInvitationConfig()
-        ZegoUIKitPrebuiltCallService.init(application, AppConstant.appId, AppConstant.appSign, currentUserId, "Doctor", config)
+        ZegoUIKitPrebuiltCallService.init(
+            application,
+            AppConstant.appId,
+            AppConstant.appSign,
+            currentUserId,
+            "Doctor",
+            config
+        )
 
         val intent = Intent(this, VideoCallActivity::class.java).apply {
             putExtra("targetUserId", patientId)
@@ -368,7 +377,10 @@ class AppointmentDetailsActivity : AppCompatActivity() {
     }
 
     private fun setFullscreenMode() {
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         }
